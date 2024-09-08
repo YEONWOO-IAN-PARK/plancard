@@ -1,4 +1,4 @@
-package com.junebay.plancard.vo;
+package com.junebay.plancard.model;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

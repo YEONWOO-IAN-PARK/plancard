@@ -1,6 +1,5 @@
-package com.junebay.plancard.vo;
+package com.junebay.plancard.model;
 
-import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

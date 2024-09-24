@@ -29,4 +29,21 @@
 - 09.21에 질의되었던 브릿지 삭제 기준에 대해..
   - 플랜 내의 day에 할당된 카드와 브릿지는 순서를 가져야 한다. 모두 SEQ로 관리되며 카드를 삭제할 경우 경고문으로 알리고 왼쪽 브릿지까지 삭제된다.(첫번째 카드일 경우 제외)
   - 이로 인한 사이드 이펙트로 '플랜 수정 > 특정 day에 나열된 카드 순서를 변경 시 DB상 SEQ만 서로 변경'을 고려해야 한다.
-- 
+
+## 2024.09.23 Mon
+- ERD 작성 중
+
+## 2024.09.24 Tue
+- ERD 작성 완료
+- DDL 작성
+- DB 테이블 생성
+- Postman 
+  - planCard-mock-server
+    - card
+      - card-list의 응답 형식 일부 수정
+        - '내 카드 목록'에 myCardId 추가 및 googleMapLink 프로퍼티 추가
+        - '탐험 카드 목록'에 googleMapLink 프로퍼티 추가
+- ID컬럼 문자열 vs 숫자
+  - https://www.notion.so/ID-vs-10b2f9cbd0678045a3b0f570f62de0a5?pvs=4
+
+- googleMapLink 프로퍼티 확장성을 위해 map_link(mapLink)로 변경해야함

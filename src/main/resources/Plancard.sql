@@ -191,7 +191,7 @@ CREATE TABLE `plan_day_cards` (
 ) COMMENT = '사용자 정의 여행 계획 - 일별 카드 정보 테이블. 브릿지로 연결됨';
 
 CREATE TABLE `plan_day_bridges` (
-  `plan_day_card_id` bigint COMMENT '여행계획 - 일자별 카드 고유번호',
+  `plan_day_card_id` bigint COMMENT '여행계ㅁ획 - 일자별 카드 고유번호',
   `plan_day_card_seq` int COMMENT '여행계획 - 일자별 카드 순서',
   `memo` varchar(1500) COMMENT '메모'
 ) COMMENT = '사용자 정의 여행 계획 - 일자별 카드별 브릿지 정보 테이블.';

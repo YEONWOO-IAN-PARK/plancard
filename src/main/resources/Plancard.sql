@@ -168,7 +168,8 @@ CREATE TABLE `plans` (
   `end_date` date COMMENT '종료일',
   `is_explore` bool NOT NULL DEFAULT true COMMENT '플랜 탐험 등록유무',
   `like_count` int COMMENT '좋아요 수',
-  `user_id` bigint COMMENT '플랜 작성 사용자 고유번호',
+  `user_id` bigint COMMENT '플랜 사용자 고유번호',
+  `author_id` bigint COMMENT '플랜 원작자 고유번호',
   `created_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성일',
   `updated_date` datetime COMMENT '최종 수정일'
 ) COMMENT = '사용자 정의 여행 계획정보 테이블. 여행일자, 여행일자별 카드, 여행일자별 브릿지로 구성';
@@ -178,21 +179,24 @@ CREATE TABLE `plan_days` (
   `plan_id` bigint NOT NULL COMMENT '여행계획 고유번호(FK)',
   `title` varchar(255) COMMENT '여행계획명',
   `travel_date` date NOT NULL COMMENT '실제 여행일자',
+  `author_id` bigint COMMENT '플랜 - 일자 원작자 고유번호',
+  -- user_id??
+
   `created_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성일',
   `updated_date` datetime COMMENT '최종 수정일'
 ) COMMENT = '사용자 정의 여행 계획정보 - 일별 정보 테이블. 카드와 브릿지로 구성';
 
 CREATE TABLE `plan_day_cards` (
-  `id` bigint AUTO_INCREMENT PRIMARY KEY COMMENT '여행계획 - 카드(지역) 고유번호',
+  `id` AUTO_INCREMENT PRIMARY KEY bigint COMMENT '여행계획 - 일자 - 카드(지역) 고유번호',
   `plan_day_id` bigint COMMENT '여행계획 - 일자 고유번호(FK)',
   `seq` int COMMENT '해당 SEQ는 카드순서 변경에 의해 언제든지 변동가능',
   `card_id` bigint COMMENT '카드(지역) 고유번호(FK)',
-  `is_own` bool COMMENT '내 카드 등록 유무'
 ) COMMENT = '사용자 정의 여행 계획 - 일별 카드 정보 테이블. 브릿지로 연결됨';
 
 CREATE TABLE `plan_day_bridges` (
-  `plan_day_card_id` bigint COMMENT '여행계ㅁ획 - 일자별 카드 고유번호',
-  `plan_day_card_seq` int COMMENT '여행계획 - 일자별 카드 순서',
+  `id` AUTO_INCREMENT PRIMARY KEY bigint COMMENT '여행계획 - 일자 - 브릿지 고유번호',
+  `plan_day_id` bigint COMMENT '여행계획 - 일자 고유번호(FK)',
+  `seq` int COMMENT '여행계획의 day에 존재하는 브릿지의 위치. (1부터 시작)',
   `memo` varchar(1500) COMMENT '메모'
 ) COMMENT = '사용자 정의 여행 계획 - 일자별 카드별 브릿지 정보 테이블.';
 
@@ -200,6 +204,12 @@ CREATE TABLE `plan_scraps` (
   `id` bigint AUTO_INCREMENT PRIMARY KEY COMMENT '여행계획 스크랩 고유번호',
   `plan_id` bigint COMMENT '스크랩한 플랜 고유번호(FK)',
   `user_id` bigint COMMENT '스크랩한 사용자 고유번호(FK)'
+);
+
+CREATE TABLE `day_scraps` (
+   `id` bigint AUTO_INCREMENT PRIMARY KEY COMMENT '여행계획 - 일자 스크랩 고유번호',
+   `plan_day_id` bigint COMMENT '스크랩한 여행계획 - 일자 고유번호(FK)',
+   `user_id` bigint COMMENT '스크랩한 사용자 고유번호(FK)'
 );
 
 ALTER TABLE `cards` ADD FOREIGN KEY (`city_id`) REFERENCES `cities` (`id`);

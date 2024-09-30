@@ -179,22 +179,22 @@ CREATE TABLE `plan_days` (
   `plan_id` bigint NOT NULL COMMENT '여행계획 고유번호(FK)',
   `title` varchar(255) COMMENT '여행계획명',
   `travel_date` date NOT NULL COMMENT '실제 여행일자',
+  `is_explore` bool NOT NULL DEFAULT true COMMENT '플랜 탐험 등록유무',
+  `like_count` int COMMENT '좋아요 수',
   `author_id` bigint COMMENT '플랜 - 일자 원작자 고유번호',
-  -- user_id??
-
   `created_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성일',
   `updated_date` datetime COMMENT '최종 수정일'
 ) COMMENT = '사용자 정의 여행 계획정보 - 일별 정보 테이블. 카드와 브릿지로 구성';
 
 CREATE TABLE `plan_day_cards` (
-  `id` AUTO_INCREMENT PRIMARY KEY bigint COMMENT '여행계획 - 일자 - 카드(지역) 고유번호',
+  `id` bigint AUTO_INCREMENT PRIMARY KEY COMMENT '여행계획 - 일자 - 카드(지역) 고유번호',
   `plan_day_id` bigint COMMENT '여행계획 - 일자 고유번호(FK)',
   `seq` int COMMENT '해당 SEQ는 카드순서 변경에 의해 언제든지 변동가능',
-  `card_id` bigint COMMENT '카드(지역) 고유번호(FK)',
+  `card_id` bigint COMMENT '카드(지역) 고유번호(FK)'
 ) COMMENT = '사용자 정의 여행 계획 - 일별 카드 정보 테이블. 브릿지로 연결됨';
 
 CREATE TABLE `plan_day_bridges` (
-  `id` AUTO_INCREMENT PRIMARY KEY bigint COMMENT '여행계획 - 일자 - 브릿지 고유번호',
+  `id` bigint AUTO_INCREMENT PRIMARY KEY COMMENT '여행계획 - 일자 - 브릿지 고유번호',
   `plan_day_id` bigint COMMENT '여행계획 - 일자 고유번호(FK)',
   `seq` int COMMENT '여행계획의 day에 존재하는 브릿지의 위치. (1부터 시작)',
   `memo` varchar(1500) COMMENT '메모'
@@ -206,10 +206,26 @@ CREATE TABLE `plan_scraps` (
   `user_id` bigint COMMENT '스크랩한 사용자 고유번호(FK)'
 );
 
-CREATE TABLE `day_scraps` (
+CREATE TABLE `plan_day_scraps` (
    `id` bigint AUTO_INCREMENT PRIMARY KEY COMMENT '여행계획 - 일자 스크랩 고유번호',
    `plan_day_id` bigint COMMENT '스크랩한 여행계획 - 일자 고유번호(FK)',
    `user_id` bigint COMMENT '스크랩한 사용자 고유번호(FK)'
+);
+
+CREATE TABLE `temp_storages` (
+   `id` bigint AUTO_INCREMENT PRIMARY KEY COMMENT '임시 저장소 고유번호',
+   `user_id` bigint COMMENT '사용자의 현재 장바구니',
+   `created_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성일',
+   `updated_date` datetime COMMENT '최종 수정일'
+);
+
+CREATE TABLE `temp_storage_cards` (
+   `id` bigint AUTO_INCREMENT PRIMARY KEY COMMENT '임시 카드저장소 고유번호',
+   `temp_storage_id` bigint COMMENT '임시 저장소에 고유번호(FK)',
+   `card_id` bigint COMMENT '임시 저장소에 담은 카드(지역) 고유번호',
+   `my_card_id` bigint COMMENT '임시 카드저장소에 담은 내 카드(커스텀) 고유번호',
+   `created_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성일',
+   `updated_date` datetime COMMENT '최종 수정일'
 );
 
 ALTER TABLE `cards` ADD FOREIGN KEY (`city_id`) REFERENCES `cities` (`id`);
@@ -248,8 +264,21 @@ ALTER TABLE `plan_days` ADD FOREIGN KEY (`plan_id`) REFERENCES `plans` (`id`);
 
 ALTER TABLE `plan_day_cards` ADD FOREIGN KEY (`plan_day_id`) REFERENCES `plan_days` (`id`);
 
-ALTER TABLE `plan_day_bridges` ADD FOREIGN KEY (`plan_day_card_id`) REFERENCES `plan_day_cards` (`id`);
+ALTER TABLE `plan_day_bridges` ADD FOREIGN KEY (`plan_day_id`) REFERENCES `plan_days` (`id`);
 
 ALTER TABLE `plan_scraps` ADD FOREIGN KEY (`plan_id`) REFERENCES `plans` (`id`);
 
 ALTER TABLE `plan_scraps` ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+
+ALTER TABLE `plan_day_scraps` ADD FOREIGN KEY (`plan_day_id`) REFERENCES `plan_days` (`id`);
+
+ALTER TABLE `plan_day_scraps` ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+
+ALTER TABLE `temp_storages` ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
+
+ALTER TABLE `temp_storage_cards` ADD FOREIGN KEY (`temp_storage_id`) REFERENCES `temp_storages` (`id`);
+
+ALTER TABLE `temp_storage_cards` ADD FOREIGN KEY (`card_id`) REFERENCES `cards` (`id`);
+
+ALTER TABLE `temp_storage_cards` ADD FOREIGN KEY (`my_card_id`) REFERENCES `my_cards` (`id`);
+

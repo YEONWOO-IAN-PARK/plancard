@@ -64,7 +64,7 @@ CREATE TABLE `card_images` (
   `extension` varchar(255) NOT NULL COMMENT '확장자',
   `size` int COMMENT '파일 크기(byte)',
   `alt` varchar(255) COMMENT 'ALT 텍스트',
-  `is_main` bool NOT NULL COMMENT '메인사진 유무',
+  `is_default` bool NOT NULL COMMENT '기본사진 유무(모든 사용자 대상)',
   `is_active` bool NOT NULL DEFAULT true COMMENT '사용 유무',
   `created_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성일',
   `updated_date` datetime COMMENT '최종 수정일'

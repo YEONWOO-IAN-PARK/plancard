@@ -68,3 +68,16 @@
   - planCard-mock-server
     - PUT 204 ( 스크랩 리소스가 이미 있어 수정 ) 의 경우는 어떤 경우인지 물어보기. 
       - 스크랩 리소스가 있을 경우 DEL 204 요청으로 가야하기 때문이라는게 내생각
+
+## 2024.10.02 Wed
+- 내 카드의 대표사진 등록 시 **기본이미지** 또는 **커스텀 이미지** 선택 시, 현재 DB로서 구조상 오류를 피할 수 없음.
+  - 테이블 컬럼을 추가하는 방식은 적합하지 않으므로 '내 카드 : 대표사진 유무'의 1:1 구조의 테이블이 필요할 것으로 예상
+  - my_card_images, card_images 테이블 구조 변경
+
+## 2024.10.04 Fri
+- 대표사진 등록에 맞는 DB 구조 재검토
+  - 추가 테이블 구성방안이 적합하다는게 결론
+  - 테이블 추가(my_card_image_main) 완료
+- Postman 
+  - planCard-mock-server
+    - plan > plan-list > 내 플랜 목록 > 200 응답의 visibility(type: string)를 is_explore(type: boolean)으로 변경

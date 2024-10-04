@@ -134,11 +134,19 @@ CREATE TABLE `my_card_images` (
   `extension` varchar(255) NOT NULL COMMENT '확장자',
   `size` int COMMENT '파일 크기(byte)',
   `alt` varchar(255) COMMENT 'ALT 텍스트',
-  `is_main` bool NOT NULL COMMENT '메인사진 유무',
   `is_active` bool NOT NULL DEFAULT true COMMENT '사용 유무',
   `created_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성일',
   `updated_date` datetime COMMENT '최종 수정일'
 ) COMMENT = '내 카드 이미지정보 테이블.';
+
+CREATE TABLE `my_card_main_images` (
+  `id` bigint AUTO_INCREMENT PRIMARY KEY COMMENT '내 카드 대표사진 이미지 고유번호',
+  `my_card_id` bigint NOT NULL COMMENT '내 카드 고유번호',
+  `image_type` char(1) COMMENT 'C : 카드,  M: 내 카드',
+  `image_id` bigint NOT NULL COMMENT '카드(또는 내 카드) 이미지 고유번호',
+  `created_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성일',
+  `updated_date` datetime COMMENT '최종 수정일'
+) COMMENT = '내 카드 대표사진정보 테이블.';
 
 CREATE TABLE `users` (
   `id` bigint AUTO_INCREMENT PRIMARY KEY COMMENT '사용자 고유번호',
@@ -254,6 +262,8 @@ ALTER TABLE `my_card_tags` ADD FOREIGN KEY (`my_card_id`) REFERENCES `my_cards` 
 
 ALTER TABLE `my_card_images` ADD FOREIGN KEY (`my_card_id`) REFERENCES `my_cards` (`id`);
 
+ALTER TABLE `my_card_main_images` ADD FOREIGN KEY (`my_card_id`) REFERENCES `my_cards` (`id`);
+
 ALTER TABLE `card_scraps` ADD FOREIGN KEY (`card_id`) REFERENCES `cards` (`id`);
 
 ALTER TABLE `card_scraps` ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
@@ -281,4 +291,3 @@ ALTER TABLE `temp_storage_cards` ADD FOREIGN KEY (`temp_storage_id`) REFERENCES 
 ALTER TABLE `temp_storage_cards` ADD FOREIGN KEY (`card_id`) REFERENCES `cards` (`id`);
 
 ALTER TABLE `temp_storage_cards` ADD FOREIGN KEY (`my_card_id`) REFERENCES `my_cards` (`id`);
-

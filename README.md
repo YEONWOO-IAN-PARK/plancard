@@ -80,4 +80,10 @@
   - 테이블 추가(my_card_image_main) 완료
 - Postman 
   - planCard-mock-server
-    - plan > plan-list > 내 플랜 목록 > 200 응답의 visibility(type: string)를 is_explore(type: boolean)으로 변경
+    - plan > plan-list > 내 플랜 목록 
+      - 200 응답의 visibility(type: string)를 is_explore(type: boolean)으로 변경
+      - 200 (검색결과 없음)의 경우 왜 204가 아닌지? 
+    - plan > plan-detail > 플랜 데이에 카드 추가 > 201
+        - 응답 시, 추가한 카드만보여주는지? 아니면 day 전체의 카드목록을 뿌려주는지?
+        - 요청 시, 현재 카드의 전체 목록을 전부 전송하는게 맞는지?
+        - 응답의 브릿지 객체 정보 추가

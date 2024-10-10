@@ -131,3 +131,16 @@
         - 데이 좋아요 > 204  & 데이 좋아요 취소 204 같은 기능 아닌지? 같은 기능이라면 204 삭제? 
 
     - 데이 관련 작업에 plan-id는 따로 전달하지 않아도 됨. 그래도 URL에 포함해 서버로 전달?
+---
+
+## 2024.10.08 Tue
+- API 명세서 질의사항 답변 정리 및 추가 질의사항 전달
+
+## 2024.10.10 Thu
+- 'API 명세서 질의사항 답변 정리 및 추가 질의사항 전달'에 대한 답변 취합 후 노션 업데이트
+  - 추가 질의사항 유무 확인한 뒤 아래 TODO 작업 예정
+- TODO
+  1. DB의 isExplore(type: boolean) 항목을 visibility(type: string)로 수정 필요.(DB Table, DDL)
+  2. 유저별 '좋아요' 관리를 위한 plan-likes, plan-day-likes 테이블 생성 필요
+  3. Postman의 API mockserver -> 일반 서버로 이전 작업 필요
+  4. Postman의 API 명세서에 1.에 대한 수정사항 적용 필요

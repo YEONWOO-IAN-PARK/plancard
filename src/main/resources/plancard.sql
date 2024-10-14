@@ -174,7 +174,7 @@ CREATE TABLE `plans` (
   `memo` varchar(1500) COMMENT '메모',
   `start_date` date COMMENT '시작일',
   `end_date` date COMMENT '종료일',
-  `is_explore` bool NOT NULL DEFAULT true COMMENT '플랜 탐험 등록유무',
+  `visibility` varchar(10) NOT NULL DEFAULT 'private' COMMENT '플랜탐험 공개설정 "private" , "public"',
   `like_count` int COMMENT '좋아요 수',
   `user_id` bigint COMMENT '플랜 사용자 고유번호',
   `author_id` bigint COMMENT '플랜 원작자 고유번호',
@@ -187,7 +187,7 @@ CREATE TABLE `plan_days` (
   `plan_id` bigint NOT NULL COMMENT '여행계획 고유번호(FK)',
   `title` varchar(255) COMMENT '여행계획명',
   `travel_date` date NOT NULL COMMENT '실제 여행일자',
-  `is_explore` bool NOT NULL DEFAULT true COMMENT '플랜 탐험 등록유무',
+  `visibility` varchar(10) NOT NULL DEFAULT 'private' COMMENT '플랜탐험 공개설정 "private" , "public"',
   `like_count` int COMMENT '좋아요 수',
   `author_id` bigint COMMENT '플랜 - 일자 원작자 고유번호',
   `created_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성일',
@@ -218,6 +218,18 @@ CREATE TABLE `plan_day_scraps` (
    `id` bigint AUTO_INCREMENT PRIMARY KEY COMMENT '여행계획 - 일자 스크랩 고유번호',
    `plan_day_id` bigint COMMENT '스크랩한 여행계획 - 일자 고유번호(FK)',
    `user_id` bigint COMMENT '스크랩한 사용자 고유번호(FK)'
+);
+
+CREATE TABLE `plan_likes` (
+    `id` bigint AUTO_INCREMENT PRIMARY KEY COMMENT '여행계획 - 좋아요 고유번호',
+    `plan_id` bigint COMMENT '여행계획 고유번호(FK)',
+    `user_id` bigint COMMENT '좋아요한 사용자 고유번호(FK)'
+);
+
+CREATE TABLE `plan_day_likes` (
+    `id` bigint AUTO_INCREMENT PRIMARY KEY COMMENT '여행계획 - 일자 좋아요 고유번호',
+    `plan_day_id` bigint COMMENT '여행계획 고유번호(FK)',
+    `user_id` bigint COMMENT '좋아요한 사용자 고유번호(FK)'
 );
 
 CREATE TABLE `temp_storages` (

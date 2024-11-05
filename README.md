@@ -169,3 +169,4 @@
 
 ## 2024.11.25 (Mon)
   - AccessToken / RefreshToken 테스트해야함
+- users 테이블에 pk를 대신할 provider + provider id값을 username에 할당해서 pk대용으로 사용할 수 있어야함.

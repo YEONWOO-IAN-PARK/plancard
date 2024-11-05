@@ -143,6 +143,7 @@
   4. Postman의 API 명세서에 1.에 대한 수정사항 적용 필요
 
 ## 2024.11.05 Tue
+<<<<<<< HEAD
 - 프론트엔드에서 사용자의 요청을 받아서 백엔드 서버에 날짜정보(created_date, updated_date)를 보낼 때, Zone 정보를 배제한 UTC 기준 데이터로 변경하여 전달해야함
 
 ## 2024.11.06 Wed
@@ -156,3 +157,6 @@
 - DB 구조 및 자바 엔티티 변경
   - DB : plan_day_likes, plan_day_scraps, plan_likes, plan_scraps 테이블 구조 변경
   -    : id 컬럼 일괄 삭제
+=======
+- 프론트엔드에서 사용자의 요청을 받아서 백엔드 서버에 날짜정보(created_date, updated_date)를 보낼 때, Zone 정보를 배제한 UTC 기준 데이터로 변경하여 전달해야함
+>>>>>>> 665d3c0 (myCardImage까지)

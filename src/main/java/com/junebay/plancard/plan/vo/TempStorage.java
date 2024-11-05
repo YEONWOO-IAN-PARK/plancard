@@ -1,5 +1,7 @@
 package com.junebay.plancard.plan.vo;
 
+import lombok.Builder;
+
 import java.time.LocalDateTime;
 
 /**
@@ -7,6 +9,7 @@ import java.time.LocalDateTime;
  * @date : 2024-11-07
  * @description :
  */
+@Builder
 public class TempStorage {
 
     private long id;

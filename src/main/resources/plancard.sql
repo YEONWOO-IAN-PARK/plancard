@@ -5,7 +5,6 @@ CREATE TABLE `cards` (
   `city_id` varchar(50) NOT NULL COMMENT '도시 고유번호. 카드와 도시는 N:1 관계이다.',
   `category_id` bigint COMMENT '카테고리 고유번호 (관광지, 유적지, ...)',
   `rating` tinyint COMMENT '별점(1점 단위)',
-  `main_image_id` bigint COMMENT '대표 카드 이미지 고유번호',
   `is_active` bool NOT NULL DEFAULT true COMMENT '사용 유무',
   `created_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성일',
   `updated_date` datetime COMMENT '최종 수정일'
@@ -19,7 +18,6 @@ CREATE TABLE `cities` (
   `latitude` double COMMENT '위도(-90 ~ +90)',
   `longitude` double COMMENT '경도(-180 ~ +180)',
   `country_id` varchar(20) COMMENT '국가 고유번호. 도시와 국가는 N:1 관계이다.',
-  `main_image_id` bigint COMMENT '대표 카드 이미지 고유번호',
   `is_active` bool NOT NULL DEFAULT true COMMENT '사용 유무',
   `created_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성일',
   `updated_date` datetime COMMENT '최종 수정일'
@@ -29,7 +27,6 @@ CREATE TABLE `countries` (
   `id` varchar(50) PRIMARY KEY COMMENT '국가 고유번호',
   `name` varchar(255) NOT NULL COMMENT '국가명',
   `description` varchar(1500) COMMENT '설명',
-  `main_image_id` bigint COMMENT '대표 카드 이미지 고유번호',
   `is_active` bool NOT NULL DEFAULT true COMMENT '사용 유무',
   `created_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성일',
   `updated_date` datetime COMMENT '최종 수정일'
@@ -67,6 +64,7 @@ CREATE TABLE `card_images` (
   `extension` varchar(255) NOT NULL COMMENT '확장자',
   `size` int COMMENT '파일 크기(byte)',
   `alt` varchar(255) COMMENT 'ALT 텍스트',
+  `is_main` bool NOT NULL COMMENT '기본사진 유무(모든 사용자 대상)',
   `is_active` bool NOT NULL DEFAULT true COMMENT '사용 유무',
   `created_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성일',
   `updated_date` datetime COMMENT '최종 수정일'
@@ -80,6 +78,7 @@ CREATE TABLE `city_images` (
   `extension` varchar(255) NOT NULL COMMENT '확장자',
   `size` int COMMENT '파일 크기(byte)',
   `alt` varchar(255) COMMENT 'ALT 텍스트',
+  `is_main` bool NOT NULL COMMENT '메인사진 유무',
   `is_active` bool NOT NULL DEFAULT true COMMENT '사용 유무',
   `created_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성일',
   `updated_date` datetime COMMENT '최종 수정일'
@@ -93,6 +92,7 @@ CREATE TABLE `country_images` (
   `extension` varchar(255) NOT NULL COMMENT '확장자',
   `size` int COMMENT '파일 크기(byte)',
   `alt` varchar(255) COMMENT 'ALT 텍스트',
+  `is_main` bool NOT NULL COMMENT '메인사진 유무',
   `is_active` bool NOT NULL DEFAULT true COMMENT '사용 유무',
   `created_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성일',
   `updated_date` datetime COMMENT '최종 수정일'
@@ -113,8 +113,6 @@ CREATE TABLE `my_cards` (
   `card_id` bigint NOT NULL COMMENT '카드 고유번호(FK)',
   `user_id` bigint NOT NULL COMMENT '유저 고유번호(FK)',
   `memo` varchar(1500) COMMENT '메모',
-  `image_type` bigint COMMENT '대표 카드 이미지 타입 ( C: 카드, M : 내 카드 ) ',
-  `main_image_id` bigint COMMENT '대표 카드 이미지 고유번호',
   `is_active` bool NOT NULL DEFAULT true COMMENT '사용 유무',
   `created_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '내 카드 얻은날짜(getdate)',
   `updated_date` datetime COMMENT '최종 수정일'
@@ -136,10 +134,13 @@ CREATE TABLE `my_card_images` (
   `extension` varchar(255) NOT NULL COMMENT '확장자',
   `size` int COMMENT '파일 크기(byte)',
   `alt` varchar(255) COMMENT 'ALT 텍스트',
+  `is_main` bool NOT NULL COMMENT '메인사진 유무',
+  `is_default` bool NOT NULL COMMENT '디폴트 사진 유무(내 카드의 card id로 찾은 카드 기본 이미지를 사용하는지 유무를 말한다)',
   `is_active` bool NOT NULL DEFAULT true COMMENT '사용 유무',
   `created_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성일',
   `updated_date` datetime COMMENT '최종 수정일'
 ) COMMENT = '내 카드 이미지정보 테이블. 내 카드에 여러장의 사진을 추가할 수 있도록 고려';
+
 
 CREATE TABLE `users` (
   `id` bigint AUTO_INCREMENT PRIMARY KEY COMMENT '사용자 고유번호',

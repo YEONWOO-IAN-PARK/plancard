@@ -12,8 +12,5 @@ import java.time.LocalDateTime;
 public class CityImage extends Image {
 
     private long id;
-    private long cardId;
-    private boolean isActive;
-    private LocalDateTime createdDate;
-    private LocalDateTime updatedDate;
+    private long cityId;
 }

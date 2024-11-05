@@ -141,3 +141,6 @@
   2. 유저별 '좋아요' 관리를 위한 plan-likes, plan-day-likes 테이블 생성 필요
   3. Postman의 API mockserver -> 일반 서버로 이전 작업 필요
   4. Postman의 API 명세서에 1.에 대한 수정사항 적용 필요
+
+## 2024.11.05 Tue
+- 프론트엔드에서 사용자의 요청을 받아서 백엔드 서버에 날짜정보(created_date, updated_date)를 보낼 때, Zone 정보를 배제한 UTC 기준 데이터로 변경하여 전달해야함

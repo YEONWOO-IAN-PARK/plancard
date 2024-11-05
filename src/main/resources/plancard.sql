@@ -137,7 +137,7 @@ CREATE TABLE `my_card_images` (
   `is_active` bool NOT NULL DEFAULT true COMMENT '사용 유무',
   `created_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성일',
   `updated_date` datetime COMMENT '최종 수정일'
-) COMMENT = '내 카드 이미지정보 테이블.';
+) COMMENT = '내 카드 이미지정보 테이블. 내 카드에 여러장의 사진을 추가할 수 있도록 고려';
 
 CREATE TABLE `my_card_main_images` (
   `id` bigint AUTO_INCREMENT PRIMARY KEY COMMENT '내 카드 대표사진 이미지 고유번호',
@@ -146,7 +146,7 @@ CREATE TABLE `my_card_main_images` (
   `image_id` bigint NOT NULL COMMENT '카드(또는 내 카드) 이미지 고유번호',
   `created_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성일',
   `updated_date` datetime COMMENT '최종 수정일'
-) COMMENT = '내 카드 대표사진정보 테이블.';
+) COMMENT = '내 카드 대표사진정보 테이블. 내 카드의 대표사진은 기본 카드(Card)의 이미지를 사용할 수도 있고, 커스텀 사진을 사용할 수도 있다.';
 
 CREATE TABLE `users` (
   `id` bigint AUTO_INCREMENT PRIMARY KEY COMMENT '사용자 고유번호',

@@ -14,6 +14,7 @@ public class Card {
     private String description;
     private String cityId;
     private long categoryId;
+    private long mainImageId;
     private int rating;
     private boolean isActive;
     private LocalDateTime createdDate;

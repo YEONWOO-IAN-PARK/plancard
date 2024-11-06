@@ -13,7 +13,6 @@ public class CardImage extends Image{
 
     private long id;
     private long cardId;
-    private boolean isDefault;
     private boolean isActive;
     private LocalDateTime createdDate;
     private LocalDateTime updatedDate;

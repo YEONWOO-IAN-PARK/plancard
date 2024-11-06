@@ -12,6 +12,7 @@ public class Country {
     private String id;
     private String name;
     private String description;
+    private long mainImageId;   // Country Image Id
     private boolean isActive;
     private LocalDateTime createdDate;
     private LocalDateTime updatedDate;

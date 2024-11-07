@@ -202,27 +202,27 @@ CREATE TABLE `plan_day_bridges` (
 ) COMMENT = '사용자 정의 여행 계획 - 일자별 카드별 브릿지 정보 테이블.';
 
 CREATE TABLE `plan_scraps` (
-  `id` bigint AUTO_INCREMENT PRIMARY KEY COMMENT '여행계획 스크랩 고유번호',
   `plan_id` bigint COMMENT '스크랩한 플랜 고유번호(FK)',
-  `user_id` bigint COMMENT '스크랩한 사용자 고유번호(FK)'
+  `user_id` bigint COMMENT '스크랩한 사용자 고유번호(FK)',
+  PRIMARY KEY (plan_id, user_id)
 );
 
 CREATE TABLE `plan_day_scraps` (
-   `id` bigint AUTO_INCREMENT PRIMARY KEY COMMENT '여행계획 - 일자 스크랩 고유번호',
    `plan_day_id` bigint COMMENT '스크랩한 여행계획 - 일자 고유번호(FK)',
-   `user_id` bigint COMMENT '스크랩한 사용자 고유번호(FK)'
+   `user_id` bigint COMMENT '스크랩한 사용자 고유번호(FK)',
+   PRIMARY KEY (plan_day_id, user_id)
 );
 
 CREATE TABLE `plan_likes` (
-    `id` bigint AUTO_INCREMENT PRIMARY KEY COMMENT '여행계획 - 좋아요 고유번호',
     `plan_id` bigint COMMENT '여행계획 고유번호(FK)',
-    `user_id` bigint COMMENT '좋아요한 사용자 고유번호(FK)'
+    `user_id` bigint COMMENT '좋아요한 사용자 고유번호(FK)',
+    PRIMARY KEY (plan_id, user_id)
 );
 
 CREATE TABLE `plan_day_likes` (
-    `id` bigint AUTO_INCREMENT PRIMARY KEY COMMENT '여행계획 - 일자 좋아요 고유번호',
-    `plan_day_id` bigint COMMENT '여행계획 고유번호(FK)',
-    `user_id` bigint COMMENT '좋아요한 사용자 고유번호(FK)'
+    `plan_day_id` bigint COMMENT '여행계획 - 일자 고유번호(FK)',
+    `user_id` bigint COMMENT '좋아요한 사용자 고유번호(FK)',
+    PRIMARY KEY (plan_day_id, user_id)
 );
 
 CREATE TABLE `temp_storages` (
@@ -242,14 +242,12 @@ CREATE TABLE `temp_storage_cards` (
 );
 
 ALTER TABLE `cards` ADD FOREIGN KEY (`city_id`) REFERENCES `cities` (`id`);
+ALTER TABLE `cards` ADD FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`);
 
 ALTER TABLE `cities` ADD FOREIGN KEY (`country_id`) REFERENCES `countries` (`id`);
 
 ALTER TABLE `card_theme` ADD FOREIGN KEY (`theme_id`) REFERENCES `themes` (`id`);
-
 ALTER TABLE `card_theme` ADD FOREIGN KEY (`card_id`) REFERENCES `cards` (`id`);
-
-ALTER TABLE `cards` ADD FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`);
 
 ALTER TABLE `card_images` ADD FOREIGN KEY (`card_id`) REFERENCES `cards` (`id`);
 
@@ -260,7 +258,6 @@ ALTER TABLE `country_images` ADD FOREIGN KEY (`country_id`) REFERENCES `countrie
 ALTER TABLE `card_map_links` ADD FOREIGN KEY (`card_id`) REFERENCES `cards` (`id`);
 
 ALTER TABLE `my_cards` ADD FOREIGN KEY (`card_id`) REFERENCES `cards` (`id`);
-
 ALTER TABLE `my_cards` ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
 
 ALTER TABLE `my_card_tags` ADD FOREIGN KEY (`my_card_id`) REFERENCES `my_cards` (`id`);
@@ -268,7 +265,6 @@ ALTER TABLE `my_card_tags` ADD FOREIGN KEY (`my_card_id`) REFERENCES `my_cards` 
 ALTER TABLE `my_card_images` ADD FOREIGN KEY (`my_card_id`) REFERENCES `my_cards` (`id`);
 
 ALTER TABLE `card_scraps` ADD FOREIGN KEY (`card_id`) REFERENCES `cards` (`id`);
-
 ALTER TABLE `card_scraps` ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
 
 ALTER TABLE `plans` ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
@@ -280,17 +276,13 @@ ALTER TABLE `plan_day_cards` ADD FOREIGN KEY (`plan_day_id`) REFERENCES `plan_da
 ALTER TABLE `plan_day_bridges` ADD FOREIGN KEY (`plan_day_id`) REFERENCES `plan_days` (`id`);
 
 ALTER TABLE `plan_scraps` ADD FOREIGN KEY (`plan_id`) REFERENCES `plans` (`id`);
-
 ALTER TABLE `plan_scraps` ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
 
 ALTER TABLE `plan_day_scraps` ADD FOREIGN KEY (`plan_day_id`) REFERENCES `plan_days` (`id`);
-
 ALTER TABLE `plan_day_scraps` ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
 
 ALTER TABLE `temp_storages` ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
 
 ALTER TABLE `temp_storage_cards` ADD FOREIGN KEY (`temp_storage_id`) REFERENCES `temp_storages` (`id`);
-
 ALTER TABLE `temp_storage_cards` ADD FOREIGN KEY (`card_id`) REFERENCES `cards` (`id`);
-
 ALTER TABLE `temp_storage_cards` ADD FOREIGN KEY (`my_card_id`) REFERENCES `my_cards` (`id`);

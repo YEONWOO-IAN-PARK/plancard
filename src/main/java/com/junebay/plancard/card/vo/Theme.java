@@ -1,22 +1,16 @@
 package com.junebay.plancard.card.vo;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author : IAN
- * @date : 2024-11-05
+ * @date : 2024-11-07
  * @description :
  */
-public class MyCard {
+public class Theme {
 
     private long id;
-    private long cardId;
-    private long userId;
-    private String memo;
-    private char imageType;
-    private long mainImageId;
+    private String name;
     private boolean isActive;
     private LocalDateTime createdDate;
     private LocalDateTime updatedDate;

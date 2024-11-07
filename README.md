@@ -151,3 +151,8 @@
   -    : card_images, city_images, country_images, my_card_images 의 isMain 컬럼 삭제
   -    : cards, cities, countries, my_cards 테이블에 main_image_id 추가 (및 image_type 추가)
   - 자바 엔티티 : 위 사항들 모두 반영함
+
+## 2024.11.07 Thu
+- DB 구조 및 자바 엔티티 변경
+  - DB : plan_day_likes, plan_day_scraps, plan_likes, plan_scraps 테이블 구조 변경
+  -    : id 컬럼 일괄 삭제

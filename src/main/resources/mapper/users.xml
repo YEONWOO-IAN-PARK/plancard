@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.junebay.plancard.auth.mapper.UserMapper">
+
+	<select id="findByProviderId" parameterType="string" resultType="com.junebay.plancard.auth.entity.UserEntity">
+		SELECT	id
+				, username
+				, name
+				, email
+				, role
+		FROM 	users
+		WHERE	provider_id = #{providerId}
+	</select>
+
+	<insert	id="saveUser" parameterType="com.junebay.plancard.auth.entity.UserEntity" useGeneratedKeys="true" keyProperty="id">
+		INSERT INTO users (provider, provider_id, name, email, role)
+		VALUES (
+		        #{provider}
+		        , #{provider_id}
+		        , #{name}
+		        , #{email}
+		        , #{role}
+		        )
+	</insert>
+
+	<update id="updateUser" parameterType="com.junebay.plancard.auth.entity.UserEntity" >
+		UPDATE 	users
+		SET 	name = #{name}
+		    	, role = #{role}
+		WHERE	provider = #{provider}
+		  		and provider_id = #{providerId}
+	</update>
+</mapper>

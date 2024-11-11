@@ -1,8 +1,8 @@
 package com.junebay.plancard.auth.service;
 
-import com.junebay.plancard.auth.dto.GoogleResponse;
-import com.junebay.plancard.auth.dto.NaverResponse;
-import com.junebay.plancard.auth.dto.OAuth2Response;
+import com.junebay.plancard.auth.dto.*;
+import com.junebay.plancard.auth.entity.UserEntity;
+import com.junebay.plancard.auth.mapper.UserMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -18,6 +18,12 @@ import org.springframework.stereotype.Service;
 @Slf4j
 @Service
 public class CustomOAuth2UserService extends DefaultOAuth2UserService {
+
+    private final UserMapper userMapper;
+
+    public CustomOAuth2UserService(UserMapper userMapper) {
+        this.userMapper = userMapper;
+    }
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -38,18 +44,54 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
             return null;
         }
 
-        return null;
+        UserEntity existData = userMapper.findByProviderId(oAuth2Response.getProviderId());
+
+        if (existData == null) {
+            UserEntity userEntity = new UserEntity();
+            userEntity.setProvider(oAuth2Response.getProvider());
+            userEntity.setProviderId(oAuth2Response.getProviderId());
+            userEntity.setEmail(oAuth2Response.getEmail());
+            userEntity.setName(oAuth2Response.getName());
+            userEntity.setRole("ROLE_USER");
+
+            userMapper.saveUser(userEntity);
+
+            UserDTO userDTO = new UserDTO();
+            userDTO.setProvider(oAuth2Response.getProvider());
+            userDTO.setProviderId(oAuth2Response.getProviderId());
+            userDTO.setName(oAuth2Response.getName());
+            userDTO.setEmail(oAuth2Response.getEmail());
+            userDTO.setRole("ROLE_USER");
+
+            return new CustomOAuth2User(userDTO);
+        }
+        else {
+            // 기존 사용자가 존재할 경우 새로 로그인한 정보를 업데이트한다. (사용자가 개인정보를 업데이트 했을 경우)
+            existData.setProvider(oAuth2Response.getProvider());
+            existData.setProviderId(oAuth2Response.getProviderId());
+            existData.setName(oAuth2Response.getName());
+
+            userMapper.updateUser(existData);
+
+            UserDTO userDTO = new UserDTO();
+            userDTO.setProvider(oAuth2Response.getProvider());
+            userDTO.setProviderId(oAuth2Response.getProviderId());
+            userDTO.setName(oAuth2Response.getName());
+            userDTO.setRole(existData.getRole());
+
+            return new CustomOAuth2User(userDTO);
+        }
     }
 
     /**
      Naver Response Data
      {
-        resultcode=00, message=success, response={id=123123123, name=김개똥}
+     resultcode=00, message=success, response={id=123123123, name=김개똥}
      }
 
      Google Response Data
      {
-        resultcode=00, message=success, id=123123123, name=개발자유미
+     resultcode=00, message=success, id=123123123, name=개발자유미
      }
      */
 }

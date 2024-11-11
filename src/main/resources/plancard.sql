@@ -148,6 +148,7 @@ CREATE TABLE `users` (
   `provider` varchar(255) COMMENT '소셜로그인 제공자',
   `provider_id` varchar(255) COMMENT '소셜로그인 제공자 고유번호',
   `username` varchar(255) COMMENT '사용자명',
+  `name` varchar(255) COMMENT '이름',
   `profile_image` varchar(255) COMMENT '프로필 사진',
   `role` varchar(255) NOT NULL DEFAULT 'USER' COMMENT '역할',
   `is_active` bool NOT NULL DEFAULT true COMMENT '사용 유무',

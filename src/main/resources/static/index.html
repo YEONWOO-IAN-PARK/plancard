@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Title</title>
+</head>
+<body>
+<h1>Login</h1>
+<button onclick="onNaverLogin()">naver login</button>
+<button onclick="getData()">GET DATA</button>
+<script>
+
+	const onNaverLogin = () => {
+
+		window.location.href = "http://localhost:8080/oauth2/authorization/naver"
+	}
+
+	const getData = () => {
+
+		fetch("http://localhost:8080/my", {
+			method: "GET",
+			credentials: 'include'
+		})
+
+			.then((res) => res.json())
+			.then((data) => {
+				alert(data)
+			})
+			.catch((error) => alert(error))
+	}
+</script>
+</body>
+</html>

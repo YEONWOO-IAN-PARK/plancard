@@ -19,8 +19,8 @@ public class TestController {
         return "success!";
     }
 
-    @GetMapping("/")
+    @GetMapping("/index")
     public String index() {
-        return "index";
+        return "redirect:/index.html";
     }
 }

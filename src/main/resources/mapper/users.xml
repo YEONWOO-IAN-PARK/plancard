@@ -3,20 +3,17 @@
 <mapper namespace="com.junebay.plancard.auth.mapper.UserMapper">
 
 	<select id="findByProviderId" parameterType="string" resultType="com.junebay.plancard.auth.entity.UserEntity">
-		SELECT	id
-				, username
-				, name
-				, email
-				, role
-		FROM 	users
+		SELECT	*
+		FROM    users
 		WHERE	provider_id = #{providerId}
 	</select>
 
 	<insert	id="saveUser" parameterType="com.junebay.plancard.auth.entity.UserEntity" useGeneratedKeys="true" keyProperty="id">
-		INSERT INTO users (provider, provider_id, name, email, role)
+		INSERT INTO users
+		    (provider, provider_id, name, email, role)
 		VALUES (
 		        #{provider}
-		        , #{provider_id}
+		        , #{providerId}
 		        , #{name}
 		        , #{email}
 		        , #{role}
@@ -27,7 +24,6 @@
 		UPDATE 	users
 		SET 	name = #{name}
 		    	, role = #{role}
-		WHERE	provider = #{provider}
-		  		and provider_id = #{providerId}
+		WHERE	provider_id = #{providerId}
 	</update>
 </mapper>

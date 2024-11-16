@@ -156,3 +156,6 @@
 - DB 구조 및 자바 엔티티 변경
   - DB : plan_day_likes, plan_day_scraps, plan_likes, plan_scraps 테이블 구조 변경
   -    : id 컬럼 일괄 삭제
+
+## 2024.11.12 Tue
+- 응답본문관련 회의

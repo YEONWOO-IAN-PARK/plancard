@@ -16,6 +16,7 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.client.web.OAuth2LoginAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 
@@ -63,7 +64,6 @@ public class SecurityConfig {
                         return configuration;
                     }
                 })
-
         );
 
         //csrf disable
@@ -94,8 +94,18 @@ public class SecurityConfig {
         //경로별 인가 작업
         http
                 .authorizeHttpRequests((auth) -> auth
-                        .requestMatchers("/").permitAll()
-                        .anyRequest().authenticated());
+                        .requestMatchers("/home").permitAll()
+                        .requestMatchers("/view/home.html").permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/index.html")
+                                , new AntPathRequestMatcher("/AllInOne.css")
+                                , new AntPathRequestMatcher("/cont.css")
+                                , new AntPathRequestMatcher("/hilight.min.js")
+                                , new AntPathRequestMatcher("/jquery.min.js")
+                                , new AntPathRequestMatcher("/search.js")
+                                , new AntPathRequestMatcher("/xt256.min.css")
+                        ).permitAll()
+                        .anyRequest().authenticated()
+                );
 
         //세션 설정 : STATELESS
         http

@@ -15,6 +15,10 @@ import java.util.HashMap;
 @Controller
 public class TestController {
 
+    /**
+     * 테스트 요청 핸들러 메서드
+     * @return success 라는 문자열을 반환한다.
+     */
     @GetMapping("/my")
     @ResponseBody
     public String test() {
@@ -22,8 +26,12 @@ public class TestController {
         return "success!";
     }
 
-    @GetMapping("/index")
+    /**
+     * home.html 페이지를 요청하는 요청 핸들러 메서드
+     * @return home.html을 화면에 보여준다.
+     */
+    @GetMapping("/home")
     public String index() {
-        return "redirect:/index.html";
+        return "redirect:/view/home.html";
     }
 }

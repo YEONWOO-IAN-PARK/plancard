@@ -11,7 +11,4 @@ public class CountryImage extends Image{
 
     private long id;
     private String countryId;
-    private boolean isActive;
-    private LocalDateTime createdDate;
-    private LocalDateTime updatedDate;
 }

@@ -2,7 +2,6 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.3.3'
     id 'io.spring.dependency-management' version '1.1.6'
-    id "com.ly.smart-doc" version "3.0.8"
 }
 
 group = 'com.junebay'
@@ -21,9 +20,6 @@ configurations {
 }
 
 repositories {
-    maven { url 'https://maven.aliyun.com/repository/public' }
-    maven { url 'https://maven.aliyun.com/repository/gradle-plugin' }
-    maven { url = uri("https://plugins.gradle.org/m2/") }
     mavenCentral()
 }
 
@@ -53,9 +49,6 @@ dependencies {
     // Mybatis
     implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3'
 
-    // Smart-Doc (Rest Api Documentation)
-    implementation 'com.ly.smart-doc:smart-doc-gradle-plugin:3.0.8'
-
     compileOnly 'org.projectlombok:lombok'
     runtimeOnly 'com.mysql:mysql-connector-j'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
@@ -65,12 +58,6 @@ dependencies {
     testImplementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter-test:3.0.3'
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-}
-
-smartdoc {
-    configFile = file("src/main/resources/smart-doc.json")
-
-    exclude 'org.springframework.boot:spring-boot-starter-tomcat'
 }
 
 tasks.named('test') {

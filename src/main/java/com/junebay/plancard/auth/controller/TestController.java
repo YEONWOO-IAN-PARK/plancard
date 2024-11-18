@@ -15,13 +15,16 @@ import java.util.HashMap;
 @Controller
 public class TestController {
 
-    /**
-     * 테스트 요청 핸들러 메서드
-     * @return success 라는 문자열을 반환한다.
+    /**`
+     *  테스트 요청 핸들러 메서드
+     *
+     * @param name 이름
+     * @param id 아이디
+     * @return "success" 라는 문자열을 반환한다.
      */
     @GetMapping("/my")
     @ResponseBody
-    public String test() {
+    public String test(String name, String id) {
 
         return "success!";
     }

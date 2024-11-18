@@ -93,16 +93,11 @@ public class SecurityConfig {
 
         //경로별 인가 작업
         http
+                // Smart doc 및 로그인 페이지 권한 해제
                 .authorizeHttpRequests((auth) -> auth
                         .requestMatchers("/home").permitAll()
                         .requestMatchers("/view/home.html").permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/index.html")
-                                , new AntPathRequestMatcher("/AllInOne.css")
-                                , new AntPathRequestMatcher("/cont.css")
-                                , new AntPathRequestMatcher("/hilight.min.js")
-                                , new AntPathRequestMatcher("/jquery.min.js")
-                                , new AntPathRequestMatcher("/search.js")
-                                , new AntPathRequestMatcher("/xt256.min.css")
                         ).permitAll()
                         .anyRequest().authenticated()
                 );

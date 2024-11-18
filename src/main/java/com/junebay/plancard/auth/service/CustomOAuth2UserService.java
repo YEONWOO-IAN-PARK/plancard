@@ -40,6 +40,9 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         else if (registrationId.equals("google")) {
             oAuth2Response = new GoogleResponse(oAuth2User.getAttributes());
         }
+        else if (registrationId.equals("kakao")) {
+            oAuth2Response = new KakaoResponse(oAuth2User.getAttributes());
+        }
         else {
             return null;
         }
@@ -86,12 +89,12 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     /**
      Naver Response Data
      {
-     resultcode=00, message=success, response={id=123123123, name=김개똥}
+     resultcode=00, message=success, response={id=123123123, email=abc@naver.com, mobile=..., name=김개똥, }
      }
 
      Google Response Data
      {
-     resultcode=00, message=success, id=123123123, name=개발자유미
+     sub=123123123, name=IAN PARK, given_name=IAN, family_name=PARK, email=abc@gmail.com, ...
      }
      */
 }

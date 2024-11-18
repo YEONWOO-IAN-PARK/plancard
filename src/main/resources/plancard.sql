@@ -144,7 +144,7 @@ CREATE TABLE `my_card_images` (
 
 CREATE TABLE `users` (
   `id` bigint AUTO_INCREMENT PRIMARY KEY COMMENT '사용자 고유번호',
-  `email` varchar(255) UNIQUE NOT NULL COMMENT '이메일',
+  `email` varchar(255) NOT NULL COMMENT '이메일',
   `password` varchar(255) COMMENT '암호화된 비밀번호',
   `provider` varchar(255) COMMENT '소셜로그인 제공자',
   `provider_id` varchar(255) COMMENT '소셜로그인 제공자 고유번호',
@@ -288,3 +288,5 @@ ALTER TABLE `temp_storages` ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`id`
 ALTER TABLE `temp_storage_cards` ADD FOREIGN KEY (`temp_storage_id`) REFERENCES `temp_storages` (`id`);
 ALTER TABLE `temp_storage_cards` ADD FOREIGN KEY (`card_id`) REFERENCES `cards` (`id`);
 ALTER TABLE `temp_storage_cards` ADD FOREIGN KEY (`my_card_id`) REFERENCES `my_cards` (`id`);
+
+ALTER TABLE `users` ADD UNIQUE KEY users_uk (`provider`, `provider_id`);

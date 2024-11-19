@@ -87,14 +87,21 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
     }
 
     /**
-     Naver Response Data
+     //Naver Response Data
      {
-     resultcode=00, message=success, response={id=123123123, email=abc@naver.com, mobile=..., name=김개똥, }
+        resultcode=00, message="success", response={id="123123123", email="abc@naver.com", mobile=..., name="김개똥", }
      }
 
-     Google Response Data
+     //Google Response Data
      {
-     sub=123123123, name=IAN PARK, given_name=IAN, family_name=PARK, email=abc@gmail.com, ...
+        sub="123123123", name="IAN PARK", given_name="IAN", family_name="PARK", email="abc@gmail.com", ...
+     }
+
+
+     //Kakao Response Data
+     {
+        id="123213", connected_at="2024-11-18T10:47:55Z", properties={key="properties", value={nickname="박연우", profile_image="http://img1.....", thumbnail_image="http://..."}},
+        kakao_account={key="kakao_account", value={..., ..., profile={key="profile",value={..., ..., nickname="박연우"}}, ..., ..., email="abc@gmail.com"}}
      }
      */
 }

@@ -14,7 +14,7 @@ public class User {
     private String password;
     private String provider;
     private String providerId;
-    private String username;
+    private String nickname;
     private String profileImage;
     private String role;
     private String isActive;

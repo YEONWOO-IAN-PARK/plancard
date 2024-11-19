@@ -163,3 +163,7 @@
 
 ## 2024.11.18 Mon
 - users 테이블에 pk를 대신할 provider + provider id값을 username에 할당해서 pk대용으로 사용할 수 있어야함.
+- 카카오 로그인 구현
+- TODO
+  - 접속 로그 및 접속 통계 낼 수 있어야함 (추후)
+  - AccessToken / RefreshToken 구현해야함

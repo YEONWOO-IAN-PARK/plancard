@@ -148,7 +148,7 @@ CREATE TABLE `users` (
   `password` varchar(255) COMMENT '암호화된 비밀번호',
   `provider` varchar(255) COMMENT '소셜로그인 제공자',
   `provider_id` varchar(255) COMMENT '소셜로그인 제공자 고유번호',
-  `username` varchar(255) COMMENT '사용자명',
+  `nickname` varchar(255) COMMENT '별명',
   `name` varchar(255) COMMENT '이름',
   `profile_image` varchar(255) COMMENT '프로필 사진',
   `role` varchar(255) NOT NULL DEFAULT 'USER' COMMENT '역할',

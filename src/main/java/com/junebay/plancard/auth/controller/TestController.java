@@ -15,7 +15,7 @@ import java.util.HashMap;
 @Controller
 public class TestController {
 
-    /**`
+    /**
      *  테스트 요청 핸들러 메서드
      *
      * @param name 이름

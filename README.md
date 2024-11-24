@@ -162,7 +162,6 @@
 - 프론트엔드에서 사용자의 요청을 받아서 백엔드 서버에 날짜정보(created_date, updated_date)를 보낼 때, Zone 정보를 배제한 UTC 기준 데이터로 변경하여 전달해야함
 
 ## 2024.11.18 Mon
-- users 테이블에 pk를 대신할 provider + provider id값을 username에 할당해서 pk대용으로 사용할 수 있어야함.
 - 카카오 로그인 구현
 - TODO
   - 접속 로그 및 접속 통계 낼 수 있어야함 (추후)

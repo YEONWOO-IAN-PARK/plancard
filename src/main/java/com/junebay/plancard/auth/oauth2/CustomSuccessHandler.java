@@ -7,6 +7,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -34,8 +35,6 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
 
-        log.warn("접근했나?");
-
         CustomOAuth2User customUserDetails = (CustomOAuth2User) authentication.getPrincipal();
 
         String providerId = customUserDetails.getProviderId();
@@ -45,21 +44,14 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         GrantedAuthority auth = iterator.next();
         String role = auth.getAuthority();
 
-        String token = jwtUtil.createJwt(providerId, role, 60 * 60 * 60L);
+        String accessToken = jwtUtil.createJwt("Access-Token", providerId, role, 60 * 60 * 1L);
+        String refreshToken = jwtUtil.createJwt("Refresh-Token", providerId, role, 60 * 60 * 24L);
 
-        response.addCookie(createCookie("Authorization", token));
+        // TODO : 현재 액세스 토큰은 리프레시 토큰과 함께 쿠키에 저장되지만 리액트 서버를 사용할땐 response.setHeader로 액세스 토큰을 전달하면 된다.
+        response.addCookie(jwtUtil.createCookie("Access-Token", accessToken));
+        response.addCookie(jwtUtil.createCookie("Refresh-Token", refreshToken));
 //        response.sendRedirect("http://localhost:3000/");
         response.sendRedirect("http://localhost:8080/home");
     }
 
-    private Cookie createCookie(String key, String value) {
-
-        Cookie cookie = new Cookie(key, value);
-        cookie.setMaxAge(60 * 60 * 60);
-//        cookie.setSecure(true);   //로컬 환경은 http 환경이기 때문에 주석처리
-        cookie.setPath("/");
-        cookie.setHttpOnly(true);
-
-        return cookie;
-    }
 }

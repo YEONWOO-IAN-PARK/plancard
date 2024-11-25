@@ -165,4 +165,7 @@
 - 카카오 로그인 구현
 - TODO
   - 접속 로그 및 접속 통계 낼 수 있어야함 (추후)
-  - AccessToken / RefreshToken 구현해야함
+  - ~~AccessToken / RefreshToken 구현해야함~~
+
+## 2024.11.25 (Mon)
+  - AccessToken / RefreshToken 테스트해야함

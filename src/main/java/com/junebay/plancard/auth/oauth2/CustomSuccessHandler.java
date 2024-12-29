@@ -44,8 +44,11 @@ public class CustomSuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         GrantedAuthority auth = iterator.next();
         String role = auth.getAuthority();
 
-        String accessToken = jwtUtil.createJwt("Access-Token", providerId, role, 60 * 60 * 1L);
-        String refreshToken = jwtUtil.createJwt("Refresh-Token", providerId, role, 60 * 60 * 24L);
+        // TODO : 테스트 끝난 후 만료시간 정상으로 변경하기
+        String accessToken = jwtUtil.createJwt("Access-Token", providerId, role, 60 * 5 * 1000L);
+        String refreshToken = jwtUtil.createJwt("Refresh-Token", providerId, role, 60 * 10 * 1000L);
+//        String accessToken = jwtUtil.createJwt("Access-Token", providerId, role, 60 * 60 * 1L * 1000);
+//        String refreshToken = jwtUtil.createJwt("Refresh-Token", providerId, role, 60 * 60 * 24L * 1000);
 
         // TODO : 현재 액세스 토큰은 리프레시 토큰과 함께 쿠키에 저장되지만 리액트 서버를 사용할땐 response.setHeader로 액세스 토큰을 전달하면 된다.
         response.addCookie(jwtUtil.createCookie("Access-Token", accessToken));

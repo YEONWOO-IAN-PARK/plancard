@@ -1,7 +1,9 @@
 package com.junebay.plancard.auth.jwt;
 
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import jakarta.servlet.http.Cookie;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -15,6 +17,7 @@ import java.util.Date;
  * @date : 2024-11-08
  * @description :
  */
+@Slf4j
 @Component
 public class JWTUtil {
 
@@ -37,8 +40,25 @@ public class JWTUtil {
     }
 
     public Boolean isExpired(String token) {
-        return Jwts.parser().verifyWith(secretKey).build().parseSignedClaims(token).getPayload().getExpiration().before(new Date());
+        try {
+            return Jwts.parser()
+                    .verifyWith(secretKey)
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload()
+                    .getExpiration()
+                    .before(new Date());
+        } catch (JwtException e) {
+            // JWT가 유효하지 않거나 잘못된 형식일 경우
+            log.warn("Invalid JWT token: " + e.getMessage());
+            return true; // 만료된 것으로 간주
+        } catch (IllegalArgumentException e) {
+            // 토큰이 null 또는 빈 값일 경우
+            log.warn("JWT token is null or empty: " + e.getMessage());
+            return true; // 만료된 것으로 간주
+        }
     }
+
 
     public String createJwt(String category, String providerId, String role, Long expireMs) {
         return Jwts.builder()
@@ -54,7 +74,9 @@ public class JWTUtil {
     public Cookie createCookie(String key, String value) {
 
         Cookie cookie = new Cookie(key, value);
-        cookie.setMaxAge(60 * 60 * 24);
+        // TODO : 테스트 끝난 후 만료시간 정상으로 변경하기
+//        cookie.setMaxAge(60 * 60 * 24);
+        cookie.setMaxAge(60 * 60 * 1);
 //        cookie.setSecure(true);   //로컬 환경은 http 환경이기 때문에 주석처리
         cookie.setPath("/");
         cookie.setHttpOnly(true);

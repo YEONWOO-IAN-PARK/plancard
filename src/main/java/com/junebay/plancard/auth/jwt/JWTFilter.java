@@ -7,6 +7,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,6 +20,7 @@ import java.io.IOException;
  * @date : 2024-11-08
  * @description :
  */
+@Slf4j
 public class JWTFilter extends OncePerRequestFilter {
 
     private final JWTUtil jwtUtil;
@@ -30,7 +32,7 @@ public class JWTFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
 
-        String accessToken = request.getHeader("Access-Token");
+        String accessToken = null;
         String refreshToken = null;
         Cookie[] cookies = request.getCookies();
 
@@ -41,9 +43,13 @@ public class JWTFilter extends OncePerRequestFilter {
         // Refresh Token 가져오기
         else {
             for (Cookie cookie : cookies) {
-//            System.out.println(cookie.getName());
+                if (cookie.getName().equals("Access-Token")) {
+                    accessToken = cookie.getValue();
+                }
                 if (cookie.getName().equals("Refresh-Token")) {
                     refreshToken = cookie.getValue();
+                }
+                if (accessToken != null && refreshToken != null) {
                     break;
                 }
             }
@@ -56,11 +62,12 @@ public class JWTFilter extends OncePerRequestFilter {
                 return;
             }
 
+
             // Access Token 검증
             if (accessToken != null) {
                 // Access Token이 유효하다면 유저 인증 처리
                 if (!jwtUtil.isExpired(accessToken)) {
-                    System.out.println("Access token is still valid.");
+                    log.warn("Access token is still valid.");
                     authenticateUser(accessToken);
                     filterChain.doFilter(request, response);
 
@@ -74,7 +81,9 @@ public class JWTFilter extends OncePerRequestFilter {
 
                         // TODO : 현재 액세스 토큰은 리프레시 토큰과 함께 쿠키에 저장되지만 리액트 서버를 사용할땐 response.setHeader로 액세스 토큰을 전달하면 된다.
                         // 새 Access Token 발급
-                        String newAccessToken = jwtUtil.createJwt("Access-Token", providerId, role, 60 * 60 * 1L);
+                        // TODO : 테스트 끝난 후 만료시간 정상으로 변경하기
+//                        String newAccessToken = jwtUtil.createJwt("Access-Token", providerId, role, 60 * 60 * 1000L);
+                        String newAccessToken = jwtUtil.createJwt("Access-Token", providerId, role, 60 * 5 * 1000L);
                         response.addCookie(jwtUtil.createCookie("Access-Token", newAccessToken));
 
                         authenticateUser(newAccessToken);

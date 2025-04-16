@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 /**
  * @author : IAN
  * @date : 2024-11-05
- * @description :
+ * @description : 이미지 추상 클래스
  */
 public abstract class Image {
 

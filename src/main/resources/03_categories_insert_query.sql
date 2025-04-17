@@ -1,0 +1,10 @@
+INSERT INTO categories (name, is_active) VALUES ('attraction', true);
+INSERT INTO categories (name, is_active) VALUES ('accommodation', true);
+INSERT INTO categories (name, is_active) VALUES ('restaurant', true);
+INSERT INTO categories (name, is_active) VALUES ('activity', true);
+INSERT INTO categories (name, is_active) VALUES ('transportation', true);
+INSERT INTO categories (name, is_active) VALUES ('shopping', true);
+INSERT INTO categories (name, is_active) VALUES ('event', true);
+INSERT INTO categories (name, is_active) VALUES ('nature', true);
+INSERT INTO categories (name, is_active) VALUES ('history', true);
+INSERT INTO categories (name, is_active) VALUES ('nightlife', true);

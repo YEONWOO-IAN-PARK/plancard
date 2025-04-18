@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.junebay.plancard.card.mapper.CardMapper">
+
+	<!-- List<CardDTO> 를 위한 resultMap 설정 -->
+	<resultMap id="CardWithDetailsMap" type="com.junebay.plancard.card.dto.CardDTO">
+		<id property="cardId" column="card_id"/>
+		<result property="title" column="title"/>
+		<result property="description" column="description"/>
+		<result property="country" column="country"/>
+		<result property="city" column="city"/>
+		<result property="category" column="category"/>
+		<result property="rating" column="rating"/>
+		<result property="scrap" column="scrap"/>
+		<result property="mapLink" column="map_link"/>
+
+		<collection property="theme" ofType="string" column="name"
+		            javaType="ArrayList" select="selectThemesByCardId" />
+
+		<collection property="imageList" ofType="com.junebay.plancard.image.vo.Image"
+		            javaType="ArrayList" select="selectImagesByCardId"/>
+	</resultMap>
+	<!-- List<CardDTO> 를 위한 resultMap 설정 -->
+
+	<select id="selectExploreCards" resultType="com.junebay.plancard.card.dto.CardDTO" parameterType="com.junebay.plancard.common.dto.RequestDTO">
+		SELECT 	c.id AS card_id
+				, c.title
+		        , c.description
+		        , co.name AS country
+		        , ct.name AS city
+		        , cg.name AS category
+		        , c.rating
+		        , CASE WHEN cs.card_id IS NULL THEN false ELSE true END AS scrap
+		        , cml.map_link
+		FROM 	cards c
+				INNER JOIN cities ct ON ct.id = c.city_id
+		        INNER JOIN countries co ON co.id = ct.country_id
+		        INNER JOIN categories cg ON cg.id = c.category_id
+		        LEFT OUTER JOIN card_scraps cs ON cs.card_id = c.id AND cs.user_id = #{userId}
+		        LEFT OUTER JOIN card_map_links cml ON cml.card_id = c.id AND cml.is_active = true
+		WHERE	c.is_active = true
+				AND ct.is_active = true
+		        AND cg.is_active = true
+		<!-- 검색 -->
+	    <if test="search != null and search != ''">
+	        AND (c.title LIKE CONCAT('%', #{search}, '%')
+	          OR c.description LIKE CONCAT('%', #{search}, '%'))
+	    </if>
+
+	    <!-- 필터: 국가 -->
+	    <if test="filter != null and filter.country != null">
+	        AND co.id = #{filter.country}
+	    </if>
+
+	    <!-- 필터: 도시 -->
+	    <if test="filter != null and filter.city != null">
+	        AND ct.id = #{filter.city}
+	    </if>
+
+	    <!-- 필터: 카테고리 (배열) -->
+	    <if test="filter != null and filter.category != null and filter.category.size() > 0">
+	        AND cg.id IN
+	        <foreach item="cat" collection="filter.category" open="(" separator="," close=")">
+	            #{cat}
+	        </foreach>
+	    </if>
+
+	    <!-- 필터: 테마 -->
+	    <if test="filter != null and filter.theme != null and filter.theme.size() > 0">
+	        AND EXISTS (
+	            SELECT	1
+	            FROM	card_themes t
+	            WHERE	t.card_id = c.id
+	            		AND t.theme_id IN
+		            <foreach item="themeId" collection="filter.theme" open="(" separator="," close=")">
+		                #{themeId}
+		            </foreach>
+	        )
+	    </if>
+
+	    <!-- 필터: 스크랩 여부 -->
+	    <if test="filter != null and filter.scrap != null">
+	        <choose>
+	            <when test="filter.scrap == true">
+	                AND cs.card_id IS NOT NULL
+	            </when>
+	            <otherwise>
+	                AND cs.card_id IS NULL
+	            </otherwise>
+	        </choose>
+	    </if>
+
+	    <!-- 정렬 -->
+	    ORDER BY
+	    <choose>
+	        <when test="sort != null and sort.sortBy != null">
+	            ${sort.sortBy}  <!-- 주의: XSS 또는 SQL injection 방지를 위해 enum 제한 추천 -->
+	        </when>
+	        <otherwise>
+	            c.id
+	        </otherwise>
+	    </choose>
+	    <choose>
+	        <when test="sort != null and sort.sortOrder != null">
+	            ${sort.sortOrder}
+	        </when>
+	        <otherwise>
+	            DESC
+	        </otherwise>
+	    </choose>
+
+	    <!-- 페이징 -->
+	    <if test="pagination != null">
+	        LIMIT #{pagination.size}
+	        OFFSET #{(pagination.page - 1) * pagination.size}
+	    </if>
+
+	</select>
+
+	<select id="selectThemesByCardId" resultType="string">
+	    SELECT 	theme_name
+	    FROM 	card_themes
+	    WHERE 	card_id = #{cardId}
+	</select>
+
+	<select id="selectImagesByCardId" resultType="com.junebay.plancard.image.vo.Image">
+	    SELECT	id as imageId
+	        	, image_url
+	         	, alt
+	         	, is_main
+	    FROM 	card_images
+	    WHERE 	card_id = #{cardId}
+	</select>
+</mapper>

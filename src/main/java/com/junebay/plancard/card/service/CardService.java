@@ -1,8 +1,7 @@
 package com.junebay.plancard.card.service;
 
-import com.junebay.plancard.card.dto.CardDTO;
-
-import java.util.List;
+import com.junebay.plancard.common.dto.RequestDTO;
+import com.junebay.plancard.common.dto.ResponseDTO;
 
 /**
  * @author : IAN
@@ -15,5 +14,5 @@ public interface CardService {
      * 탐험카드 목록을 가져오는 기능
      * @return
      */
-    List<CardDTO> exploreCards();
+    ResponseDTO exploreCards(RequestDTO requestDTO);
 }

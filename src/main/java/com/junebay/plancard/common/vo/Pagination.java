@@ -1,10 +1,14 @@
 package com.junebay.plancard.common.vo;
 
+import lombok.Getter;
+import lombok.Setter;
+
 /**
  * @author : IAN
  * @date : 2025-04-16
  * @description : 사용자 요청/응답 DTO - 페이지네이션 정보
  */
+@Getter
 public class Pagination {
 
     private int page;           /* 불러올 페이지 번호 */

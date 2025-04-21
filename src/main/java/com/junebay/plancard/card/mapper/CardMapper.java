@@ -1,6 +1,7 @@
 package com.junebay.plancard.card.mapper;
 
 import com.junebay.plancard.card.dto.CardDTO;
+import com.junebay.plancard.common.dto.RequestDTO;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
@@ -17,5 +18,5 @@ public interface CardMapper {
      * 탐험 카드 목록을 조회하는 기능
      * @return 탐험카드 목록
      */
-    List<CardDTO> selectExploreCards();
+    List<CardDTO> selectExploreCards(RequestDTO requestDTO);
 }

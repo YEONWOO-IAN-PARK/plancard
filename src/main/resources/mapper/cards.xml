@@ -5,7 +5,7 @@
 	<!-- List<CardDTO> 를 위한 resultMap 설정 -->
 	<resultMap id="CardWithDetailsMap" type="com.junebay.plancard.card.dto.CardDTO">
 		<id property="cardId" column="card_id"/>
-		<result property="title" column="title"/>
+		<result property="title" column="card_title"/>
 		<result property="description" column="description"/>
 		<result property="country" column="country"/>
 		<result property="city" column="city"/>
@@ -24,7 +24,7 @@
 
 	<select id="selectExploreCards" resultType="com.junebay.plancard.card.dto.CardDTO" parameterType="com.junebay.plancard.common.dto.RequestDTO">
 		SELECT 	c.id AS card_id
-				, c.title
+				, c.title as card_title
 		        , c.description
 		        , co.name AS country
 		        , ct.name AS city
@@ -92,22 +92,10 @@
 
 	    <!-- 정렬 -->
 	    ORDER BY
-	    <choose>
-	        <when test="sort != null and sort.sortBy != null">
-	            ${sort.sortBy}  <!-- 주의: XSS 또는 SQL injection 방지를 위해 enum 제한 추천 -->
-	        </when>
-	        <otherwise>
-	            c.id
-	        </otherwise>
-	    </choose>
-	    <choose>
-	        <when test="sort != null and sort.sortOrder != null">
-	            ${sort.sortOrder}
-	        </when>
-	        <otherwise>
-	            DESC
-	        </otherwise>
-	    </choose>
+        <if test="sort != null and sort.sortBy != null">
+	        <!-- 주의: XSS 또는 SQL injection 방지를 위해 enum 사용 -->
+	        ${sort.sortBy.column} ${sort.sortOrder}
+        </if>
 
 	    <!-- 페이징 -->
 	    <if test="pagination != null">

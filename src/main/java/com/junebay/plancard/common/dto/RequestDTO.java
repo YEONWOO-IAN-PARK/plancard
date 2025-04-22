@@ -3,8 +3,8 @@ package com.junebay.plancard.common.dto;
 import com.junebay.plancard.common.vo.Filter;
 import com.junebay.plancard.common.vo.Pagination;
 import com.junebay.plancard.common.vo.Sort;
-import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
+import lombok.Setter;
 
 /**
  * @author : IAN
@@ -12,12 +12,14 @@ import lombok.Getter;
  * @description : 사용자 요청 DTO
  */
 @Getter
+@Setter
 public class RequestDTO {
 
     private String search;          /* 검색어 */
     private Filter filter;          /* 필터링 */
-    @NotNull private Sort sort;                      /* 정렬 */
-    @NotNull private Pagination pagination;  /* 페이지네이션 */
+    private Sort sort;                      /* 정렬 */
+    private Pagination pagination;  /* 페이지네이션 */
+
 
     /**
      {

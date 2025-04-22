@@ -17,14 +17,14 @@
 		<collection property="theme" ofType="string" column="name"
 		            javaType="ArrayList" select="selectThemesByCardId" />
 
-		<collection property="imageList" ofType="com.junebay.plancard.image.vo.Image"
+		<collection property="imageList" ofType="com.junebay.plancard.image.vo.Image" column="card_id"
 		            javaType="ArrayList" select="selectImagesByCardId"/>
 	</resultMap>
 	<!-- List<CardDTO> 를 위한 resultMap 설정 -->
 
-	<select id="selectExploreCards" resultType="com.junebay.plancard.card.dto.CardDTO" parameterType="com.junebay.plancard.common.dto.RequestDTO">
+	<select id="selectExploreCards" resultMap="CardWithDetailsMap" parameterType="com.junebay.plancard.common.dto.RequestDTO">
 		SELECT 	c.id AS card_id
-				, c.title as card_title
+				, c.title AS card_title
 		        , c.description
 		        , co.name AS country
 		        , ct.name AS city
@@ -36,7 +36,7 @@
 				INNER JOIN cities ct ON ct.id = c.city_id
 		        INNER JOIN countries co ON co.id = ct.country_id
 		        INNER JOIN categories cg ON cg.id = c.category_id
-		        LEFT OUTER JOIN card_scraps cs ON cs.card_id = c.id AND cs.user_id = #{userId}
+		        LEFT OUTER JOIN card_scraps cs ON cs.card_id = c.id AND cs.user_id = 2 /* 임시 변수(추후 삭제) */
 		        LEFT OUTER JOIN card_map_links cml ON cml.card_id = c.id AND cml.is_active = true
 		WHERE	c.is_active = true
 				AND ct.is_active = true
@@ -69,7 +69,7 @@
 	    <if test="filter != null and filter.theme != null and filter.theme.size() > 0">
 	        AND EXISTS (
 	            SELECT	1
-	            FROM	card_themes t
+	            FROM	card_theme t
 	            WHERE	t.card_id = c.id
 	            		AND t.theme_id IN
 		            <foreach item="themeId" collection="filter.theme" open="(" separator="," close=")">
@@ -100,20 +100,23 @@
 	    <!-- 페이징 -->
 	    <if test="pagination != null">
 	        LIMIT #{pagination.size}
-	        OFFSET #{(pagination.page - 1) * pagination.size}
+	        OFFSET #{pagination.offset}
 	    </if>
 
 	</select>
 
 	<select id="selectThemesByCardId" resultType="string">
-	    SELECT 	theme_name
-	    FROM 	card_themes
-	    WHERE 	card_id = #{cardId}
+		SELECT	t.name
+		FROM 	card_theme ct
+				INNER JOIN themes t
+					ON ct.theme_id = t.id
+		WHERE  	ct.card_id = #{cardId}
+	            AND t.is_active = true
 	</select>
 
 	<select id="selectImagesByCardId" resultType="com.junebay.plancard.image.vo.Image">
-	    SELECT	id as imageId
-	        	, image_url
+	    SELECT	id AS imageId
+	        	, CONCAT('/images/cards/', id)  AS image_url
 	         	, alt
 	         	, is_main
 	    FROM 	card_images

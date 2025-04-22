@@ -1,5 +1,8 @@
 package com.junebay.plancard.common.vo;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.util.List;
 
 /**
@@ -7,6 +10,8 @@ import java.util.List;
  * @date : 2025-04-16
  * @description : 사용자 요청 DTO - 필터 정보
  */
+@Getter
+@Setter
 public class Filter {
 
     private boolean scrap;              /* 스크랩 여부 */

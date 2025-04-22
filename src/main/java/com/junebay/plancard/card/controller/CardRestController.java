@@ -3,10 +3,8 @@ package com.junebay.plancard.card.controller;
 import com.junebay.plancard.card.service.CardService;
 import com.junebay.plancard.common.dto.RequestDTO;
 import com.junebay.plancard.common.dto.ResponseDTO;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,12 +16,11 @@ import org.springframework.web.bind.annotation.RestController;
  * @date : 2025-03-25
  * @description : 카드에 관련된 작업을 하는 Rest Controller
  */
+@Slf4j
+@RequiredArgsConstructor
 @RestController
 @RequestMapping("/cards")
-@RequiredArgsConstructor
 public class CardRestController {
-
-    private static final Logger log = LoggerFactory.getLogger(CardRestController.class);
 
     private final CardService cardService;
 
@@ -33,15 +30,7 @@ public class CardRestController {
      */
     @PostMapping("/search/explore")
     public ResponseEntity<ResponseDTO> exploreCards(@RequestBody RequestDTO requestDTO) {
-        ResponseDTO responseDTO = new ResponseDTO();
-
-        try {
-            responseDTO = cardService.exploreCards(requestDTO);
-            if (responseDTO.getStatus() == 400) return ResponseEntity.badRequest().body(responseDTO);
-        } catch (Exception e) {
-            log.warn("Exception Occurred while exploreCards() : {}", e.getMessage());
-        }
-
+        ResponseDTO responseDTO = cardService.exploreCards(requestDTO);
         return ResponseEntity.ok(responseDTO);
     }
 

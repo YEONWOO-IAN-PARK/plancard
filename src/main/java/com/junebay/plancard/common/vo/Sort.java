@@ -1,12 +1,16 @@
 package com.junebay.plancard.common.vo;
 
 import com.junebay.plancard.card.enums.SortBy;
+import lombok.Getter;
+import lombok.Setter;
 
 /**
  * @author : IAN
  * @date : 2025-04-16
  * @description : 사용자 요청 DTO - 정렬 정보
  */
+@Getter
+@Setter
 public class Sort {
 
     private SortBy sortBy;      /* 정렬 기준 */

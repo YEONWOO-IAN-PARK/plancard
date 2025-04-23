@@ -1,6 +1,7 @@
 package com.junebay.plancard.common.handler;
 
 import com.junebay.plancard.common.dto.ResponseDTO;
+import com.junebay.plancard.common.exception.BadRequestException;
 import com.junebay.plancard.common.exception.BaseException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -14,12 +15,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(BaseException.class)
+    @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ResponseDTO> handleBadRequestException(BaseException ex) {
         ResponseDTO responseDTO = new ResponseDTO();
-        responseDTO.setMessage(ex.getMessage());
-        responseDTO.setStatus(ex.getStatusCode());
         responseDTO.setDetails(ex.getDetails());
         return ResponseEntity.badRequest().body(responseDTO);
     }
+
 }

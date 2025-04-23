@@ -12,7 +12,9 @@ public interface CardService {
 
     /**
      * 탐험카드 목록을 가져오는 기능
-     * @return
+     * @param requestDTO 요청 DTO
+     * @param cardType 조회카드 유형("explore" || "my")
      */
-    ResponseDTO exploreCards(RequestDTO requestDTO);
+    ResponseDTO selectCards(RequestDTO requestDTO, String cardType);
+
 }

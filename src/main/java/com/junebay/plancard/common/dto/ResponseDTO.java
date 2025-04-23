@@ -15,9 +15,7 @@ import java.util.List;
 @Setter
 public class ResponseDTO {
 
-    private int status;             /* 상태코드 */
-    private String message;         /* 상태메세지 (ex. OK, ...) */
-    private List<?> data;           /* 응답 데이터 */
+    private List<?> result;           /* 응답 데이터 */
     private Pagination pagination;  /* 페이지네이션 */
     private String details;          /* 상세 응답 메시지 (ex.검색결과에 따른 목록을 가져왔습니다.) */
 
@@ -25,7 +23,7 @@ public class ResponseDTO {
      {
          "status": 200,
          "message": "OK",
-         "data": [
+         "data": [F
              {
                  "cardId": "1",
                  "title -> cardTitle": "Eiffel Tower",

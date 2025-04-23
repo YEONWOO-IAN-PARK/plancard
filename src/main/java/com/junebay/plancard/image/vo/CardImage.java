@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
  * @date : 2024-11-05
  * @description :
  */
-public class CardImage extends Image{
+public class CardImage extends Image {
 
     private long id;
     private long cardId;

@@ -3,7 +3,7 @@
 <mapper namespace="com.junebay.plancard.card.mapper.CardMapper">
 
 	<!-- List<CardDTO> 를 위한 resultMap 설정 -->
-	<resultMap id="CardWithDetailsMap" type="com.junebay.plancard.card.dto.CardDTO">
+	<resultMap id="cardDTOResultMap" type="com.junebay.plancard.card.dto.CardDTO">
 		<id property="cardId" column="card_id"/>
 		<result property="title" column="card_title"/>
 		<result property="description" column="description"/>
@@ -13,113 +13,173 @@
 		<result property="rating" column="rating"/>
 		<result property="scrap" column="scrap"/>
 		<result property="mapLink" column="map_link"/>
-
-		<collection property="theme" ofType="string" column="name"
-		            javaType="ArrayList" select="selectThemesByCardId" />
-
-		<collection property="imageList" ofType="com.junebay.plancard.image.vo.Image" column="card_id"
-		            javaType="ArrayList" select="selectImagesByCardId"/>
+		<collection property="theme" ofType="string" column="name" javaType="ArrayList" select="selectThemesByCardId" />
+		<collection property="imageList" ofType="com.junebay.plancard.image.vo.Image" column="card_id" javaType="ArrayList" select="selectImagesByCardId"/>
 	</resultMap>
 	<!-- List<CardDTO> 를 위한 resultMap 설정 -->
 
-	<select id="selectExploreCards" resultMap="CardWithDetailsMap" parameterType="com.junebay.plancard.common.dto.RequestDTO">
+	<resultMap id="myCardDTOResultMap" type="com.junebay.plancard.card.dto.MyCardDTO">
+		<id property="myCardId" column="my_card_id" />
+		<result property="cardId" column="card_id"/>
+		<result property="title" column="card_title"/>
+		<result property="description" column="description"/>
+		<result property="country" column="country"/>
+		<result property="city" column="city"/>
+		<result property="category" column="category"/>
+		<result property="rating" column="rating"/>
+		<result property="scrap" column="scrap"/>
+		<result property="mapLink" column="map_link"/>
+
+		<collection property="theme" ofType="string" column="name" javaType="ArrayList" select="selectThemesByCardId" />
+		<collection property="imageList" ofType="com.junebay.plancard.image.vo.Image" column="card_id" javaType="ArrayList" select="selectImagesByCardId"/>
+		<collection property="myImageList" ofType="com.junebay.plancard.image.vo.Image" column="my_card_id" javaType="ArrayList" select="selectImagesByMyCardId"/>
+	</resultMap>
+
+	<sql id="selectExploreCards">
 		SELECT 	c.id AS card_id
 				, c.title AS card_title
-		        , c.description
-		        , co.name AS country
-		        , ct.name AS city
-		        , cg.name AS category
-		        , c.rating
-		        , CASE WHEN cs.card_id IS NULL THEN false ELSE true END AS scrap
-		        , cml.map_link
+				, c.description
+				, co.name AS country
+				, ct.name AS city
+				, cg.name AS category
+				, c.rating
+				, CASE WHEN cs.card_id IS NULL THEN false ELSE true END AS scrap
+				, cml.map_link
 		FROM 	cards c
 				INNER JOIN cities ct ON ct.id = c.city_id
-		        INNER JOIN countries co ON co.id = ct.country_id
-		        INNER JOIN categories cg ON cg.id = c.category_id
-		        LEFT OUTER JOIN card_scraps cs ON cs.card_id = c.id AND cs.user_id = 2 /* 임시 변수(추후 삭제) */
-		        LEFT OUTER JOIN card_map_links cml ON cml.card_id = c.id AND cml.is_active = true
+				INNER JOIN countries co ON co.id = ct.country_id
+				INNER JOIN categories cg ON cg.id = c.category_id
+				LEFT OUTER JOIN card_scraps cs ON cs.card_id = c.id AND cs.user_id = 2 /* TODO: 임시 변수(추후 삭제) */
+				LEFT OUTER JOIN card_map_links cml ON cml.card_id = c.id AND cml.is_active = true
 		WHERE	c.is_active = true
 				AND ct.is_active = true
-		        AND cg.is_active = true
-		<!-- 검색 -->
-	    <if test="search != null and search != ''">
-	        AND (c.title LIKE CONCAT('%', #{search}, '%')
-	          OR c.description LIKE CONCAT('%', #{search}, '%'))
-	    </if>
+				AND cg.is_active = true
 
-	    <!-- 필터: 국가 -->
-	    <if test="filter != null and filter.country != null">
-	        AND co.id = #{filter.country}
-	    </if>
+		<include refid="searchCondition" />
+		<include refid="filterCondition" />
+	</sql>
 
-	    <!-- 필터: 도시 -->
-	    <if test="filter != null and filter.city != null">
-	        AND ct.id = #{filter.city}
-	    </if>
+	<sql id="searchCondition">
+		/* 검색 */
+	<if test="search != null and search != ''">
+		AND (
+		    c.title LIKE CONCAT('%', #{search}, '%')
+			OR c.description LIKE CONCAT('%', #{search}, '%')
+		)
+	</if>
+	</sql>
 
-	    <!-- 필터: 카테고리 (배열) -->
-	    <if test="filter != null and filter.category != null and filter.category.size() > 0">
-	        AND cg.id IN
-	        <foreach item="cat" collection="filter.category" open="(" separator="," close=")">
-	            #{cat}
-	        </foreach>
-	    </if>
+	<sql id="filterCondition">
+		/* 필터: 국가 */
+		<if test='filter != null and filter.country != null and !"".equals(filter.country)'>
+			AND co.id = #{filter.country}
+		</if>
+		/* 필터: 도시 */
+		<if test='filter != null and filter.city != null and !"".equals(filter.city)'>
+			AND ct.id = #{filter.city}
+		</if>
+		/* 필터: 카테고리 (배열) */
+		<if test="filter != null and filter.category != null and filter.category.size() > 0">
+			AND cg.id IN
+			<foreach item="cat" collection="filter.category" open="(" separator="," close=")">
+				#{cat}
+			</foreach>
+		</if>
+		/* 필터: 테마 */
+		<if test="filter != null and filter.theme != null and filter.theme.size() > 0">
+			AND EXISTS (
+				SELECT	1
+				FROM	card_theme t
+				WHERE	t.card_id = c.id
+						AND t.theme_id IN
+					<foreach item="themeId" collection="filter.theme" open="(" separator="," close=")">
+						#{themeId}
+					</foreach>
+			)
+		</if>
+		/* 필터: 스크랩 여부 */
+		<if test="filter != null and filter.scrap != null">
+		<choose>
+			<when test="filter.scrap == true">
+				AND cs.card_id IS NOT NULL
+			</when>
+			<otherwise>
+				AND cs.card_id IS NULL
+			</otherwise>
+		</choose>
+		</if>
+	</sql>
 
-	    <!-- 필터: 테마 -->
-	    <if test="filter != null and filter.theme != null and filter.theme.size() > 0">
-	        AND EXISTS (
-	            SELECT	1
-	            FROM	card_theme t
-	            WHERE	t.card_id = c.id
-	            		AND t.theme_id IN
-		            <foreach item="themeId" collection="filter.theme" open="(" separator="," close=")">
-		                #{themeId}
-		            </foreach>
-	        )
-	    </if>
+	<!-- 카드목록 조회 ORDER BY -->
+	<sql id="sortCondition">
+		ORDER BY
+		<if test="sort != null and sort.sortBy != null">
+			${sort.sortBy.column} ${sort.sortOrder}
+		</if>
+	</sql>
 
-	    <!-- 필터: 스크랩 여부 -->
-	    <if test="filter != null and filter.scrap != null">
-	        <choose>
-	            <when test="filter.scrap == true">
-	                AND cs.card_id IS NOT NULL
-	            </when>
-	            <otherwise>
-	                AND cs.card_id IS NULL
-	            </otherwise>
-	        </choose>
-	    </if>
+	<!-- 페이징 처리 OFFSET-->
+	<sql id="paginationCondition">
+		<if test="pagination != null">
+			LIMIT #{pagination.size}
+			OFFSET #{pagination.offset}
+		</if>
+	</sql>
 
-	    <!-- 정렬 -->
-	    ORDER BY
-        <if test="sort != null and sort.sortBy != null">
-	        <!-- 주의: XSS 또는 SQL injection 방지를 위해 enum 사용 -->
-	        ${sort.sortBy.column} ${sort.sortOrder}
-        </if>
-
-	    <!-- 페이징 -->
-	    <if test="pagination != null">
-	        LIMIT #{pagination.size}
-	        OFFSET #{pagination.offset}
-	    </if>
-
+	<select id="selectExploreCards" resultMap="cardDTOResultMap" parameterType="com.junebay.plancard.common.dto.RequestDTO">
+		<include refid="selectExploreCards" />
+		<include refid="searchCondition" />
+		<include refid="filterCondition" />
+		<include refid="sortCondition" />
+		<include refid="paginationCondition" />
 	</select>
 
 	<select id="selectThemesByCardId" resultType="string">
 		SELECT	t.name
 		FROM 	card_theme ct
-				INNER JOIN themes t
-					ON ct.theme_id = t.id
+		        INNER JOIN themes t
+                   ON ct.theme_id = t.id
 		WHERE  	ct.card_id = #{cardId}
-	            AND t.is_active = true
+		  		AND t.is_active = true
 	</select>
 
 	<select id="selectImagesByCardId" resultType="com.junebay.plancard.image.vo.Image">
-	    SELECT	id AS imageId
-	        	, CONCAT('/images/cards/', id)  AS image_url
-	         	, alt
-	         	, is_main
-	    FROM 	card_images
-	    WHERE 	card_id = #{cardId}
+		SELECT	id AS imageId
+				 , CONCAT('/images/cards/explore/', id)  AS image_url
+				 , alt
+				 , is_main
+		FROM 	card_images
+		WHERE 	card_id = #{cardId}
+	</select>
+
+	<select id="selectImagesByMyCardId" resultType="com.junebay.plancard.image.vo.Image">
+		SELECT	id AS myCardImageId
+				 , CONCAT('/images/cards/my/', id)  AS image_url
+				 , alt
+				 , is_main
+		FROM 	my_card_images
+		WHERE 	my_card_id = #{myCardId}
+	</select>
+
+
+	<select id="selectMyCards" resultMap="myCardDTOResultMap" parameterType="com.junebay.plancard.common.dto.RequestDTO">
+		SELECT	mc.id AS my_card_id
+		       	, ec.card_id
+				, ec.card_title
+				, ec.description
+				, ec.country
+				, ec.city
+				, ec.category
+				, ec.rating
+				, ec.scrap
+				, ec.map_link
+		FROM	my_cards mc
+				INNER JOIN (
+				    <include refid="selectExploreCards"/>
+				) ec ON mc.card_id = ec.card_id
+		WHERE	mc.user_id = 2
+				AND mc.is_active = true
+		<include refid="sortCondition" />
+		<include refid="paginationCondition" />
 	</select>
 </mapper>

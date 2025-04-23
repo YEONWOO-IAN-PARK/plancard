@@ -5,12 +5,9 @@ import com.junebay.plancard.card.mapper.CardMapper;
 import com.junebay.plancard.card.service.CardService;
 import com.junebay.plancard.common.dto.RequestDTO;
 import com.junebay.plancard.common.dto.ResponseDTO;
-import com.junebay.plancard.common.exception.InternalServerErrorException;
 import com.junebay.plancard.common.validator.RequestValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +16,7 @@ import java.util.List;
 /**
  * @author : IAN
  * @date : 2025-04-17
- * @description :
+ * @description : 카드 관련 비즈니스 로직을 구현하는 서비스 구현체 클래스
  */
 @Slf4j
 @Service
@@ -36,31 +33,37 @@ public class CardServiceImpl implements CardService {
 
     private final CardMapper cardMapper;
 
-    @Value("${response.internalError.message}") private String internalErrorMessage;
-    @Value("${response.internalError.status}") private int internalErrorStatus;
-    @Value("${response.internalError.detail}") private String internalErrorDetails;
-
     @Override
-    public ResponseDTO exploreCards(RequestDTO requestDTO) {
+    public ResponseDTO selectCards(RequestDTO requestDTO, String cardType) {
         ResponseDTO responseDTO = new ResponseDTO();
+        List<CardDTO> cardDTOList;
 
-        // RequestDTO Validation (Early return)
-        requestValidator.validateRequest(requestDTO);
+        requestValidator.validateRequest(requestDTO);   // RequestDTO Validation (Early return)
 
-        List<CardDTO> exploreCards = cardMapper.selectExploreCards(requestDTO);
+        if ("explore".equals(cardType)) {
+            cardDTOList = cardMapper.selectExploreCards(requestDTO);
+        } else {
+            cardDTOList = cardMapper.selectMyCards(requestDTO);
+        }
 
-        // Setting ResponseDTO After Validation
-        responseDTO.setStatus(200);
-        responseDTO.setMessage("OK");
-        responseDTO.setData(exploreCards);
-        if (!exploreCards.isEmpty()) {
+        setResponseDTO(requestDTO, responseDTO, cardDTOList);
+
+        return responseDTO;
+    }
+
+    /**
+     * Setting ResponseDTO After Validation
+     */
+    private void setResponseDTO(RequestDTO requestDTO, ResponseDTO responseDTO, List<CardDTO> cardDTOList) {
+
+        if (!cardDTOList.isEmpty()) {
             responseDTO.setPagination(requestDTO.getPagination());
             responseDTO.setDetails(exist);
         } else {
             responseDTO.setDetails(notExist);
         }
 
-        return responseDTO;
+        responseDTO.setResult(cardDTOList);
     }
 
 }

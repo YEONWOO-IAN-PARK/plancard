@@ -16,8 +16,6 @@ import org.springframework.stereotype.Component;
 public class RequestValidator {
 
     @Value("${response.badRequest.detail}") private String badRequestDetails;
-    @Value("${response.badRequest.message}") private String badRequestMessage;
-    @Value("${response.badRequest.status}") private int badRequestStatus;
 
     /**
      * RequestDTO를 받아 사용자 요청의 유효성 검사 시행
@@ -28,7 +26,7 @@ public class RequestValidator {
     public void validateRequest(RequestDTO requestDTO) {
 
         if (requestDTO.getPagination() == null || requestDTO.getSort() == null) {
-            throw new BadRequestException(badRequestMessage, badRequestStatus, badRequestDetails);
+            throw new BadRequestException(badRequestDetails);
         }
 
     }

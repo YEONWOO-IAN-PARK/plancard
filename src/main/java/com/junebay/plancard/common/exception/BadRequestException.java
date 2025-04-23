@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
  */
 public class BadRequestException extends BaseException {
 
-    public BadRequestException(String message, int statusCode, String details) {
-        super(message, statusCode, details);
+    public BadRequestException(String details) {
+        super(details);
     }
 }

@@ -1,6 +1,6 @@
 package com.junebay.plancard.card.dto;
 
-import com.junebay.plancard.image.dto.MyCardImageDTO;
+import com.junebay.plancard.image.vo.MyCardImage;
 
 import java.util.List;
 
@@ -12,5 +12,5 @@ import java.util.List;
 public class MyCardDTO extends CardDTO {
 
     private long myCardId;
-    private List<MyCardImageDTO> myImageList;
+    private List<MyCardImage> myImageList;
 }

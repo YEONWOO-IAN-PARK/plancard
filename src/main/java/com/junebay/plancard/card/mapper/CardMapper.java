@@ -16,7 +16,15 @@ public interface CardMapper {
 
     /**
      * 탐험 카드 목록을 조회하는 기능
+     * @param requestDTO
      * @return 탐험카드 목록
      */
     List<CardDTO> selectExploreCards(RequestDTO requestDTO);
+
+    /**
+     * 내 카드 목록을 조회하는 기능
+     * @param requestDTO
+     * @return 내 카드 목록
+     */
+    List<CardDTO> selectMyCards(RequestDTO requestDTO);
 }

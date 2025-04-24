@@ -15,11 +15,11 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(BadRequestException.class)
+    @ExceptionHandler(BaseException.class)
     public ResponseEntity<ResponseDTO> handleBadRequestException(BaseException ex) {
         ResponseDTO responseDTO = new ResponseDTO();
         responseDTO.setDetails(ex.getDetails());
-        return ResponseEntity.badRequest().body(responseDTO);
+        return ResponseEntity.badRequest().body(responseDTO);   // 현재는 .status()를 사용하고 있지 않지만, 확장성이 요구되는 시점에서 .status(ex.getStatus())와 같이 사용가능
     }
 
 }

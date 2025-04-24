@@ -1,6 +1,6 @@
 package com.junebay.plancard.common.vo;
 
-import com.junebay.plancard.card.enums.SortBy;
+import com.junebay.plancard.common.enums.SortBy;
 import lombok.Getter;
 import lombok.Setter;
 

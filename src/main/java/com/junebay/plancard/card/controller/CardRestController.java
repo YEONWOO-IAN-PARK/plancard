@@ -31,4 +31,10 @@ public class CardRestController {
         return ResponseEntity.ok(responseDTO);
     }
 
+    @GetMapping("/{cardType}/{cardId}")
+    public ResponseEntity<ResponseDTO> card(@PathVariable String cardType, @PathVariable long cardId) {
+        ResponseDTO responseDTO = cardService.selectOneCard(cardType, cardId);
+        return ResponseEntity.ok(responseDTO);
+    }
+
 }

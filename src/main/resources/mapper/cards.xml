@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.junebay.plancard.card.mapper.CardMapper">
 
-	<!-- List<CardDTO> 를 위한 resultMap 설정 -->
+	<!-- 탐험카드 반환을 위한 ResultMap -->
 	<resultMap id="cardDTOResultMap" type="com.junebay.plancard.card.dto.CardDTO">
 		<id property="cardId" column="card_id"/>
 		<result property="title" column="card_title"/>
@@ -16,9 +16,9 @@
 		<collection property="theme" ofType="string" column="name" javaType="ArrayList" select="selectThemesByCardId" />
 		<collection property="imageList" ofType="com.junebay.plancard.image.vo.Image" column="card_id" javaType="ArrayList" select="selectImagesByCardId"/>
 	</resultMap>
-	<!-- List<CardDTO> 를 위한 resultMap 설정 -->
 
-	<resultMap id="myCardDTOResultMap" type="com.junebay.plancard.card.dto.MyCardDTO">
+	<!-- 내 카드 반환을 위한 ResultMap -->
+	<resultMap id="mycardDTOResultMap" type="com.junebay.plancard.card.dto.MyCardDTO">
 		<id property="myCardId" column="my_card_id" />
 		<result property="cardId" column="card_id"/>
 		<result property="title" column="card_title"/>
@@ -29,11 +29,32 @@
 		<result property="rating" column="rating"/>
 		<result property="scrap" column="scrap"/>
 		<result property="mapLink" column="map_link"/>
-
 		<collection property="theme" ofType="string" column="name" javaType="ArrayList" select="selectThemesByCardId" />
 		<collection property="imageList" ofType="com.junebay.plancard.image.vo.Image" column="card_id" javaType="ArrayList" select="selectImagesByCardId"/>
 		<collection property="myImageList" ofType="com.junebay.plancard.image.vo.Image" column="my_card_id" javaType="ArrayList" select="selectImagesByMyCardId"/>
 	</resultMap>
+
+
+	<sql id="selectCardOne">
+		SELECT 	c.id AS card_id
+				, c.title as card_title
+				, c.description
+				, co.name AS country
+				, ct.name AS city
+				, cg.name AS category
+				, c.rating
+				, cm.map_link
+				, CASE WHEN cs.card_id IS NULL THEN false ELSE true END AS scrap
+		FROM 	cards c
+				INNER JOIN cities ct ON c.city_id = ct.id AND c.id = #{cardId}
+				INNER JOIN countries co ON co.id = ct.country_id
+				LEFT OUTER JOIN categories cg ON cg.id = c.category_id
+				LEFT OUTER JOIN card_scraps cs ON cs.card_id = c.id AND cs.user_id = 2	/* TODO: 임시 변수(추후 삭제) */
+				LEFT OUTER JOIN card_map_links cm ON cm.card_id = c.id AND cm.is_active = true
+		WHERE	c.is_active = true
+				AND ct.is_active = true
+				AND cg.is_active = true
+	</sql>
 
 	<sql id="selectExploreCards">
 		SELECT 	c.id AS card_id
@@ -44,13 +65,13 @@
 				, cg.name AS category
 				, c.rating
 				, CASE WHEN cs.card_id IS NULL THEN false ELSE true END AS scrap
-				, cml.map_link
+				, cm.map_link
 		FROM 	cards c
 				INNER JOIN cities ct ON ct.id = c.city_id
 				INNER JOIN countries co ON co.id = ct.country_id
 				INNER JOIN categories cg ON cg.id = c.category_id
 				LEFT OUTER JOIN card_scraps cs ON cs.card_id = c.id AND cs.user_id = 2 /* TODO: 임시 변수(추후 삭제) */
-				LEFT OUTER JOIN card_map_links cml ON cml.card_id = c.id AND cml.is_active = true
+				LEFT OUTER JOIN card_map_links cm ON cm.card_id = c.id AND cm.is_active = true
 		WHERE	c.is_active = true
 				AND ct.is_active = true
 				AND cg.is_active = true
@@ -161,8 +182,7 @@
 		WHERE 	my_card_id = #{myCardId}
 	</select>
 
-
-	<select id="selectMyCards" resultMap="myCardDTOResultMap" parameterType="com.junebay.plancard.common.dto.RequestDTO">
+	<select id="selectMyCards" resultMap="mycardDTOResultMap" parameterType="com.junebay.plancard.common.dto.RequestDTO">
 		SELECT	mc.id AS my_card_id
 		       	, ec.card_id
 				, ec.card_title
@@ -181,5 +201,28 @@
 				AND mc.is_active = true
 		<include refid="sortCondition" />
 		<include refid="paginationCondition" />
+	</select>
+
+	<select id="selectExploreCardOne" resultMap="cardDTOResultMap" parameterType="long">
+		<include refid="selectCardOne" />
+	</select>
+
+	<select id="selectMyCardOne" resultMap="mycardDTOResultMap" parameterType="long">
+		SELECT	mc.id AS my_card_id
+		        , ec.card_id
+				, ec.card_title
+				, ec.description
+				, ec.country
+				, ec.city
+				, ec.category
+				, ec.rating
+				, ec.scrap
+				, ec.map_link
+		FROM	my_cards mc
+				INNER JOIN (
+				    <include refid="selectCardOne" />
+				) ec ON mc.card_id = ec.card_id
+		WHERE	mc.user_id = 2
+				AND mc.is_active = true
 	</select>
 </mapper>

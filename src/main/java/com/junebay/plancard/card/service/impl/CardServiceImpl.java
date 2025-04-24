@@ -5,7 +5,7 @@ import com.junebay.plancard.card.mapper.CardMapper;
 import com.junebay.plancard.card.service.CardService;
 import com.junebay.plancard.common.dto.RequestDTO;
 import com.junebay.plancard.common.dto.ResponseDTO;
-import com.junebay.plancard.common.validator.RequestValidator;
+import com.junebay.plancard.common.validator.CustomValidator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,14 +23,10 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CardServiceImpl implements CardService {
 
-    @Value("${response.ok.exist.detail}")
-    private String exist;
-
-    @Value("${response.ok.notExist.detail}")
-    private String notExist;
-
-    private final RequestValidator requestValidator;
-
+    @Value("${response.ok.exist.one.detail}") private String existCard;
+    @Value("${response.ok.exist.list.detail}") private String existCardList;
+    @Value("${response.ok.notExist.list.detail}") private String notExistCardList;
+    private final CustomValidator customValidator;
     private final CardMapper cardMapper;
 
     @Override
@@ -38,7 +34,7 @@ public class CardServiceImpl implements CardService {
         ResponseDTO responseDTO = new ResponseDTO();
         List<CardDTO> cardDTOList;
 
-        requestValidator.validateRequest(requestDTO);   // RequestDTO Validation (Early return)
+        customValidator.validateRequest(requestDTO);   // RequestDTO Validation (throw 400)
 
         if ("explore".equals(cardType)) {
             cardDTOList = cardMapper.selectExploreCards(requestDTO);
@@ -51,16 +47,45 @@ public class CardServiceImpl implements CardService {
         return responseDTO;
     }
 
+    @Override
+    public ResponseDTO selectOneCard(String cardType, long cardId) {
+        ResponseDTO responseDTO = new ResponseDTO();
+        CardDTO cardDTO;
+
+        if ("explore".equals(cardType)) {
+            cardDTO = cardMapper.selectExploreCardOne(cardId);
+        } else {
+            cardDTO = cardMapper.selectMyCardOne(cardId);
+        }
+
+        customValidator.validateCardOne(cardDTO);   // CardDTO Validation(throw 404)
+
+        setResponseDTO(responseDTO, cardDTO);
+
+        return responseDTO;
+    }
+
     /**
-     * Setting ResponseDTO After Validation
+     * 단일 카드 반환을 위한 ResponseDTO 세팅
+     */
+    private void setResponseDTO(ResponseDTO responseDTO, CardDTO cardDTO) {
+
+        if (cardDTO != null) {
+            responseDTO.setDetails(existCard);
+        }
+        responseDTO.setResult(cardDTO);
+    }
+
+    /**
+     * 카드목록 반환을 위한 ResponseDTO 세팅
      */
     private void setResponseDTO(RequestDTO requestDTO, ResponseDTO responseDTO, List<CardDTO> cardDTOList) {
 
         if (!cardDTOList.isEmpty()) {
             responseDTO.setPagination(requestDTO.getPagination());
-            responseDTO.setDetails(exist);
+            responseDTO.setDetails(existCardList);
         } else {
-            responseDTO.setDetails(notExist);
+            responseDTO.setDetails(notExistCardList);
         }
 
         responseDTO.setResult(cardDTOList);

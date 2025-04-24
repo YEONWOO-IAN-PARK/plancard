@@ -27,4 +27,18 @@ public interface CardMapper {
      * @return 내 카드 목록
      */
     List<CardDTO> selectMyCards(RequestDTO requestDTO);
+
+    /**
+     * 탐험카드를 조회하는 기능
+     * @param cardId 탐험카드 ID
+     * @return  탐험카드 정보
+     */
+    CardDTO selectExploreCardOne(long cardId);
+
+    /**
+     * 내카드를 조회하는 기능
+     * @param cardId 내 카드 ID
+     * @return 내 카드 정보
+     */
+    CardDTO selectMyCardOne(long cardId);
 }

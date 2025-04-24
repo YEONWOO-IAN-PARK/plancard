@@ -11,10 +11,16 @@ import com.junebay.plancard.common.dto.ResponseDTO;
 public interface CardService {
 
     /**
-     * 탐험카드 목록을 가져오는 기능
+     * 탐험카드 또는 내 카드 목록을 가져오는 기능
      * @param requestDTO 요청 DTO
      * @param cardType 조회카드 유형("explore" || "my")
      */
     ResponseDTO selectCards(RequestDTO requestDTO, String cardType);
 
+    /**
+     * 탐험카드 또는 내 카드를 가져오는 기능
+     * @param cardType 조회카드 유형("explore" || "my")
+     * @param cardId   조회카드 아이디
+     */
+    ResponseDTO selectOneCard(String cardType, long cardId);
 }

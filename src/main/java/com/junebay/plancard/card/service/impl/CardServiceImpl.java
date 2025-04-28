@@ -26,6 +26,7 @@ public class CardServiceImpl implements CardService {
     @Value("${response.ok.exist.one.detail}") private String existCard;
     @Value("${response.ok.exist.list.detail}") private String existCardList;
     @Value("${response.ok.notExist.list.detail}") private String notExistCardList;
+    @Value("${response.ok.scrapped.detail}") private String scrapped;
     private final CustomValidator customValidator;
     private final CardMapper cardMapper;
 
@@ -36,10 +37,12 @@ public class CardServiceImpl implements CardService {
 
         customValidator.validateRequest(requestDTO);   // RequestDTO Validation (throw 400)
 
+        long userId = 2;    // TODO : 임시 유저 아이디. 스프링 시큐리티 적용 시 대체한다.
+
         if ("explore".equals(cardType)) {
-            cardDTOList = cardMapper.selectExploreCards(requestDTO);
+            cardDTOList = cardMapper.selectExploreCards(requestDTO, userId);
         } else {
-            cardDTOList = cardMapper.selectMyCards(requestDTO);
+            cardDTOList = cardMapper.selectMyCards(requestDTO, userId);
         }
 
         setResponseDTO(requestDTO, responseDTO, cardDTOList);
@@ -52,26 +55,59 @@ public class CardServiceImpl implements CardService {
         ResponseDTO responseDTO = new ResponseDTO();
         CardDTO cardDTO;
 
+        long userId = 2;    // TODO : 임시 유저 아이디. 스프링 시큐리티 적용 시 대체한다.
+
         if ("explore".equals(cardType)) {
-            cardDTO = cardMapper.selectExploreCardOne(cardId);
+            cardDTO = cardMapper.selectExploreCardOne(cardType, cardId, userId);
         } else {
-            cardDTO = cardMapper.selectMyCardOne(cardId);
+            cardDTO = cardMapper.selectMyCardOne(cardType, cardId, userId);
         }
 
         customValidator.validateCardOne(cardDTO);   // CardDTO Validation(throw 404)
 
-        setResponseDTO(responseDTO, cardDTO);
+        setResponseDTO(responseDTO, cardDTO, existCard);
 
         return responseDTO;
     }
 
+    @Override
+    public ResponseDTO scrapCard(long cardId) {
+        ResponseDTO responseDTO = new ResponseDTO();
+
+        long userId = 2;    // TODO : 임시 유저 아이디. 스프링 시큐리티 적용 시 대체한다.
+
+        CardDTO cardDTO = cardMapper.selectScrappedCardDTO(cardId, userId);
+        customValidator.validateCardScrap(cardDTO);
+
+        if (!cardDTO.isScrap()) {
+            cardMapper.insertCardScrap(cardId, userId);
+            setResponseDTO(responseDTO, cardDTO, scrapped);
+        }
+
+        return responseDTO;
+    }
+
+    @Override
+    public void unscrapCard(long cardId) {
+
+        long userId = 2;    // TODO : 임시 유저 아이디. 스프링 시큐리티 적용 시 대체한다.
+
+        CardDTO cardDTO = cardMapper.selectScrappedCardDTO(cardId, userId);
+        customValidator.validateCardScrap(cardDTO);
+
+        if (cardDTO.isScrap()) {
+            cardMapper.deleteCardScrap(cardId, userId);
+        }
+    }
+
+
     /**
      * 단일 카드 반환을 위한 ResponseDTO 세팅
      */
-    private void setResponseDTO(ResponseDTO responseDTO, CardDTO cardDTO) {
+    private void setResponseDTO(ResponseDTO responseDTO, CardDTO cardDTO, String details) {
 
         if (cardDTO != null) {
-            responseDTO.setDetails(existCard);
+            responseDTO.setDetails(details);
         }
         responseDTO.setResult(cardDTO);
     }

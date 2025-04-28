@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 /**
  * @author : IAN
  * @date : 2024-11-07
- * @description :
+ * @description : 내 카드 > 태그 정보
  */
 @Getter
 @Setter

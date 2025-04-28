@@ -13,8 +13,8 @@
 		<result property="rating" column="rating"/>
 		<result property="scrap" column="scrap"/>
 		<result property="mapLink" column="map_link"/>
-		<collection property="theme" ofType="string" column="name" javaType="ArrayList" select="selectThemesByCardId" />
-		<collection property="imageList" ofType="com.junebay.plancard.image.vo.Image" column="card_id" javaType="ArrayList" select="selectImagesByCardId"/>
+		<collection property="theme" ofType="string" column="card_id" javaType="ArrayList" select="selectThemesByCardId" />
+		<collection property="imageList" ofType="com.junebay.plancard.image.dto.CardImageDTO" column="card_id" javaType="ArrayList" select="selectImagesByCardId"/>
 	</resultMap>
 
 	<!-- 내 카드 반환을 위한 ResultMap -->
@@ -29,11 +29,12 @@
 		<result property="rating" column="rating"/>
 		<result property="scrap" column="scrap"/>
 		<result property="mapLink" column="map_link"/>
-		<collection property="theme" ofType="string" column="name" javaType="ArrayList" select="selectThemesByCardId" />
-		<collection property="imageList" ofType="com.junebay.plancard.image.vo.Image" column="card_id" javaType="ArrayList" select="selectImagesByCardId"/>
-		<collection property="myImageList" ofType="com.junebay.plancard.image.vo.Image" column="my_card_id" javaType="ArrayList" select="selectImagesByMyCardId"/>
+		<result property="myMemo" column="my_memo"/>
+		<collection property="theme" ofType="string" column="card_id" javaType="ArrayList" select="selectThemesByCardId" />
+		<collection property="imageList" ofType="com.junebay.plancard.image.dto.CardImageDTO" column="card_id" javaType="ArrayList" select="selectImagesByCardId"/>
+		<collection property="myImageList" ofType="com.junebay.plancard.image.dto.MyCardImageDTO" column="my_card_id" javaType="ArrayList" select="selectImagesByMyCardId"/>
+		<collection property="myTagList" ofType="com.junebay.plancard.card.dto.MyCardTagDTO" column="my_card_id" javaType="ArrayList" select="selectTagsByMyCardId" />
 	</resultMap>
-
 
 	<sql id="selectCardOne">
 		SELECT 	c.id AS card_id
@@ -46,10 +47,10 @@
 				, cm.map_link
 				, CASE WHEN cs.card_id IS NULL THEN false ELSE true END AS scrap
 		FROM 	cards c
-				INNER JOIN cities ct ON c.city_id = ct.id AND c.id = #{cardId}
+				INNER JOIN cities ct ON c.city_id = ct.id <if test='"explore".equals(cardType)'>AND c.id = #{cardId}</if>
 				INNER JOIN countries co ON co.id = ct.country_id
 				LEFT OUTER JOIN categories cg ON cg.id = c.category_id
-				LEFT OUTER JOIN card_scraps cs ON cs.card_id = c.id AND cs.user_id = 2	/* TODO: 임시 변수(추후 삭제) */
+				LEFT OUTER JOIN card_scraps cs ON cs.card_id = c.id AND cs.user_id = #{userId}
 				LEFT OUTER JOIN card_map_links cm ON cm.card_id = c.id AND cm.is_active = true
 		WHERE	c.is_active = true
 				AND ct.is_active = true
@@ -70,7 +71,7 @@
 				INNER JOIN cities ct ON ct.id = c.city_id
 				INNER JOIN countries co ON co.id = ct.country_id
 				INNER JOIN categories cg ON cg.id = c.category_id
-				LEFT OUTER JOIN card_scraps cs ON cs.card_id = c.id AND cs.user_id = 2 /* TODO: 임시 변수(추후 삭제) */
+				LEFT OUTER JOIN card_scraps cs ON cs.card_id = c.id AND cs.user_id = #{userId}
 				LEFT OUTER JOIN card_map_links cm ON cm.card_id = c.id AND cm.is_active = true
 		WHERE	c.is_active = true
 				AND ct.is_active = true
@@ -147,6 +148,27 @@
 		</if>
 	</sql>
 
+	<insert id="insertCardScrap">
+		INSERT INTO card_scraps (card_id, user_id)
+		VALUES (#{cardId}, #{userId})
+	</insert>
+
+	<delete id="deleteCardScrap">
+		DELETE FROM card_scraps
+		WHERE user_id = #{userId} AND card_id = #{cardId}
+	</delete>
+
+	<select id="selectScrappedCardDTO" resultMap="cardDTOResultMap">
+		SELECT	c.id as card_id
+		    	, CASE WHEN cs.card_id IS NULL THEN false ELSE true END AS scrap
+		FROM	cards c
+		    	LEFT OUTER JOIN card_scraps cs
+					ON c.id = cs.card_id
+		    		AND cs.user_id = #{userId}
+		WHERE	c.id = #{cardId}
+		    	AND c.is_active = true
+	</select>
+
 	<select id="selectExploreCards" resultMap="cardDTOResultMap" parameterType="com.junebay.plancard.common.dto.RequestDTO">
 		<include refid="selectExploreCards" />
 		<include refid="searchCondition" />
@@ -160,26 +182,32 @@
 		FROM 	card_theme ct
 		        INNER JOIN themes t
                    ON ct.theme_id = t.id
-		WHERE  	ct.card_id = #{cardId}
-		  		AND t.is_active = true
+		WHERE  	ct.card_id = #{cardId} AND t.is_active = true
 	</select>
 
-	<select id="selectImagesByCardId" resultType="com.junebay.plancard.image.vo.Image">
+	<select id="selectImagesByCardId" resultType="com.junebay.plancard.image.dto.CardImageDTO">
 		SELECT	id AS imageId
 				 , CONCAT('/images/cards/explore/', id)  AS image_url
 				 , alt
 				 , is_main
 		FROM 	card_images
-		WHERE 	card_id = #{cardId}
+		WHERE 	card_id = #{cardId} AND is_active = true
 	</select>
 
-	<select id="selectImagesByMyCardId" resultType="com.junebay.plancard.image.vo.Image">
-		SELECT	id AS myCardImageId
+	<select id="selectImagesByMyCardId" resultType="com.junebay.plancard.image.dto.MyCardImageDTO">
+		SELECT	id AS myImageId
 				 , CONCAT('/images/cards/my/', id)  AS image_url
 				 , alt
 				 , is_main
 		FROM 	my_card_images
-		WHERE 	my_card_id = #{myCardId}
+		WHERE 	my_card_id = #{myCardId} AND is_active = true
+	</select>
+
+	<select id="selectTagsByMyCardId" resultType="com.junebay.plancard.card.dto.MyCardTagDTO">
+		SELECT	id AS tag_id
+				, name AS tag_name
+	    FROM	my_card_tags
+		WHERE	my_card_id = #{myCardId}
 	</select>
 
 	<select id="selectMyCards" resultMap="mycardDTOResultMap" parameterType="com.junebay.plancard.common.dto.RequestDTO">
@@ -193,11 +221,12 @@
 				, ec.rating
 				, ec.scrap
 				, ec.map_link
+				, mc.memo AS my_memo
 		FROM	my_cards mc
 				INNER JOIN (
 				    <include refid="selectExploreCards"/>
 				) ec ON mc.card_id = ec.card_id
-		WHERE	mc.user_id = 2
+		WHERE	mc.user_id = #{userId}
 				AND mc.is_active = true
 		<include refid="sortCondition" />
 		<include refid="paginationCondition" />
@@ -218,11 +247,13 @@
 				, ec.rating
 				, ec.scrap
 				, ec.map_link
+				, mc.memo AS my_memo
 		FROM	my_cards mc
 				INNER JOIN (
 				    <include refid="selectCardOne" />
 				) ec ON mc.card_id = ec.card_id
-		WHERE	mc.user_id = 2
+		WHERE	<if test='"my".equals(cardType)'>mc.id = #{cardId}</if>
+		    	AND mc.user_id = #{userId}
 				AND mc.is_active = true
 	</select>
 </mapper>

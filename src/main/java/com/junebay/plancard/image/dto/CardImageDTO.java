@@ -4,21 +4,21 @@ import lombok.Getter;
 
 /**
  * @author : IAN
- * @date : 2025-04-16
- * @description :사용자 요청 DTO에 매핑될 내카드이미지 DTO
+ * @date : 2025-04-25
+ * @description : 사용자 요청 DTO에 매핑될 카드이미지 DTO
  */
 @Getter
-public class MyCardImageDTO {
+public class CardImageDTO {
 
-    private long myImageId;
+    private long imageId;
     private String imageUrl;
     private String alt;
     private boolean isMain;
 
     /**
-     "myImageList": [
+     "imageList": [
          {
-             "myImageId": 1,
+             "imageId": 1,
              "imageUrl": "https://example.com/louvre.jpg",
              "alt": "루브르 이미지",
              "isMain": false

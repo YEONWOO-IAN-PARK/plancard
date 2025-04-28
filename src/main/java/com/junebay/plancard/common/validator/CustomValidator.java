@@ -22,10 +22,7 @@ public class CustomValidator {
      * 유효성 검사를 통과하지 못할 시, 각 상황에 맞는 예외를 반환한다.
      */
     public void validateRequest(RequestDTO requestDTO) {
-
-        if (requestDTO.getPagination() == null || requestDTO.getSort() == null) {
-            throw new BadRequestException(ErrorCode.BAD_REQUEST);
-        }
+        if (requestDTO.getPagination() == null || requestDTO.getSort() == null) throw new BadRequestException(ErrorCode.BAD_REQUEST);
     }
 
     /**
@@ -33,10 +30,14 @@ public class CustomValidator {
      * 유효성 검사를 통과하지 못할 시, 각 상황에 맞는 예외를 반환한다.
      */
     public void validateCardOne(CardDTO cardDTO) {
-
-        if (cardDTO == null || cardDTO.getCardId() == 0) {
-            throw new NotFoundException(ErrorCode.NOT_FOUND);
-        }
+        if (cardDTO == null || cardDTO.getCardId() == 0) throw new NotFoundException(ErrorCode.NOT_FOUND);
     }
 
+    /**
+     * CardDTO를 받아 CardDTO의 스크랩유무를 위한 유효성 검사 시행
+     * 유효성 검사를 통과하지 못할 시, 각 상황에 맞는 예외를 반환한다.
+     */
+    public void validateCardScrap(CardDTO cardDTO) {
+        if (cardDTO == null) throw new NotFoundException(ErrorCode.NOT_FOUND);
+    }
 }

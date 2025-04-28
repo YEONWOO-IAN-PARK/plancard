@@ -3,6 +3,7 @@ package com.junebay.plancard.common.handler;
 import com.junebay.plancard.common.dto.ResponseDTO;
 import com.junebay.plancard.common.exception.BadRequestException;
 import com.junebay.plancard.common.exception.BaseException;
+import com.junebay.plancard.common.exception.NotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -15,11 +16,18 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(BaseException.class)
+    @ExceptionHandler(BadRequestException.class)
     public ResponseEntity<ResponseDTO> handleBadRequestException(BaseException ex) {
         ResponseDTO responseDTO = new ResponseDTO();
         responseDTO.setDetails(ex.getDetails());
-        return ResponseEntity.badRequest().body(responseDTO);   // 현재는 .status()를 사용하고 있지 않지만, 확장성이 요구되는 시점에서 .status(ex.getStatus())와 같이 사용가능
+        return ResponseEntity.status(ex.getStatus()).body(responseDTO);
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    public ResponseEntity<ResponseDTO> handleNotFoundException(BaseException ex) {
+        ResponseDTO responseDTO = new ResponseDTO();
+        responseDTO.setDetails(ex.getDetails());
+        return ResponseEntity.status(ex.getStatus()).body(responseDTO);
     }
 
 }

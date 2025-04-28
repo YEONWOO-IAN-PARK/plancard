@@ -1,6 +1,6 @@
 package com.junebay.plancard.card.dto;
 
-import com.junebay.plancard.image.vo.Image;
+import com.junebay.plancard.image.dto.CardImageDTO;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * @author : IAN
  * @date : 2025-03-25
- * @description : ResponseDTO 에 매핑되는 CardDTO
+ * @description : 카드 DTO
  */
 @Getter
 @Setter
@@ -25,7 +25,7 @@ public class CardDTO {
     private int rating;
     private boolean scrap;
     private String mapLink;
-    private List<Image> imageList;
+    private List<CardImageDTO> imageList;
 
     /**
      *  "cardId": "1",

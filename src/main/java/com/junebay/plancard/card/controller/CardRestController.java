@@ -1,12 +1,14 @@
 package com.junebay.plancard.card.controller;
 
+import com.junebay.plancard.card.dto.MyCardDTO;
+import com.junebay.plancard.card.dto.MyCardMemoDTO;
+import com.junebay.plancard.card.dto.MyCardTagDTO;
 import com.junebay.plancard.card.service.CardService;
 import com.junebay.plancard.common.dto.RequestDTO;
 import com.junebay.plancard.common.dto.ResponseDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -49,10 +51,31 @@ public class CardRestController {
         return ResponseEntity.status(201).body(responseDTO);
     }
 
+    /**
+     * 탐험카드 스크랩 해제 요청핸들러메서드
+     */
     @DeleteMapping("/{cardId}/scrap")
     public ResponseEntity<ResponseDTO> unscrapCard(@PathVariable long cardId) {
         cardService.unscrapCard(cardId);
         return ResponseEntity.status(204).build();
+    }
+
+    /**
+     * 내 카드 커스텀 메모 등록
+     */
+    @PatchMapping("/{cardType}/{myCardId}/memo")
+    public ResponseEntity<ResponseDTO> updateMemo(@PathVariable String cardType, @PathVariable long myCardId, @RequestBody MyCardMemoDTO memoDTO) {
+        cardService.updateMemo(cardType, myCardId, memoDTO.getMemo());
+        return ResponseEntity.status(204).build();
+    }
+
+    /**
+     * 내 카드 커스텀 태그 등록
+     */
+    @PostMapping("/{cardType}/{myCardId}/tag")
+    public ResponseEntity<ResponseDTO> tagCard(@PathVariable String cardType, @PathVariable long myCardId, @RequestBody MyCardTagDTO tagDTO) {
+        ResponseDTO responseDTO = cardService.insertMyCardTag(cardType, myCardId, tagDTO.getTagName());
+        return ResponseEntity.status(201).body(responseDTO);
     }
 
 }

@@ -1,7 +1,6 @@
 package com.junebay.plancard.common.exception;
 
-import com.junebay.plancard.common.enums.ErrorCode;
-import lombok.Getter;
+import com.junebay.plancard.common.enums.StatusCode;
 
 /**
  * @author : IAN
@@ -9,7 +8,7 @@ import lombok.Getter;
  * @description : INTERNAL_SERVER_ERROR(500)에 대한 예외 클래스
  */
 public class InternalServerErrorException extends BaseException {
-    public InternalServerErrorException(ErrorCode err) {
+    public InternalServerErrorException(StatusCode err) {
         super(err);
     }
 }

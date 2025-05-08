@@ -12,7 +12,11 @@ import lombok.Getter;
  */
 @Getter
 @AllArgsConstructor
-public enum ErrorCode {
+public enum StatusCode {
+
+    OK("OK", 200, "요청이 성공적으로 되었습니다."),
+    CREATED("Created", 201, "새로운 리소스가 생성되었습니다."),
+    NO_CONTENT("No Content", 204, "요청이 성공했지만 반환할 데이터가 없습니다."),
 
     BAD_REQUEST("Bad Request", 400, "요청하신 데이터 타입이 맞지 않습니다."),
     UNAUTHORIZED("Unauthorized", 401, "인증 토큰이 만료되었습니다."),

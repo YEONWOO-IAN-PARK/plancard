@@ -1,7 +1,6 @@
 package com.junebay.plancard.common.exception;
 
-import com.junebay.plancard.common.enums.ErrorCode;
-import lombok.Getter;
+import com.junebay.plancard.common.enums.StatusCode;
 
 /**
  * @author : IAN
@@ -10,7 +9,7 @@ import lombok.Getter;
  */
 public class BadRequestException extends BaseException {
 
-    public BadRequestException(ErrorCode err) {
+    public BadRequestException(StatusCode err) {
         super(err);
     }
 }

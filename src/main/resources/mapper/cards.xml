@@ -36,7 +36,7 @@
 		<collection property="myTagList" ofType="com.junebay.plancard.card.dto.MyCardTagDTO" column="my_card_id" javaType="ArrayList" select="selectTagsByMyCardId" />
 	</resultMap>
 
-	<sql id="selectCardOne">
+	<sql id="selectCard">
 		SELECT 	c.id AS card_id
 				, c.title as card_title
 				, c.description
@@ -153,6 +153,17 @@
 		VALUES (#{cardId}, #{userId})
 	</insert>
 
+	<insert id="insertMyCardTag" parameterType="com.junebay.plancard.card.dto.MyCardTagDTO" useGeneratedKeys="true" keyProperty="tagId">
+		INSERT INTO my_card_tags (my_card_id, name)
+		VALUES (#{myCardId}, #{tagName})
+	</insert>
+
+	<update id="updateMemo">
+		UPDATE	my_cards
+		SET		memo = #{memo}
+		WHERE	id = #{cardId}
+	</update>
+
 	<delete id="deleteCardScrap">
 		DELETE FROM card_scraps
 		WHERE user_id = #{userId} AND card_id = #{cardId}
@@ -232,11 +243,11 @@
 		<include refid="paginationCondition" />
 	</select>
 
-	<select id="selectExploreCardOne" resultMap="cardDTOResultMap" parameterType="long">
-		<include refid="selectCardOne" />
+	<select id="selectExploreCardOne" resultMap="cardDTOResultMap">
+		<include refid="selectCard" />
 	</select>
 
-	<select id="selectMyCardOne" resultMap="mycardDTOResultMap" parameterType="long">
+	<select id="selectMyCardOne" resultMap="mycardDTOResultMap">
 		SELECT	mc.id AS my_card_id
 		        , ec.card_id
 				, ec.card_title
@@ -250,7 +261,7 @@
 				, mc.memo AS my_memo
 		FROM	my_cards mc
 				INNER JOIN (
-				    <include refid="selectCardOne" />
+				    <include refid="selectCard" />
 				) ec ON mc.card_id = ec.card_id
 		WHERE	<if test='"my".equals(cardType)'>mc.id = #{cardId}</if>
 		    	AND mc.user_id = #{userId}

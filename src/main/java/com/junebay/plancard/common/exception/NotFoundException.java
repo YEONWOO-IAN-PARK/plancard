@@ -1,6 +1,6 @@
 package com.junebay.plancard.common.exception;
 
-import com.junebay.plancard.common.enums.ErrorCode;
+import com.junebay.plancard.common.enums.StatusCode;
 
 /**
  * @author : IAN
@@ -8,7 +8,7 @@ import com.junebay.plancard.common.enums.ErrorCode;
  * @description : NOT_FOUND(404)에 대한 예외 클래스
  */
 public class NotFoundException extends BaseException {
-    public NotFoundException(ErrorCode err) {
+    public NotFoundException(StatusCode err) {
         super(err);
     }
 }

@@ -168,5 +168,10 @@
   - ~~AccessToken / RefreshToken 구현해야함~~
 
 ## 2024.11.25 (Mon)
-  - AccessToken / RefreshToken 테스트해야함
+- AccessToken / RefreshToken 테스트해야함
 - users 테이블에 pk를 대신할 provider + provider id값을 username에 할당해서 pk대용으로 사용할 수 있어야함.
+
+## 2025.05.08 (Thu)
+- Postman api의 FE가 작성한 Response Body의 데이터 양식에 맞추기 위해 DTO를 요청형태별로 생성하기로 함. (쓸데없는 프로퍼티 보이지않도록 하기위함)
+- TODO : 클라이언트에서의 요청을 백엔드에서 받았을때 문자열 데이터의 보안검사 및 변환 필요성 느낌. Global Validator 및 변환용 Handler 필요할 듯
+- TODO : 내 카드의 커스텀 태그는 총 몇개까지 생성을 허용할 것인지 이야기해야함

@@ -1,6 +1,6 @@
 package com.junebay.plancard.common.exception;
 
-import com.junebay.plancard.common.enums.ErrorCode;
+import com.junebay.plancard.common.enums.StatusCode;
 import lombok.Getter;
 
 /**
@@ -14,7 +14,7 @@ public class BaseException extends RuntimeException {
     private final int status;
     private final String details;
 
-    public BaseException(ErrorCode err) {
+    public BaseException(StatusCode err) {
         super(err.getMessage());
         this.status = err.getStatus();
         this.details = err.getDetails();

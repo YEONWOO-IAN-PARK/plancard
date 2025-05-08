@@ -3,6 +3,7 @@ package com.junebay.plancard.common.handler;
 import com.junebay.plancard.common.dto.ResponseDTO;
 import com.junebay.plancard.common.exception.BadRequestException;
 import com.junebay.plancard.common.exception.BaseException;
+import com.junebay.plancard.common.exception.NoContentException;
 import com.junebay.plancard.common.exception.NotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -25,6 +26,13 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(NotFoundException.class)
     public ResponseEntity<ResponseDTO> handleNotFoundException(BaseException ex) {
+        ResponseDTO responseDTO = new ResponseDTO();
+        responseDTO.setDetails(ex.getDetails());
+        return ResponseEntity.status(ex.getStatus()).body(responseDTO);
+    }
+
+    @ExceptionHandler(NoContentException.class)
+    public ResponseEntity<ResponseDTO> handleNoContentException(BaseException ex) {
         ResponseDTO responseDTO = new ResponseDTO();
         responseDTO.setDetails(ex.getDetails());
         return ResponseEntity.status(ex.getStatus()).body(responseDTO);

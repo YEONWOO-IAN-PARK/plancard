@@ -1,6 +1,7 @@
 package com.junebay.plancard.card.mapper;
 
 import com.junebay.plancard.card.dto.CardDTO;
+import com.junebay.plancard.card.dto.MyCardTagDTO;
 import com.junebay.plancard.common.dto.RequestDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
@@ -50,4 +51,15 @@ public interface CardMapper {
      * 탐험 카드를 스크랩 테이블에서 삭제하는 기능
      */
     void deleteCardScrap(long cardId, long userId);
+
+    /**
+     * 카드 유형, 카드 ID, 메모내용을 전달받아 (내 카드 커스텀) 메모를 업데이트하는 기능
+     */
+    void updateMemo(@Param("cardId") long cardId, @Param("memo")String memo);
+
+    /**
+     * 카드 ID, 태그명을 전달받아 (내 카드 커스텀) 태그를 추가하는 기능
+     */
+    void insertMyCardTag(MyCardTagDTO myCardTagDTO);
+    
 }

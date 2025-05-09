@@ -81,7 +81,8 @@ public class CardServiceImpl implements CardService {
         long userId = 2;    // TODO : 임시 유저 아이디. 스프링 시큐리티 적용 시 대체한다.
 
         CardDTO cardDTO = cardMapper.selectScrappedCardDTO(cardId, userId);
-        customValidator.validateCardScrap(cardDTO, true);   // card scrap Validation(404, 204)
+        customValidator.validateCardOne(cardDTO);    // card Validation(404)
+        customValidator.validateCardScrap(cardDTO, true);   // card scrap Validation(204)
 
         if (!cardDTO.isScrap()) {
             cardMapper.insertCardScrap(cardId, userId);
@@ -94,14 +95,14 @@ public class CardServiceImpl implements CardService {
         return responseDTO;
     }
 
-
     @Override
     public void unscrapCard(long cardId) {
 
         long userId = 2;    // TODO : 임시 유저 아이디. 스프링 시큐리티 적용 시 대체한다.
 
         CardDTO cardDTO = cardMapper.selectScrappedCardDTO(cardId, userId);
-        customValidator.validateCardScrap(cardDTO, false);  // card scrap Validation(404, 204)
+        customValidator.validateCardOne(cardDTO);   // card Validation(404)
+        customValidator.validateCardScrap(cardDTO, false);  // card scrap Validation(204)
 
         if (cardDTO.isScrap()) {
             cardMapper.deleteCardScrap(cardId, userId);
@@ -128,7 +129,7 @@ public class CardServiceImpl implements CardService {
         long userId = 2;    // TODO : 임시 유저 아이디. 스프링 시큐리티 적용 시 대체한다.
 
         CardDTO cardDTO = cardMapper.selectMyCardOne(cardType, myCardId, userId);
-        customValidator.validateCardOne(cardDTO);   // card scrap Validation(404)
+        customValidator.validateCardOne(cardDTO);   // card Validation(404)
 
         myCardTagDTO.setMyCardId(myCardId);
         myCardTagDTO.setTagName(tagName);
@@ -137,6 +138,17 @@ public class CardServiceImpl implements CardService {
         setResponseDTO(responseDTO, myCardTagDTO, insertedTag);
 
         return responseDTO;
+    }
+
+    @Override
+    public void deleteMyCardTag(String cardType, long myCardId, long tagId) {
+        long userId = 2;    // TODO : 임시 유저 아이디. 스프링 시큐리티 적용 시 대체한다.
+
+        CardDTO cardDTO = cardMapper.selectMyCardOne(cardType, myCardId, userId);
+        customValidator.validateCardOne(cardDTO);   // card Validation(404)
+        customValidator.validateCardTag(cardDTO, tagId);   // card tag Validation(404)
+
+        cardMapper.deleteMyCardTag(tagId);
     }
 
     /**

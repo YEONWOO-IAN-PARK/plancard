@@ -1,5 +1,8 @@
 package com.junebay.plancard.image.vo;
 
+import lombok.Getter;
+import lombok.Setter;
+
 import java.time.LocalDateTime;
 
 /**
@@ -7,15 +10,17 @@ import java.time.LocalDateTime;
  * @date : 2024-11-05
  * @description : 이미지 추상 클래스
  */
+@Getter
+@Setter
 public abstract class Image {
 
     private String savePath;
-    private String fileName;
+    private String originalFileName;
+    private String storedFileName;
     private String extension;
     private int size;
     private String alt;
     private boolean isActive;
-    private boolean isMain;
     private LocalDateTime createdDate;
     private LocalDateTime updatedDate;
 }

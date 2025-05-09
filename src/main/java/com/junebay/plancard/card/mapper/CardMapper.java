@@ -50,7 +50,7 @@ public interface CardMapper {
     /**
      * 탐험 카드를 스크랩 테이블에서 삭제하는 기능
      */
-    void deleteCardScrap(long cardId, long userId);
+    void deleteCardScrap(@Param("cardId") long cardId, @Param("userId") long userId);
 
     /**
      * 카드 유형, 카드 ID, 메모내용을 전달받아 (내 카드 커스텀) 메모를 업데이트하는 기능
@@ -61,5 +61,9 @@ public interface CardMapper {
      * 카드 ID, 태그명을 전달받아 (내 카드 커스텀) 태그를 추가하는 기능
      */
     void insertMyCardTag(MyCardTagDTO myCardTagDTO);
-    
+
+    /**
+     * 태그 ID를 전달받아 (내 카드 커스텀) 태그를 삭제하는 기능
+     */
+    void deleteMyCardTag(@Param("tagId") long tagId);
 }

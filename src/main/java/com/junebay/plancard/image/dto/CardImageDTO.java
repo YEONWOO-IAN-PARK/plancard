@@ -11,18 +11,9 @@ import lombok.Getter;
 public class CardImageDTO {
 
     private long imageId;
+    private String filename;
+    private String filepath;
     private String imageUrl;
     private String alt;
-    private boolean isMain;
 
-    /**
-     "imageList": [
-         {
-             "imageId": 1,
-             "imageUrl": "https://example.com/louvre.jpg",
-             "alt": "루브르 이미지",
-             "isMain": false
-         }
-     ]
-     */
 }

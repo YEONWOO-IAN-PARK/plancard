@@ -20,6 +20,7 @@ public class City {
     private double latitude;
     private double longitude;
     private String countryId;
+    private long mainImageId;
     private boolean isActive;
     private LocalDateTime createdDate;
     private LocalDateTime updatedDate;

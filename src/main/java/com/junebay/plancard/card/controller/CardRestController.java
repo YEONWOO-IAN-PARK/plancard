@@ -1,6 +1,5 @@
 package com.junebay.plancard.card.controller;
 
-import com.junebay.plancard.card.dto.MyCardDTO;
 import com.junebay.plancard.card.dto.MyCardMemoDTO;
 import com.junebay.plancard.card.dto.MyCardTagDTO;
 import com.junebay.plancard.card.service.CardService;
@@ -55,7 +54,7 @@ public class CardRestController {
      * 탐험카드 스크랩 해제 요청핸들러메서드
      */
     @DeleteMapping("/{cardId}/scrap")
-    public ResponseEntity<ResponseDTO> unscrapCard(@PathVariable long cardId) {
+    public ResponseEntity<ResponseDTO> deleteScrapCard(@PathVariable long cardId) {
         cardService.unscrapCard(cardId);
         return ResponseEntity.status(204).build();
     }
@@ -73,9 +72,18 @@ public class CardRestController {
      * 내 카드 커스텀 태그 등록
      */
     @PostMapping("/{cardType}/{myCardId}/tag")
-    public ResponseEntity<ResponseDTO> tagCard(@PathVariable String cardType, @PathVariable long myCardId, @RequestBody MyCardTagDTO tagDTO) {
+    public ResponseEntity<ResponseDTO> tag(@PathVariable String cardType, @PathVariable long myCardId, @RequestBody MyCardTagDTO tagDTO) {
         ResponseDTO responseDTO = cardService.insertMyCardTag(cardType, myCardId, tagDTO.getTagName());
         return ResponseEntity.status(201).body(responseDTO);
+    }
+
+    /**
+     * 내 카드 커스텀 태그 삭제
+     */
+    @DeleteMapping("/{cardType}/{myCardId}/tag")
+    public ResponseEntity<ResponseDTO> deleteTag(@PathVariable String cardType, @PathVariable long myCardId, @RequestBody MyCardTagDTO tagDTO) {
+        cardService.deleteMyCardTag(cardType, myCardId, tagDTO.getTagId());
+        return ResponseEntity.status(204).build();
     }
 
 }

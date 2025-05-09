@@ -23,6 +23,7 @@ public class CardDTO {
     private List<String> theme;
     private String category;
     private int rating;
+    private long mainImageId;       // ### 수정 후 버전 ###
     private boolean scrap;
     private String mapLink;
     private List<CardImageDTO> imageList;
@@ -36,14 +37,15 @@ public class CardDTO {
      *  "theme": ["night","elastic"],
      *  "category": "attraction",
      *  "rating": 4,
+     *  "mainImageId": 1,       // ### 수정 후 버전 ###
         "scrap": true,
      *  "mapLink": "https://googlemap.com/france/paris/972234",
      *  "imageList": [
      *     {
      *        "imageId": 1,
      *        "imageUrl": "https://example.com/eiffel.jpg",
-     *        "alt": "루브르 이미지",
-     *        "isMain": false
+     *        "alt": "루브르 이미지"
+     *        // "isMain": true   수정 전 버전
      *     }
      *  ]
      */

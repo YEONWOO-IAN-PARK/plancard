@@ -11,6 +11,7 @@
 		<result property="city" column="city"/>
 		<result property="category" column="category"/>
 		<result property="rating" column="rating"/>
+		<result property="mainImageId" column="main_image_id"/>
 		<result property="scrap" column="scrap"/>
 		<result property="mapLink" column="map_link"/>
 		<collection property="theme" ofType="string" column="card_id" javaType="ArrayList" select="selectThemesByCardId" />
@@ -27,6 +28,8 @@
 		<result property="city" column="city"/>
 		<result property="category" column="category"/>
 		<result property="rating" column="rating"/>
+		<result property="mainImageType" column="main_image_type"/>
+		<result property="mainImageId" column="main_image_id"/>
 		<result property="scrap" column="scrap"/>
 		<result property="mapLink" column="map_link"/>
 		<result property="myMemo" column="my_memo"/>
@@ -44,6 +47,7 @@
 				, ct.name AS city
 				, cg.name AS category
 				, c.rating
+		     	, c.main_image_id
 				, cm.map_link
 				, CASE WHEN cs.card_id IS NULL THEN false ELSE true END AS scrap
 		FROM 	cards c
@@ -65,6 +69,7 @@
 				, ct.name AS city
 				, cg.name AS category
 				, c.rating
+				, c.main_image_id
 				, CASE WHEN cs.card_id IS NULL THEN false ELSE true END AS scrap
 				, cm.map_link
 		FROM 	cards c
@@ -83,46 +88,46 @@
 
 	<sql id="searchCondition">
 		/* 검색 */
-	<if test="search != null and search != ''">
+	<if test="requestDTO.search != null and requestDTO.search != ''">
 		AND (
-		    c.title LIKE CONCAT('%', #{search}, '%')
-			OR c.description LIKE CONCAT('%', #{search}, '%')
+		    c.title LIKE CONCAT('%', #{requestDTO.search}, '%')
+			OR c.description LIKE CONCAT('%', #{requestDTO.search}, '%')
 		)
 	</if>
 	</sql>
 
 	<sql id="filterCondition">
 		/* 필터: 국가 */
-		<if test='filter != null and filter.country != null and !"".equals(filter.country)'>
-			AND co.id = #{filter.country}
+		<if test='requestDTO.filter != null and requestDTO.filter.country != null and !"".equals(requestDTO.filter.country)'>
+			AND co.id = #{requestDTO.filter.country}
 		</if>
 		/* 필터: 도시 */
-		<if test='filter != null and filter.city != null and !"".equals(filter.city)'>
-			AND ct.id = #{filter.city}
+		<if test='requestDTO.filter != null and requestDTO.filter.city != null and !"".equals(requestDTO.filter.city)'>
+			AND ct.id = #{requestDTO.filter.city}
 		</if>
 		/* 필터: 카테고리 (배열) */
-		<if test="filter != null and filter.category != null and filter.category.size() > 0">
+		<if test="requestDTO.filter != null and requestDTO.filter.category != null and requestDTO.filter.category.size() > 0">
 			AND cg.id IN
-			<foreach item="cat" collection="filter.category" open="(" separator="," close=")">
+			<foreach item="cat" collection="requestDTO.filter.category" open="(" separator="," close=")">
 				#{cat}
 			</foreach>
 		</if>
 		/* 필터: 테마 */
-		<if test="filter != null and filter.theme != null and filter.theme.size() > 0">
+		<if test="requestDTO.filter != null and requestDTO.filter.theme != null and requestDTO.filter.theme.size() > 0">
 			AND EXISTS (
 				SELECT	1
 				FROM	card_theme t
 				WHERE	t.card_id = c.id
 						AND t.theme_id IN
-					<foreach item="themeId" collection="filter.theme" open="(" separator="," close=")">
+					<foreach item="themeId" collection="requestDTO.filter.theme" open="(" separator="," close=")">
 						#{themeId}
 					</foreach>
 			)
 		</if>
 		/* 필터: 스크랩 여부 */
-		<if test="filter != null and filter.scrap != null">
+		<if test="requestDTO.filter != null and requestDTO.filter.scrap != null">
 		<choose>
-			<when test="filter.scrap == true">
+			<when test="requestDTO.filter.scrap == true">
 				AND cs.card_id IS NOT NULL
 			</when>
 			<otherwise>
@@ -135,16 +140,16 @@
 	<!-- 카드목록 조회 ORDER BY -->
 	<sql id="sortCondition">
 		ORDER BY
-		<if test="sort != null and sort.sortBy != null">
-			${sort.sortBy.column} ${sort.sortOrder}
+		<if test="requestDTO.sort != null and requestDTO.sort.sortBy != null">
+			${requestDTO.sort.sortBy.column} ${requestDTO.sort.sortOrder}
 		</if>
 	</sql>
 
 	<!-- 페이징 처리 OFFSET-->
 	<sql id="paginationCondition">
-		<if test="pagination != null">
-			LIMIT #{pagination.size}
-			OFFSET #{pagination.offset}
+		<if test="requestDTO.pagination != null">
+			LIMIT #{requestDTO.pagination.size}
+			OFFSET #{requestDTO.pagination.offset}
 		</if>
 	</sql>
 
@@ -167,6 +172,11 @@
 	<delete id="deleteCardScrap">
 		DELETE FROM card_scraps
 		WHERE user_id = #{userId} AND card_id = #{cardId}
+	</delete>
+
+	<delete id="deleteMyCardTag">
+		DELETE FROM my_card_tags
+		WHERE id = #{tagId}
 	</delete>
 
 	<select id="selectScrappedCardDTO" resultMap="cardDTOResultMap">
@@ -198,18 +208,21 @@
 
 	<select id="selectImagesByCardId" resultType="com.junebay.plancard.image.dto.CardImageDTO">
 		SELECT	id AS imageId
-				 , CONCAT('/images/cards/explore/', id)  AS image_url
-				 , alt
-				 , is_main
+				, original_file_name AS filename
+				, save_path AS filepath
+				, CONCAT('/images/cards/explore/', id)  AS image_url
+				, alt
 		FROM 	card_images
 		WHERE 	card_id = #{cardId} AND is_active = true
 	</select>
 
 	<select id="selectImagesByMyCardId" resultType="com.junebay.plancard.image.dto.MyCardImageDTO">
-		SELECT	id AS myImageId
-				 , CONCAT('/images/cards/my/', id)  AS image_url
-				 , alt
-				 , is_main
+		SELECT	id AS my_image_id
+				, my_card_id
+		     	, original_file_name AS filename
+		     	, save_path AS filepath
+				, CONCAT('/images/cards/my/', id)  AS image_url
+				, alt
 		FROM 	my_card_images
 		WHERE 	my_card_id = #{myCardId} AND is_active = true
 	</select>
@@ -230,6 +243,8 @@
 				, ec.city
 				, ec.category
 				, ec.rating
+		     	, mc.main_image_type
+		     	, mc.main_image_id
 				, ec.scrap
 				, ec.map_link
 				, mc.memo AS my_memo
@@ -256,6 +271,8 @@
 				, ec.city
 				, ec.category
 				, ec.rating
+				, mc.main_image_type
+				, mc.main_image_id
 				, ec.scrap
 				, ec.map_link
 				, mc.memo AS my_memo

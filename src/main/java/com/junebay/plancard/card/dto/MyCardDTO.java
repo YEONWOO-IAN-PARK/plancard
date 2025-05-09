@@ -17,6 +17,7 @@ public class MyCardDTO extends CardDTO {
 
     private long myCardId;
     private String myMemo;
+    private String mainImageType;   // ### 수정 후 버전 ###
     private List<MyCardImageDTO> myImageList;
     private List<MyCardTagDTO> myTagList;
 }

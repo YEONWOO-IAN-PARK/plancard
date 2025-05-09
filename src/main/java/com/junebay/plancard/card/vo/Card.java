@@ -17,10 +17,10 @@ public class Card {
     private long id;
     private String title;
     private String description;
-    private String countryId;
     private String cityId;
     private long categoryId;
     private int rating;
+    private long mainImageId;
     private boolean isActive;
     private LocalDateTime createdDate;
     private LocalDateTime updatedDate;

@@ -51,4 +51,12 @@ public interface CardService {
      * @param tagName 등록할 태그명
      */
     ResponseDTO insertMyCardTag(String cardType, long myCardId, String tagName);
+
+    /**
+     * 내 카드의 커스텀 태그를 삭제하는 기능
+     * @param cardType 조회카드 유형("explore" || "my")
+     * @param myCardId 내 카드 ID
+     * @param tagId 삭제할 태그 ID
+     */
+    void deleteMyCardTag(String cardType, long myCardId, long tagId);
 }

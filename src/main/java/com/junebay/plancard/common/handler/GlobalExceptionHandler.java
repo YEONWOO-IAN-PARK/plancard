@@ -38,4 +38,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(ex.getStatus()).body(responseDTO);
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ResponseDTO> handleIllegalArgumentException(IllegalArgumentException ex) {
+        ResponseDTO responseDTO = new ResponseDTO();
+        responseDTO.setDetails(ex.getMessage());
+        // 400으로 반환하는 이유는 이미지 파일 유효성 검사를 통과못했기 때문에 잘못된 요청이라고 판단했기 때문
+        return ResponseEntity.status(400).body(responseDTO);
+    }
 }

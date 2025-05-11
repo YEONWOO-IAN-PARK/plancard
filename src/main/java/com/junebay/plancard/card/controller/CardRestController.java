@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * @author : IAN
@@ -84,6 +85,15 @@ public class CardRestController {
     public ResponseEntity<ResponseDTO> deleteTag(@PathVariable String cardType, @PathVariable long myCardId, @RequestBody MyCardTagDTO tagDTO) {
         cardService.deleteMyCardTag(cardType, myCardId, tagDTO.getTagId());
         return ResponseEntity.status(204).build();
+    }
+
+    /**
+     * 내 카드 이미지 등록
+     */
+    @PostMapping("/my/{myCardId}/images")
+    public ResponseEntity<ResponseDTO> insertMyCardImage(@PathVariable String cardType, @PathVariable long myCardId, @RequestParam("file") MultipartFile imageFile)  {
+        ResponseDTO responseDTO = cardService.insertMyCardImage(cardType, myCardId, imageFile);
+        return ResponseEntity.status(201).body(responseDTO);
     }
 
 }

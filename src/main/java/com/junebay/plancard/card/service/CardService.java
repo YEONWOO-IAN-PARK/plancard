@@ -2,6 +2,7 @@ package com.junebay.plancard.card.service;
 
 import com.junebay.plancard.common.dto.RequestDTO;
 import com.junebay.plancard.common.dto.ResponseDTO;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * @author : IAN
@@ -59,4 +60,12 @@ public interface CardService {
      * @param tagId 삭제할 태그 ID
      */
     void deleteMyCardTag(String cardType, long myCardId, long tagId);
+
+    /**
+     * 내 카드의 커스텀 이미지를 추가하는 기능
+     * @param cardType 조회카드 유형("explore" || "my")h
+     * @param myCardId 내 카드 ID
+     * @param imageFile 첨부한 이미지 파일
+     */
+    ResponseDTO insertMyCardImage(String cardType, long myCardId, MultipartFile imageFile);
 }

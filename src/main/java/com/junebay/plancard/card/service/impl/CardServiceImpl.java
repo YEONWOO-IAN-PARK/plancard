@@ -8,10 +8,12 @@ import com.junebay.plancard.card.service.CardService;
 import com.junebay.plancard.common.dto.RequestDTO;
 import com.junebay.plancard.common.dto.ResponseDTO;
 import com.junebay.plancard.common.validator.CustomValidator;
+import com.junebay.plancard.image.dto.MyCardImageDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -145,10 +147,33 @@ public class CardServiceImpl implements CardService {
         long userId = 2;    // TODO : 임시 유저 아이디. 스프링 시큐리티 적용 시 대체한다.
 
         CardDTO cardDTO = cardMapper.selectMyCardOne(cardType, myCardId, userId);
-        customValidator.validateCardOne(cardDTO);   // card Validation(404)
-        customValidator.validateCardTag(cardDTO, tagId);   // card tag Validation(404)
+        customValidator.validateCardOne(cardDTO);           // card Validation(404)
+        customValidator.validateCardTag(cardDTO, tagId);    // card tag Validation(404)
 
         cardMapper.deleteMyCardTag(tagId);
+    }
+
+    @Override
+    public ResponseDTO insertMyCardImage(String cardType, long myCardId, MultipartFile imageFile) {
+        ResponseDTO responseDTO = new ResponseDTO();
+        MyCardImageDTO myCardImageDTO = new MyCardImageDTO();
+
+        long userId = 2;
+
+        // 1. myCardId로 카드가 존재하는지 먼저 확인
+        CardDTO cardDTO = cardMapper.selectMyCardOne(cardType, myCardId, userId);
+        customValidator.validateCardOne(cardDTO);   // card Validation(404)
+
+        // 2. 첨부한 파일의 유효성 검사 실시 (용량, 확장자)
+        customValidator.validateCardImage(imageFile);
+
+        // 3. 서버에 저장
+
+        // 4. DB에 저장
+
+        // 5. responseDTO 세팅 및 반환
+
+        return responseDTO;
     }
 
     /**

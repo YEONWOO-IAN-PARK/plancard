@@ -12,8 +12,8 @@ public class MyCardImageDTO {
 
     private long myImageId;
     private long myCardId;
-    private String filename;
-    private String filepath;
+    private String filename;    // 원본파일명(original_file_name)
+    private String filepath;    // 파일저장경로(save_path)
     private String imageUrl;
     private String alt;
 }

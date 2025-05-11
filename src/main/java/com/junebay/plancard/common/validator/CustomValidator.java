@@ -10,7 +10,12 @@ import com.junebay.plancard.common.exception.NoContentException;
 import com.junebay.plancard.common.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
@@ -70,5 +75,50 @@ public class CustomValidator {
      */
     public boolean containsTagId(List<MyCardTagDTO> tagList, long tagId) {
         return tagList.stream().anyMatch(tagDTO -> tagDTO.getTagId() == tagId);
+    }
+
+    /**
+     * 전달받은 이미지 파일의 유효성 검사
+     */
+    public void validateCardImage(MultipartFile imageFile) {
+        final long MAX_FILE_SIZE = 5 * 1024 * 1024;
+        final int MAX_FILENAME_LENGTH = 255;
+
+        // 빈 파일 검사
+        if (imageFile.isEmpty()) throw new IllegalArgumentException("파일이 비어있습니다.");
+
+        // 파일의 용량 검사 (0이상 ~ 5mb 이하)
+        if (imageFile.getSize() <= 0 || imageFile.getSize() > MAX_FILE_SIZE) throw new IllegalArgumentException("파일 용량은 0보다 크고 5MB 이하여야 합니다.");
+
+        // 파일명 길이 검사 (255 자 이하)
+        String fileName = imageFile.getOriginalFilename();
+        int byteLength = 0;
+        if (fileName != null && !fileName.isEmpty()) {
+            byteLength = fileName.getBytes(StandardCharsets.UTF_8).length;
+        }
+        if (fileName == null || byteLength == 0 || byteLength > MAX_FILENAME_LENGTH) throw new IllegalArgumentException("파일명이 너무 깁니다.");
+
+        // 파일 확장자 검사 (jpg/jpeg/png/webp)
+        if (!fileName.matches("(?i)^.*\\.(jpg|jpeg|png|webp)$")) throw new IllegalArgumentException("허용된 확장자(jpg, jpeg, png, webp)만 가능합니다.");
+
+        // 파일 MIME 타입 검사 (image/jpeg, image/png 등)
+        String contentType = imageFile.getContentType();
+        if (contentType == null || !(contentType.equalsIgnoreCase("image/jpeg")
+                                        || contentType.equalsIgnoreCase("image/jpg")
+                                        || contentType.equalsIgnoreCase("image/png")
+                                        || contentType.equalsIgnoreCase("image/webp")
+                                    )) {
+            throw new IllegalArgumentException("허용된 이미지 타입만 가능합니다.");
+        }
+
+        // 실제 이미지 여부 확인
+        try {
+            BufferedImage image = ImageIO.read(imageFile.getInputStream());
+            if (image == null) {
+                throw new IllegalArgumentException("이미지 파일이 아닙니다.");
+            }
+        } catch (IOException e) {
+            throw new IllegalArgumentException("이미지 파일을 읽는 데 실패했습니다.");
+        }
     }
 }

@@ -18,7 +18,7 @@ public abstract class Image {
     private String originalFileName;
     private String storedFileName;
     private String extension;
-    private int size;
+    private long size;
     private String alt;
     private boolean isActive;
     private LocalDateTime createdDate;

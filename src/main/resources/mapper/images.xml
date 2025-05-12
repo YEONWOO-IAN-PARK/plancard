@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.junebay.plancard.image.mapper.ImageMapper">
+
+	<insert id="insertMyCardImage">
+		INSERT INTO my_card_images
+		(
+			my_card_id
+			, save_path
+			, original_file_name
+			, stored_file_name
+			, extension
+			, size
+			, alt
+		)
+		VALUES
+		(
+			#{myCardId}
+			, #{savePath}
+			, #{originalFileName}
+			, #{storedFileName}
+			, #{extension}
+			, #{size}
+			, #{alt}
+		)
+	</insert>
+</mapper>

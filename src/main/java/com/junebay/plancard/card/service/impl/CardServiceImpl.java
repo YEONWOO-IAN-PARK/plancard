@@ -2,13 +2,18 @@ package com.junebay.plancard.card.service.impl;
 
 import com.junebay.plancard.card.dto.CardDTO;
 import com.junebay.plancard.card.dto.CardScrapDTO;
+import com.junebay.plancard.card.dto.MyCardDTO;
 import com.junebay.plancard.card.dto.MyCardTagDTO;
 import com.junebay.plancard.card.mapper.CardMapper;
 import com.junebay.plancard.card.service.CardService;
 import com.junebay.plancard.common.dto.RequestDTO;
 import com.junebay.plancard.common.dto.ResponseDTO;
 import com.junebay.plancard.common.validator.CustomValidator;
-import com.junebay.plancard.image.dto.MyCardImageDTO;
+import com.junebay.plancard.image.ImageType;
+import com.junebay.plancard.image.service.ImageService;
+import com.junebay.plancard.image.vo.CardImage;
+import com.junebay.plancard.image.vo.Image;
+import com.junebay.plancard.image.vo.MyCardImage;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -16,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * @author : IAN
@@ -32,8 +38,10 @@ public class CardServiceImpl implements CardService {
     @Value("${response.ok.notExist.list.detail}") private String notExistCardList;
     @Value("${response.ok.scrapped.detail}") private String scrapped;
     @Value("${response.ok.tagged.detail}") private String insertedTag;
+    @Value("${upload.image.mycard}") private String myCardSavePath;
     private final CustomValidator customValidator;
     private final CardMapper cardMapper;
+    private final ImageService imageService;
 
     @Override
     public ResponseDTO selectCards(RequestDTO requestDTO, String cardType) {
@@ -156,24 +164,57 @@ public class CardServiceImpl implements CardService {
     @Override
     public ResponseDTO insertMyCardImage(String cardType, long myCardId, MultipartFile imageFile) {
         ResponseDTO responseDTO = new ResponseDTO();
-        MyCardImageDTO myCardImageDTO = new MyCardImageDTO();
+        MyCardImage myCardImage;
 
         long userId = 2;
 
-        // 1. myCardId로 카드가 존재하는지 먼저 확인
         CardDTO cardDTO = cardMapper.selectMyCardOne(cardType, myCardId, userId);
         customValidator.validateCardOne(cardDTO);   // card Validation(404)
+        customValidator.validateCardImage(imageFile);   // size, extension Validation
 
-        // 2. 첨부한 파일의 유효성 검사 실시 (용량, 확장자)
-        customValidator.validateCardImage(imageFile);
+        // 3. DB에 저장
+        myCardImage = (MyCardImage) setCardImage(myCardId, imageFile, cardDTO);
+        imageService.insertImage(myCardImage, ImageType.MY_CARD);
 
-        // 3. 서버에 저장
+        // 4. TODO 서버에 저장
+        imageService.saveImage(imageFile, myCardSavePath);
 
-        // 4. DB에 저장
 
         // 5. responseDTO 세팅 및 반환
 
         return responseDTO;
+    }
+
+    /**
+     * 탐험카드/내카드의 이미지정보 DB 인서트를 위한 세팅작업
+     * @param cardId 탐험카드 ID || 내 카드 ID
+     * @param imageFile 전달받은 이미지 파일
+     * @param cardDTO 탐험카드 DTO || 내 카드 DTO
+     * @return 필드가 세팅된 ImageVO
+     */
+    private Image setCardImage(long cardId, MultipartFile imageFile, CardDTO cardDTO) {
+        Image cardImage;
+        if (cardDTO instanceof MyCardDTO) {
+            cardImage = new MyCardImage();
+            ((MyCardImage) cardImage).setMyCardId(cardId);
+        } else {
+            cardImage = new CardImage();
+            ((CardImage) cardImage).setCardId(cardId);
+        }
+
+        String originalFilename = imageFile.getOriginalFilename();
+        cardImage.setOriginalFileName(originalFilename);
+
+        assert originalFilename != null;
+        String extension = originalFilename.substring(originalFilename.lastIndexOf(".") + 1).toLowerCase();
+        cardImage.setExtension(extension);
+        
+        cardImage.setStoredFileName(UUID.randomUUID()+ "." + extension);
+        cardImage.setSize(imageFile.getSize());
+        cardImage.setAlt(cardDTO.getTitle());
+        cardImage.setSavePath(myCardSavePath);
+
+        return cardImage;
     }
 
     /**

@@ -66,4 +66,10 @@ public interface CardMapper {
      * 태그 ID를 전달받아 (내 카드 커스텀) 태그를 삭제하는 기능
      */
     void deleteMyCardTag(@Param("tagId") long tagId);
+
+    /**
+     * 내 카드 메인 이미지를 업데이트하는 기능
+     */
+    void updateMyCardMainImage(@Param("myCardImageId") long myCardImageId, @Param("mainImageType") String mainImageType, @Param("myCardId") long myCardId);
+    
 }

@@ -39,6 +39,61 @@
 		<collection property="myTagList" ofType="com.junebay.plancard.card.dto.MyCardTagDTO" column="my_card_id" javaType="ArrayList" select="selectTagsByMyCardId" />
 	</resultMap>
 
+	<sql id="searchCondition">
+		/* 검색 */
+		<if test="requestDTO.search != null and requestDTO.search != ''">
+			AND (
+			    c.title LIKE CONCAT('%', #{requestDTO.search}, '%')
+				OR c.description LIKE CONCAT('%', #{requestDTO.search}, '%')
+			)
+		</if>
+	</sql>
+
+	<sql id="filterCondition">
+		/* 필터: 국가 */
+		<if test='requestDTO.filter != null and requestDTO.filter.country != null and !"".equals(requestDTO.filter.country)'>
+			AND co.id = #{requestDTO.filter.country}
+		</if>
+
+		/* 필터: 도시 */
+		<if test='requestDTO.filter != null and requestDTO.filter.city != null and !"".equals(requestDTO.filter.city)'>
+			AND ct.id = #{requestDTO.filter.city}
+		</if>
+
+		/* 필터: 카테고리 (배열) */
+		<if test="requestDTO.filter != null and requestDTO.filter.category != null and requestDTO.filter.category.size() > 0">
+			AND cg.id IN
+			<foreach item="cat" collection="requestDTO.filter.category" open="(" separator="," close=")">
+				#{cat}
+			</foreach>
+		</if>
+
+		/* 필터: 테마 */
+		<if test="requestDTO.filter != null and requestDTO.filter.theme != null and requestDTO.filter.theme.size() > 0">
+			AND EXISTS (
+				SELECT	1
+				FROM	card_theme t
+				WHERE	t.card_id = c.id
+						AND t.theme_id IN
+					<foreach item="themeId" collection="requestDTO.filter.theme" open="(" separator="," close=")">
+						#{themeId}
+					</foreach>
+			)
+		</if>
+
+		/* 필터: 스크랩 여부 */
+		<if test="requestDTO.filter != null and requestDTO.filter.scrap != null">
+		<choose>
+			<when test="requestDTO.filter.scrap == true">
+				AND cs.card_id IS NOT NULL
+			</when>
+			<otherwise>
+				AND cs.card_id IS NULL
+			</otherwise>
+		</choose>
+		</if>
+	</sql>
+
 	<sql id="selectCard">
 		SELECT 	c.id AS card_id
 				, c.title as card_title
@@ -86,73 +141,6 @@
 		<include refid="filterCondition" />
 	</sql>
 
-	<sql id="searchCondition">
-		/* 검색 */
-	<if test="requestDTO.search != null and requestDTO.search != ''">
-		AND (
-		    c.title LIKE CONCAT('%', #{requestDTO.search}, '%')
-			OR c.description LIKE CONCAT('%', #{requestDTO.search}, '%')
-		)
-	</if>
-	</sql>
-
-	<sql id="filterCondition">
-		/* 필터: 국가 */
-		<if test='requestDTO.filter != null and requestDTO.filter.country != null and !"".equals(requestDTO.filter.country)'>
-			AND co.id = #{requestDTO.filter.country}
-		</if>
-		/* 필터: 도시 */
-		<if test='requestDTO.filter != null and requestDTO.filter.city != null and !"".equals(requestDTO.filter.city)'>
-			AND ct.id = #{requestDTO.filter.city}
-		</if>
-		/* 필터: 카테고리 (배열) */
-		<if test="requestDTO.filter != null and requestDTO.filter.category != null and requestDTO.filter.category.size() > 0">
-			AND cg.id IN
-			<foreach item="cat" collection="requestDTO.filter.category" open="(" separator="," close=")">
-				#{cat}
-			</foreach>
-		</if>
-		/* 필터: 테마 */
-		<if test="requestDTO.filter != null and requestDTO.filter.theme != null and requestDTO.filter.theme.size() > 0">
-			AND EXISTS (
-				SELECT	1
-				FROM	card_theme t
-				WHERE	t.card_id = c.id
-						AND t.theme_id IN
-					<foreach item="themeId" collection="requestDTO.filter.theme" open="(" separator="," close=")">
-						#{themeId}
-					</foreach>
-			)
-		</if>
-		/* 필터: 스크랩 여부 */
-		<if test="requestDTO.filter != null and requestDTO.filter.scrap != null">
-		<choose>
-			<when test="requestDTO.filter.scrap == true">
-				AND cs.card_id IS NOT NULL
-			</when>
-			<otherwise>
-				AND cs.card_id IS NULL
-			</otherwise>
-		</choose>
-		</if>
-	</sql>
-
-	<!-- 카드목록 조회 ORDER BY -->
-	<sql id="sortCondition">
-		ORDER BY
-		<if test="requestDTO.sort != null and requestDTO.sort.sortBy != null">
-			${requestDTO.sort.sortBy.column} ${requestDTO.sort.sortOrder}
-		</if>
-	</sql>
-
-	<!-- 페이징 처리 OFFSET-->
-	<sql id="paginationCondition">
-		<if test="requestDTO.pagination != null">
-			LIMIT #{requestDTO.pagination.size}
-			OFFSET #{requestDTO.pagination.offset}
-		</if>
-	</sql>
-
 	<insert id="insertCardScrap">
 		INSERT INTO card_scraps (card_id, user_id)
 		VALUES (#{cardId}, #{userId})
@@ -179,6 +167,13 @@
 		WHERE id = #{tagId}
 	</delete>
 
+	<update id="updateMyCardMainImage">
+		UPDATE	my_cards
+		SET 	main_image_id = #{myCardImageId}
+				, main_image_type = #{mainImageType}
+		WHERE	id = #{myCardId}
+	</update>
+
 	<select id="selectScrappedCardDTO" resultMap="cardDTOResultMap">
 		SELECT	c.id as card_id
 		    	, CASE WHEN cs.card_id IS NULL THEN false ELSE true END AS scrap
@@ -194,8 +189,8 @@
 		<include refid="selectExploreCards" />
 		<include refid="searchCondition" />
 		<include refid="filterCondition" />
-		<include refid="sortCondition" />
-		<include refid="paginationCondition" />
+		<include refid="common.sortCondition" />
+		<include refid="common.paginationCondition" />
 	</select>
 
 	<select id="selectThemesByCardId" resultType="string">
@@ -254,8 +249,8 @@
 				) ec ON mc.card_id = ec.card_id
 		WHERE	mc.user_id = #{userId}
 				AND mc.is_active = true
-		<include refid="sortCondition" />
-		<include refid="paginationCondition" />
+		<include refid="common.sortCondition" />
+		<include refid="common.paginationCondition" />
 	</select>
 
 	<select id="selectExploreCardOne" resultMap="cardDTOResultMap">

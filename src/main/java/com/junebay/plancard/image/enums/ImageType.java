@@ -1,4 +1,4 @@
-package com.junebay.plancard.image;
+package com.junebay.plancard.image.enums;
 
 /**
  * @author : IAN

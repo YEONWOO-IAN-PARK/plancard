@@ -19,7 +19,7 @@ CREATE TABLE `cities` (
   `latitude` double COMMENT '위도(-90 ~ +90)',
   `longitude` double COMMENT '경도(-180 ~ +180)',
   `country_id` varchar(20) COMMENT '국가 고유번호. 도시와 국가는 N:1 관계이다.',
-  `main_image_id` bigint COMMENT '대표 카드 이미지 고유번호',
+  `main_image_id` bigint COMMENT '대표 도시 이미지 고유번호',
   `is_active` bool NOT NULL DEFAULT true COMMENT '사용 유무',
   `created_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성일',
   `updated_date` datetime COMMENT '최종 수정일'
@@ -29,7 +29,7 @@ CREATE TABLE `countries` (
   `id` varchar(50) PRIMARY KEY COMMENT '국가 고유번호',
   `name` varchar(255) NOT NULL COMMENT '국가명',
   `description` varchar(1500) COMMENT '설명',
-  `main_image_id` bigint COMMENT '대표 카드 이미지 고유번호',
+  `main_image_id` bigint COMMENT '대표 국가 이미지 고유번호',
   `is_active` bool NOT NULL DEFAULT true COMMENT '사용 유무',
   `created_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성일',
   `updated_date` datetime COMMENT '최종 수정일'
@@ -50,6 +50,22 @@ CREATE TABLE `card_theme` (
   `updated_date` datetime COMMENT '최종 수정일',
   PRIMARY KEY (`theme_id`, `card_id`)
 ) COMMENT = '카드와 테마의 중간 테이블. 여러 장의 카드는 여러 가지 테마를 가질 수 있다. 카드와 테마는 N:M 관계이다.';
+
+CREATE TABLE `country_theme` (
+  `theme_id` bigint COMMENT '테마 고유번호',
+  `country_id` varchar(50) COMMENT '국가 고유번호',
+  `created_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성일',
+  `updated_date` datetime COMMENT '최종 수정일',
+  PRIMARY KEY (`theme_id`, `country_id`)
+) COMMENT = '국가와 테마의 중간 테이블. 여러 국가는 여러 가지 테마를 가질 수 있다. 국가와 테마는 N:M 관계이다.';
+
+CREATE TABLE `city_theme` (
+  `theme_id` bigint COMMENT '테마 고유번호',
+  `city_id`  bigint COMMENT '도시 고유번호',
+  `created_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성일',
+  `updated_date` datetime COMMENT '최종 수정일',
+  PRIMARY KEY (`theme_id`, `city_id`)
+) COMMENT = '도시와 테마의 중간 테이블. 여러 도시는 여러 가지 테마를 가질 수 있다. 도시와 테마는 N:M 관계이다.';
 
 CREATE TABLE `categories` (
   `id` bigint AUTO_INCREMENT PRIMARY KEY COMMENT '카테고리 고유번호',
@@ -253,6 +269,12 @@ ALTER TABLE `cities` ADD FOREIGN KEY (`country_id`) REFERENCES `countries` (`id`
 
 ALTER TABLE `card_theme` ADD FOREIGN KEY (`theme_id`) REFERENCES `themes` (`id`);
 ALTER TABLE `card_theme` ADD FOREIGN KEY (`card_id`) REFERENCES `cards` (`id`);
+
+ALTER TABLE `country_theme` ADD FOREIGN KEY (`theme_id`) REFERENCES `themes` (`id`);
+ALTER TABLE `country_theme` ADD FOREIGN KEY (`country_id`) REFERENCES `countries` (`id`);
+
+ALTER TABLE `city_theme` ADD FOREIGN KEY (`theme_id`) REFERENCES `themes` (`id`);
+ALTER TABLE `city_theme` ADD FOREIGN KEY (`city_id`) REFERENCES `cities` (`id`);
 
 ALTER TABLE `card_images` ADD FOREIGN KEY (`card_id`) REFERENCES `cards` (`id`);
 

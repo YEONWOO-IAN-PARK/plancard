@@ -8,6 +8,9 @@ import com.junebay.plancard.common.enums.StatusCode;
 import com.junebay.plancard.common.exception.BadRequestException;
 import com.junebay.plancard.common.exception.NoContentException;
 import com.junebay.plancard.common.exception.NotFoundException;
+import com.junebay.plancard.image.dto.MainImageRequestDTO;
+import com.junebay.plancard.image.dto.MyCardImageDTO;
+import com.junebay.plancard.image.enums.ImageType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -104,10 +107,10 @@ public class CustomValidator {
         // 파일 MIME 타입 검사 (image/jpeg, image/png 등)
         String contentType = imageFile.getContentType();
         if (contentType == null || !(contentType.equalsIgnoreCase("image/jpeg")
-                                        || contentType.equalsIgnoreCase("image/jpg")
-                                        || contentType.equalsIgnoreCase("image/png")
-                                        || contentType.equalsIgnoreCase("image/webp")
-                                    )) {
+                || contentType.equalsIgnoreCase("image/jpg")
+                || contentType.equalsIgnoreCase("image/png")
+                || contentType.equalsIgnoreCase("image/webp")
+        )) {
             throw new IllegalArgumentException("허용된 이미지 타입만 가능합니다.");
         }
 
@@ -119,6 +122,25 @@ public class CustomValidator {
             }
         } catch (IOException e) {
             throw new IllegalArgumentException("이미지 파일을 읽는 데 실패했습니다.");
+        }
+    }
+
+    /**
+     * 전달받은 내 카드 이미지 ID가 존재하는지 검사
+     */
+    public void validateMyCardImage(List<MyCardImageDTO> myImageList, long myCardImageId) {
+        boolean isExist = myImageList.stream().anyMatch(myCardImageDTO -> myCardImageDTO.getMyImageId() == myCardImageId);
+        if (myCardImageId == 0 || !isExist) {
+            throw new NotFoundException(StatusCode.NOT_FOUND);
+        }
+    }
+
+    /**
+     * 전달받은 메인 이미지 등록 요청 타입 ( "C" : 탐험카드 || "M" : 내카드)이 올바른 값인지 검사
+     */
+    public void validateMainImageType(String mainImageType) {
+        if (mainImageType == null || mainImageType.isBlank() || (!"C".equals(mainImageType) && !"M".equals(mainImageType))) {
+            throw new BadRequestException(StatusCode.BAD_REQUEST);
         }
     }
 }

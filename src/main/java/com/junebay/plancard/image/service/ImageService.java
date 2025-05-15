@@ -1,8 +1,10 @@
 package com.junebay.plancard.image.service;
 
-import com.junebay.plancard.image.ImageType;
+import com.junebay.plancard.image.enums.ImageType;
 import com.junebay.plancard.image.vo.Image;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 /**
  * @author : IAN
@@ -11,7 +13,9 @@ import org.springframework.web.multipart.MultipartFile;
  */
 public interface ImageService {
 
-    void saveImage(MultipartFile imageFile, String savePath);
+    void saveImage(MultipartFile imageFile, Image imageVO, ImageType imageType) throws IOException;
 
-    void insertImage(Image imageVO, ImageType imageType);
+    Image insertImage(Image imageVO, ImageType imageType);
+
+    void deleteImage(long myCardImageId);
 }

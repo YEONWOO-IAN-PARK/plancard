@@ -5,8 +5,10 @@ import com.junebay.plancard.card.dto.MyCardTagDTO;
 import com.junebay.plancard.card.service.CardService;
 import com.junebay.plancard.common.dto.RequestDTO;
 import com.junebay.plancard.common.dto.ResponseDTO;
+import com.junebay.plancard.image.dto.MainImageRequestDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.annotations.Delete;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -90,10 +92,28 @@ public class CardRestController {
     /**
      * 내 카드 이미지 등록
      */
-    @PostMapping("/my/{myCardId}/images")
-    public ResponseEntity<ResponseDTO> insertMyCardImage(@PathVariable String cardType, @PathVariable long myCardId, @RequestParam("file") MultipartFile imageFile)  {
+    @PostMapping("/{cardType}/{myCardId}/images")
+    public ResponseEntity<ResponseDTO> insertMyCardImage(@PathVariable String cardType, @PathVariable long myCardId, @RequestParam("image") MultipartFile imageFile)  {
         ResponseDTO responseDTO = cardService.insertMyCardImage(cardType, myCardId, imageFile);
         return ResponseEntity.status(201).body(responseDTO);
     }
 
+    /**
+     * 내 카드 이미지 삭제
+     */
+    @DeleteMapping("/{cardType}/{myCardId}/images/{myCardImageId}")
+    public ResponseEntity<ResponseDTO> deleteMyCardImage(@PathVariable String cardType, @PathVariable long myCardId, @PathVariable long myCardImageId) {
+        cardService.deleteMyCardImage(cardType, myCardId, myCardImageId);
+        return ResponseEntity.status(204).build();
+    }
+
+
+    /**
+     * 내 카드 이미지 메인 이미지 등록
+     */
+    @PatchMapping("/{cardType}/{myCardId}/images/{myCardImageId}/main")
+    public ResponseEntity<ResponseDTO> mainImage(@PathVariable String cardType, @PathVariable long myCardId, @PathVariable long myCardImageId, @RequestBody MainImageRequestDTO mainImageRequestDTO) {
+        cardService.updateMyCardMainImage(cardType, myCardId, myCardImageId, mainImageRequestDTO);
+        return ResponseEntity.status(204).build();
+    }
 }

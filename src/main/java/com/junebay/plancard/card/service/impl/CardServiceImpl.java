@@ -8,8 +8,13 @@ import com.junebay.plancard.card.mapper.CardMapper;
 import com.junebay.plancard.card.service.CardService;
 import com.junebay.plancard.common.dto.RequestDTO;
 import com.junebay.plancard.common.dto.ResponseDTO;
+import com.junebay.plancard.common.enums.StatusCode;
+import com.junebay.plancard.common.exception.BadRequestException;
 import com.junebay.plancard.common.validator.CustomValidator;
-import com.junebay.plancard.image.ImageType;
+import com.junebay.plancard.image.dto.MainImageRequestDTO;
+import com.junebay.plancard.image.enums.ImageType;
+import com.junebay.plancard.image.dto.MyCardImageDTO;
+import com.junebay.plancard.image.mapper.ImageMapper;
 import com.junebay.plancard.image.service.ImageService;
 import com.junebay.plancard.image.vo.CardImage;
 import com.junebay.plancard.image.vo.Image;
@@ -20,6 +25,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,19 +39,23 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class CardServiceImpl implements CardService {
 
-    @Value("${response.ok.exist.one.detail}") private String existCard;
-    @Value("${response.ok.exist.list.detail}") private String existCardList;
+    @Value("${response.ok.exist.card.one.detail}") private String existCard;
+    @Value("${response.ok.exist.card.list.detail}") private String existCardList;
     @Value("${response.ok.notExist.list.detail}") private String notExistCardList;
-    @Value("${response.ok.scrapped.detail}") private String scrapped;
+    @Value("${response.ok.scrapped.card.detail}") private String scrapped;
     @Value("${response.ok.tagged.detail}") private String insertedTag;
     @Value("${upload.image.mycard}") private String myCardSavePath;
+    @Value("${url.image.mycard}") private String myCardImageUrl;
+    @Value("${response.created.image.detail}") private String imageCreated;
+
+
     private final CustomValidator customValidator;
     private final CardMapper cardMapper;
+    private final ImageMapper imageMapper;
     private final ImageService imageService;
 
     @Override
     public ResponseDTO selectCards(RequestDTO requestDTO, String cardType) {
-        ResponseDTO responseDTO = new ResponseDTO();
         List<CardDTO> cardDTOList;
 
         customValidator.validateRequest(requestDTO);   // RequestDTO Validation (throw 400)
@@ -58,14 +68,11 @@ public class CardServiceImpl implements CardService {
             cardDTOList = cardMapper.selectMyCards(requestDTO, userId);
         }
 
-        setResponseDTO(requestDTO, responseDTO, cardDTOList);
-
-        return responseDTO;
+        return setResponseDTO(requestDTO, cardDTOList);
     }
 
     @Override
     public ResponseDTO selectOneCard(String cardType, long cardId) {
-        ResponseDTO responseDTO = new ResponseDTO();
         CardDTO cardDTO;
 
         long userId = 2;    // TODO : 임시 유저 아이디. 스프링 시큐리티 적용 시 대체한다.
@@ -78,9 +85,7 @@ public class CardServiceImpl implements CardService {
 
         customValidator.validateCardOne(cardDTO);   // CardDTO Validation(404)
 
-        setResponseDTO(responseDTO, cardDTO, existCard);
-
-        return responseDTO;
+        return setResponseDTO(cardDTO);
     }
 
     @Override
@@ -99,7 +104,7 @@ public class CardServiceImpl implements CardService {
 
             scrapDTO.setCardId(cardDTO.getCardId());
             scrapDTO.setScrap(cardDTO.isScrap());
-            setResponseDTO(responseDTO, scrapDTO, scrapped);
+            responseDTO = setResponseDTO(scrapDTO);
         }
 
         return responseDTO;
@@ -128,12 +133,10 @@ public class CardServiceImpl implements CardService {
         customValidator.validateCardOne(cardDTO);   // card Validation (404)
 
         cardMapper.updateMemo(cardId, memo);
-
     }
 
     @Override
     public ResponseDTO insertMyCardTag(String cardType, long myCardId, String tagName) {
-        ResponseDTO responseDTO = new ResponseDTO();
         MyCardTagDTO myCardTagDTO = new MyCardTagDTO();
 
         long userId = 2;    // TODO : 임시 유저 아이디. 스프링 시큐리티 적용 시 대체한다.
@@ -145,9 +148,7 @@ public class CardServiceImpl implements CardService {
         myCardTagDTO.setTagName(tagName);
         cardMapper.insertMyCardTag(myCardTagDTO);
 
-        setResponseDTO(responseDTO, myCardTagDTO, insertedTag);
-
-        return responseDTO;
+        return setResponseDTO(myCardTagDTO);
     }
 
     @Override
@@ -163,10 +164,10 @@ public class CardServiceImpl implements CardService {
 
     @Override
     public ResponseDTO insertMyCardImage(String cardType, long myCardId, MultipartFile imageFile) {
-        ResponseDTO responseDTO = new ResponseDTO();
+        MyCardImageDTO resultDTO = new MyCardImageDTO();
         MyCardImage myCardImage;
 
-        long userId = 2;
+        long userId = 2;    // TODO : 임시 유저 아이디. 스프링 시큐리티 적용 시 대체한다.
 
         CardDTO cardDTO = cardMapper.selectMyCardOne(cardType, myCardId, userId);
         customValidator.validateCardOne(cardDTO);   // card Validation(404)
@@ -174,19 +175,86 @@ public class CardServiceImpl implements CardService {
 
         // 3. DB에 저장
         myCardImage = (MyCardImage) setCardImage(myCardId, imageFile, cardDTO);
-        imageService.insertImage(myCardImage, ImageType.MY_CARD);
+        myCardImage = (MyCardImage) imageService.insertImage(myCardImage, ImageType.MY_CARD);
 
-        // 4. TODO 서버에 저장
-        imageService.saveImage(imageFile, myCardSavePath);
-
+        // 4. 서버에 저장
+        try {
+            imageService.saveImage(imageFile, myCardImage, ImageType.MY_CARD);
+        } catch (IOException ie) {
+            log.warn("IOException Occurred while Saving image file to Server path. {}", ie.getMessage());
+            imageService.deleteImage(myCardImage.getId());
+        }
 
         // 5. responseDTO 세팅 및 반환
+        setMyCardImageDTO(resultDTO, myCardImage);
 
+        return setResponseDTO(resultDTO);
+    }
+
+    @Override
+    public void deleteMyCardImage(String cardType, long myCardId, long myCardImageId) {
+        MyCardDTO myCardDTO;
+
+        long userId = 2;    // TODO : 임시 유저 아이디. 스프링 시큐리티 적용 시 대체한다.
+
+        CardDTO cardDTO = cardMapper.selectMyCardOne(cardType, myCardId, userId);
+        customValidator.validateCardOne(cardDTO);           // card Validation(404)
+
+        if (cardDTO instanceof MyCardDTO) {
+            myCardDTO = (MyCardDTO) cardDTO;
+            customValidator.validateMyCardImage(myCardDTO.getMyImageList(), myCardImageId);
+        }
+
+        imageMapper.deleteMyCardImage(myCardImageId);
+    }
+
+    @Override
+    public void updateMyCardMainImage(String cardType, long myCardId, long myCardImageId, MainImageRequestDTO mainImageRequestDTO) {
+        MyCardDTO myCardDTO;
+
+        long userId = 2;    // TODO : 임시 유저 아이디. 스프링 시큐리티 적용 시 대체한다.
+
+        CardDTO cardDTO = cardMapper.selectMyCardOne(cardType, myCardId, userId);
+        customValidator.validateCardOne(cardDTO);           // card Validation(404)
+
+        if (cardDTO instanceof MyCardDTO) {
+            myCardDTO = (MyCardDTO) cardDTO;
+            customValidator.validateMyCardImage(myCardDTO.getMyImageList(), myCardImageId);
+        }
+
+        String mainImageType = mainImageRequestDTO.getMainImageType();
+        customValidator.validateMainImageType(mainImageType);
+
+        cardMapper.updateMyCardMainImage(myCardImageId, mainImageType, myCardId);
+
+    }
+
+    /**
+     * 내 카드 이미지 추가 성공 시, 반환을 위한 ResponseDTO 세팅
+     */
+    private ResponseDTO setResponseDTO(MyCardImageDTO resultDTO) {
+        ResponseDTO responseDTO = new ResponseDTO();
+        responseDTO.setResult(resultDTO);
+        responseDTO.setDetails(imageCreated);
         return responseDTO;
     }
 
     /**
-     * 탐험카드/내카드의 이미지정보 DB 인서트를 위한 세팅작업
+     * 내 카드 이미지 DTO 세팅작업
+     * @param resultDTO 내 카드 이미지 DTO
+     * @param myCardImage 내 카드 이미지 VO
+     */
+    private void setMyCardImageDTO(MyCardImageDTO resultDTO, MyCardImage myCardImage) {
+        resultDTO.setMyImageId(myCardImage.getId());
+        resultDTO.setMyCardId(myCardImage.getMyCardId());
+        resultDTO.setFilename(myCardImage.getOriginalFileName());
+        resultDTO.setFilepath(myCardImage.getSavePath());
+        resultDTO.setImageUrl(myCardImageUrl + myCardImage.getId());    //  => "/images/cards/my/138"
+        resultDTO.setAlt(myCardImage.getAlt());
+    }
+
+    /**
+     * 탐험카드/내 카드의 이미지정보 DB 인서트를 위한 세팅작업
      * @param cardId 탐험카드 ID || 내 카드 ID
      * @param imageFile 전달받은 이미지 파일
      * @param cardDTO 탐험카드 DTO || 내 카드 DTO
@@ -208,8 +276,7 @@ public class CardServiceImpl implements CardService {
         assert originalFilename != null;
         String extension = originalFilename.substring(originalFilename.lastIndexOf(".") + 1).toLowerCase();
         cardImage.setExtension(extension);
-        
-        cardImage.setStoredFileName(UUID.randomUUID()+ "." + extension);
+        cardImage.setStoredFileName(UUID.randomUUID()+ ".webp");
         cardImage.setSize(imageFile.getSize());
         cardImage.setAlt(cardDTO.getTitle());
         cardImage.setSavePath(myCardSavePath);
@@ -220,34 +287,44 @@ public class CardServiceImpl implements CardService {
     /**
      * 내 카드 태그 추가 성공 시, 반환을 위한 ResponseDTO 세팅
      */
-    private void setResponseDTO(ResponseDTO responseDTO, MyCardTagDTO myCardTagDTO, String insertedTag) {
+    private ResponseDTO setResponseDTO(MyCardTagDTO myCardTagDTO) {
+        ResponseDTO responseDTO = new ResponseDTO();
         responseDTO.setResult(myCardTagDTO);
         responseDTO.setDetails(insertedTag);
+
+        return responseDTO;
     }
 
     /**
      * 카드 스크랩 성공 시, 반환을 위한 ResponseDTO 세팅
      */
-    private void setResponseDTO(ResponseDTO responseDTO, CardScrapDTO scrapDTO, String detailMessage) {
-        responseDTO.setDetails(detailMessage);
+    private ResponseDTO setResponseDTO(CardScrapDTO scrapDTO) {
+        ResponseDTO responseDTO = new ResponseDTO();
+        responseDTO.setDetails(scrapped);
         responseDTO.setResult(scrapDTO);
+
+        return responseDTO;
     }
 
     /**
      * 단일 카드 반환을 위한 ResponseDTO 세팅
      */
-    private void setResponseDTO(ResponseDTO responseDTO, CardDTO cardDTO, String details) {
+    private ResponseDTO setResponseDTO(CardDTO cardDTO) {
+        ResponseDTO responseDTO = new ResponseDTO();
 
         if (cardDTO != null) {
-            responseDTO.setDetails(details);
+            responseDTO.setDetails(existCard);
         }
         responseDTO.setResult(cardDTO);
+
+        return responseDTO;
     }
 
     /**
      * 카드목록 반환을 위한 ResponseDTO 세팅
      */
-    private void setResponseDTO(RequestDTO requestDTO, ResponseDTO responseDTO, List<CardDTO> cardDTOList) {
+    private ResponseDTO setResponseDTO(RequestDTO requestDTO, List<CardDTO> cardDTOList) {
+        ResponseDTO responseDTO = new ResponseDTO();
 
         if (!cardDTOList.isEmpty()) {
             responseDTO.setPagination(requestDTO.getPagination());
@@ -257,5 +334,7 @@ public class CardServiceImpl implements CardService {
         }
 
         responseDTO.setResult(cardDTOList);
+
+        return responseDTO;
     }
 }

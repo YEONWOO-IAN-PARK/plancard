@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.junebay.plancard.card.mapper.CountryMapper">
+
+	<!-- 탐험카드 반환을 위한 ResultMap -->
+	<resultMap id="countryDTOResultMap" type="com.junebay.plancard.card.dto.CountryDTO">
+		<id property="countryId" column="id"/>
+		<result property="title" column="name"/>
+		<result property="description" column="description"/>
+		<result property="imageUrl" column="image_url"/>
+	</resultMap>
+
+	<sql id="filterCondition">
+		/* 필터: 국가 */
+		<if test='requestDTO.filter != null and requestDTO.filter.country != null and !"".equals(requestDTO.filter.country)'>
+			AND id = #{requestDTO.filter.country}
+		</if>
+
+		/* 필터: 테마 */
+		<if test="requestDTO.filter != null and requestDTO.filter.theme != null and requestDTO.filter.theme.size() > 0">
+			AND EXISTS (
+				SELECT	1
+				FROM	card_theme t
+				WHERE	t.card_id = c.id
+						AND t.theme_id IN
+					<foreach item="themeId" collection="requestDTO.filter.theme" open="(" separator="," close=")">
+						#{themeId}
+					</foreach>
+			)
+		</if>
+	</sql>
+
+	<select id="selectCountries" resultMap="countryDTOResultMap" parameterType="com.junebay.plancard.common.dto.RequestDTO">
+		SELECT	id
+				, name
+				, description
+				, CONCAT('/images/countries/', id)  AS image_url
+		FROM	countries
+		<where>
+		<include refid="filterCondition" />
+		<include refid="common.paginationCondition" />
+		<include refid="common.sortCondition" />
+		</where>
+	</select>
+
+</mapper>

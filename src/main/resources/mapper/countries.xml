@@ -4,22 +4,25 @@
 
 	<!-- 탐험카드 반환을 위한 ResultMap -->
 	<resultMap id="countryDTOResultMap" type="com.junebay.plancard.card.dto.CountryDTO">
-		<id property="countryId" column="id"/>
+		<id property="countryId" column="country_id"/>
 		<result property="title" column="title"/>
 		<result property="description" column="description"/>
 		<result property="imageUrl" column="image_url"/>
 	</resultMap>
 
+	<resultMap id="cityDTOResultMap" type="com.junebay.plancard.card.dto.CityDTO" extends="countryDTOResultMap">
+		<id property="cityId" column="city_id" />
+	</resultMap>
+
 	<sql id="filterCondition">
-		<where>
 		/* 필터: 국가 */
 		<if test='requestDTO.filter != null and requestDTO.filter.country != null and !"".equals(requestDTO.filter.country)'>
-			c.id = #{requestDTO.filter.country}
+			AND c.id = #{requestDTO.filter.country}
 		</if>
 
 		/* 필터: 테마 */
 		<if test="requestDTO.filter != null and requestDTO.filter.theme != null and requestDTO.filter.theme.size() > 0">
-			EXISTS (
+			AND EXISTS (
 				SELECT	1
 				FROM	country_theme t
 				WHERE	t.country_id = c.id
@@ -29,15 +32,22 @@
 					</foreach>
 			)
 		</if>
-		</where>
 	</sql>
 
 	<select id="selectCountries" resultMap="countryDTOResultMap" parameterType="com.junebay.plancard.common.dto.RequestDTO">
-		SELECT	id
+		SELECT	id AS country_id
 				, name AS title
 				, description
 				, CONCAT('/images/countries/', id)  AS image_url
 		FROM	countries c
+		WHERE 	1=1
+		<include refid="filterCondition" />
+		<include refid="common.sortCondition" />
+		<include refid="common.paginationCondition" />
+	</select>
+
+	<select id="selectCities" resultMap="cityDTOResultMap">
+
 		<include refid="filterCondition" />
 		<include refid="common.sortCondition" />
 		<include refid="common.paginationCondition" />

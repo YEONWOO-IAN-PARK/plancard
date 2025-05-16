@@ -10,5 +10,13 @@ import com.junebay.plancard.common.dto.ResponseDTO;
  */
 public interface CountryService {
 
+    /**
+     * 국가 목록이 담긴 응답 DTO를 반환하는 기능
+     */
     ResponseDTO selectCountries(RequestDTO requestDTO);
+
+    /**
+     * 도시 목록이 담긴 응답 DTO를 반환하는 기능
+     */
+    ResponseDTO selectCities(String countryId, RequestDTO requestDTO);
 }

@@ -6,10 +6,7 @@ import com.junebay.plancard.common.dto.ResponseDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @author : IAN
@@ -18,8 +15,8 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @Slf4j
 @RequiredArgsConstructor
-@RestController
 @RequestMapping("/countries")
+@RestController
 public class CountryRestController {
 
     private final CountryService countryService;
@@ -29,8 +26,13 @@ public class CountryRestController {
      */
     @GetMapping("/search")
     public ResponseEntity<ResponseDTO> countries(@RequestBody RequestDTO requestDTO) {
-        // TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO TODO
         ResponseDTO responseDTO = countryService.selectCountries(requestDTO);
+        return ResponseEntity.ok(responseDTO);
+    }
+
+    @GetMapping("/{countryId}/cities/search")
+    public ResponseEntity<ResponseDTO> cities(@PathVariable String countryId, @RequestBody RequestDTO requestDTO) {
+        ResponseDTO responseDTO = countryService.selectCities(countryId, requestDTO);
         return ResponseEntity.ok(responseDTO);
     }
 }

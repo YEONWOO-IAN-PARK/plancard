@@ -1,5 +1,6 @@
 package com.junebay.plancard.card.service.impl;
 
+import com.junebay.plancard.card.dto.CityDTO;
 import com.junebay.plancard.card.dto.CountryDTO;
 import com.junebay.plancard.card.mapper.CountryMapper;
 import com.junebay.plancard.card.service.CountryService;
@@ -27,6 +28,8 @@ public class CountryServiceImpl implements CountryService {
     private final CountryMapper countryMapper;
 
     @Value("${response.ok.exist.country.list.detail}") private String existCountryList;
+    @Value("${response.ok.exist.city.list.detail}") private String existCityList;
+    @Value("${response.ok.notExist.list.detail}") private String notExistList;
 
     @Override
     public ResponseDTO selectCountries(RequestDTO requestDTO) {
@@ -36,12 +39,35 @@ public class CountryServiceImpl implements CountryService {
         return setResponseDTO(requestDTO, countryDTOList);
     }
 
-    private ResponseDTO setResponseDTO(RequestDTO requestDTO, List<CountryDTO> countryDTOList) {
+    @Override
+    public ResponseDTO selectCities(String countryId, RequestDTO requestDTO) {
+        customValidator.validateRequest(requestDTO);
+        List<CityDTO> dtoList = countryMapper.selectCities(countryId, requestDTO);
+
+        return setResponseDTO(requestDTO, dtoList);
+    }
+
+    /**
+     * 국가 또는 도시 목록이 포함된 응답DTO 세팅
+     */
+    private ResponseDTO setResponseDTO(RequestDTO requestDTO, List<?> dtoList) {
         ResponseDTO responseDTO = new ResponseDTO();
-        responseDTO.setResult(countryDTOList);
+        responseDTO.setResult(dtoList);
         responseDTO.setPagination(requestDTO.getPagination());
-        responseDTO.setDetails(existCountryList);
+
+        boolean isEmpty = dtoList.isEmpty();
+        String details;
+
+        if (isEmpty) {
+            details = notExistList;
+        } else {
+            boolean isCityDTO = dtoList.get(0) instanceof CityDTO;
+            details = isCityDTO ? existCityList : existCountryList;
+        }
+        responseDTO.setDetails(details);
+
 
         return responseDTO;
     }
+
 }

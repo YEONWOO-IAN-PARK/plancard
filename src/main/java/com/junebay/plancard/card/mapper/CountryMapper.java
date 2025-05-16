@@ -1,5 +1,6 @@
 package com.junebay.plancard.card.mapper;
 
+import com.junebay.plancard.card.dto.CityDTO;
 import com.junebay.plancard.card.dto.CountryDTO;
 import com.junebay.plancard.common.dto.RequestDTO;
 import org.apache.ibatis.annotations.Mapper;
@@ -15,5 +16,14 @@ import java.util.List;
 @Mapper
 public interface CountryMapper {
 
+    /**
+     * 국가DTO 목록을 반환하는 기능
+     */
     List<CountryDTO> selectCountries(@Param("requestDTO") RequestDTO requestDTO);
+
+    /**
+     * 도시DTO 목록을 반환하는 기능
+     */
+    List<CityDTO> selectCities(String countryId, RequestDTO requestDTO);
 }
+

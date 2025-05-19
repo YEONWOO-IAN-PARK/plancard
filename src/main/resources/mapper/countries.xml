@@ -22,15 +22,30 @@
 
 		/* 필터: 테마 */
 		<if test="requestDTO.filter != null and requestDTO.filter.theme != null and requestDTO.filter.theme.size() > 0">
-			AND EXISTS (
-				SELECT	1
-				FROM	country_theme t
-				WHERE	t.country_id = c.id
-						AND t.theme_id IN
-					<foreach item="themeId" collection="requestDTO.filter.theme" open="(" separator="," close=")">
-						#{themeId}
-					</foreach>
-			)
+		<choose>
+			<when test='countryId == null or "".equals(countryId)'>
+				AND EXISTS (
+					SELECT	1
+					FROM	country_theme t
+					WHERE	t.country_id = c.id
+							AND t.theme_id IN
+						<foreach item="themeId" collection="requestDTO.filter.theme" open="(" separator="," close=")">
+							#{themeId}
+						</foreach>
+				)
+			</when>
+			<otherwise>
+				AND EXISTS (
+					SELECT	1
+					FROM	city_theme t
+					WHERE	t.city_id = ci.id
+							AND t.theme_id IN
+						<foreach item="themeId" collection="requestDTO.filter.theme" open="(" separator="," close=")">
+							#{themeId}
+						</foreach>
+				)
+			</otherwise>
+		</choose>
 		</if>
 	</sql>
 
@@ -47,7 +62,15 @@
 	</select>
 
 	<select id="selectCities" resultMap="cityDTOResultMap">
-
+		SELECT	ci.id AS city_id
+		     	, c.id AS country_id
+				, ci.name AS title
+				, ci.description
+				, CONCAT('/images/cities/', ci.id)  AS image_url
+		FROM	cities ci
+				INNER JOIN countries c
+					ON ci.country_id = c.id
+		WHERE 	ci.country_id = #{countryId}
 		<include refid="filterCondition" />
 		<include refid="common.sortCondition" />
 		<include refid="common.paginationCondition" />

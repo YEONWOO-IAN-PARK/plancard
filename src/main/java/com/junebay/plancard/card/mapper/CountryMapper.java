@@ -24,6 +24,6 @@ public interface CountryMapper {
     /**
      * 도시DTO 목록을 반환하는 기능
      */
-    List<CityDTO> selectCities(String countryId, RequestDTO requestDTO);
+    List<CityDTO> selectCities(@Param("countryId") String countryId, @Param("requestDTO") RequestDTO requestDTO);
 }
 

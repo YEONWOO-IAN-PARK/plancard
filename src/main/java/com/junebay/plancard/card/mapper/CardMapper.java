@@ -17,9 +17,20 @@ import java.util.List;
 public interface CardMapper {
 
     /**
+     * 탐험 카드 목록의 총 건수를 조회하는 기능
+     */
+    int selectAllExploreCardsCount(@Param("requestDTO") RequestDTO requestDTO, @Param("userId") long userId);
+
+    /**
      * 탐험 카드 목록을 조회하는 기능
      */
     List<CardDTO> selectExploreCards(@Param("requestDTO") RequestDTO requestDTO, @Param("userId") long userId);
+
+    /**
+     * 내 카드 목록의 총 건수를 조회하는 기능
+     */
+    int selectAllMyCardsCount(@Param("requestDTO") RequestDTO requestDTO, @Param("userId") long userId);
+
 
     /**
      * 내 카드 목록을 조회하는 기능
@@ -71,5 +82,5 @@ public interface CardMapper {
      * 내 카드 메인 이미지를 업데이트하는 기능
      */
     void updateMyCardMainImage(@Param("myCardImageId") long myCardImageId, @Param("mainImageType") String mainImageType, @Param("myCardId") long myCardId);
-    
+
 }

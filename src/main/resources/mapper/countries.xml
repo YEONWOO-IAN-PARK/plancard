@@ -49,6 +49,19 @@
 		</if>
 	</sql>
 
+	<select id="selectAllCountriesCount" resultType="java.lang.Integer">
+		SELECT	COUNT(*)
+		FROM	(
+				SELECT	id AS country_id
+						, name AS title
+						, description
+						, CONCAT('/images/countries/', id)  AS image_url
+				FROM	countries c
+				WHERE 	1=1
+				<include refid="filterCondition" />
+			) AS C
+	</select>
+
 	<select id="selectCountries" resultMap="countryDTOResultMap" parameterType="com.junebay.plancard.common.dto.RequestDTO">
 		SELECT	id AS country_id
 				, name AS title
@@ -59,6 +72,22 @@
 		<include refid="filterCondition" />
 		<include refid="common.sortCondition" />
 		<include refid="common.paginationCondition" />
+	</select>
+
+	<select id="selectAllCitiesCount" resultType="java.lang.Integer">
+		SELECT	COUNT(*)
+		FROM	(
+			SELECT	ci.id AS city_id
+					, c.id AS country_id
+					, ci.name AS title
+					, ci.description
+					, CONCAT('/images/cities/', ci.id) AS image_url
+			FROM 	cities ci
+					INNER JOIN countries c
+						ON ci.country_id = c.id
+			WHERE 	ci.country_id = #{countryId}
+			<include refid="filterCondition"/>
+		) AS C
 	</select>
 
 	<select id="selectCities" resultMap="cityDTOResultMap">

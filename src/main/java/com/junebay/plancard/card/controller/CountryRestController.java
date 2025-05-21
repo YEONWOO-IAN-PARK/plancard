@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 /**
  * @author : IAN
  * @date : 2025-05-14
- * @description : 국가 또는 도시 관련 RestController 클래ㅡㅅ
+ * @description : 국가 또는 도시 관련 RestController 클래스
  */
 @Slf4j
 @RequiredArgsConstructor

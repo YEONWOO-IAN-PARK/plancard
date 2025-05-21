@@ -11,6 +11,7 @@ import com.junebay.plancard.common.dto.ResponseDTO;
 import com.junebay.plancard.common.enums.StatusCode;
 import com.junebay.plancard.common.exception.BadRequestException;
 import com.junebay.plancard.common.validator.CustomValidator;
+import com.junebay.plancard.common.vo.Pagination;
 import com.junebay.plancard.image.dto.MainImageRequestDTO;
 import com.junebay.plancard.image.enums.ImageType;
 import com.junebay.plancard.image.dto.MyCardImageDTO;
@@ -56,6 +57,7 @@ public class CardServiceImpl implements CardService {
 
     @Override
     public ResponseDTO selectCards(RequestDTO requestDTO, String cardType) {
+        int totalItemsCount;
         List<CardDTO> cardDTOList;
 
         customValidator.validateRequest(requestDTO);   // RequestDTO Validation (throw 400)
@@ -63,11 +65,14 @@ public class CardServiceImpl implements CardService {
         long userId = 2;    // TODO : 임시 유저 아이디. 스프링 시큐리티 적용 시 대체한다.
 
         if ("explore".equals(cardType)) {
+            totalItemsCount = cardMapper.selectAllExploreCardsCount(requestDTO, userId);
             cardDTOList = cardMapper.selectExploreCards(requestDTO, userId);
         } else {
+            totalItemsCount = cardMapper.selectAllMyCardsCount(requestDTO, userId);
             cardDTOList = cardMapper.selectMyCards(requestDTO, userId);
         }
 
+        requestDTO.getPagination().setTotalItems(totalItemsCount);
         return setResponseDTO(requestDTO, cardDTOList);
     }
 

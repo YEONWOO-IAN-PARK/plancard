@@ -185,10 +185,15 @@
 		    	AND c.is_active = true
 	</select>
 
+	<select id="selectAllExploreCardsCount" resultType="java.lang.Integer">
+		SELECT 	COUNT(*)
+		FROM 	(
+		    <include refid="selectExploreCards"/>
+		) AS C
+	</select>
+
 	<select id="selectExploreCards" resultMap="cardDTOResultMap" parameterType="com.junebay.plancard.common.dto.RequestDTO">
 		<include refid="selectExploreCards" />
-		<include refid="searchCondition" />
-		<include refid="filterCondition" />
 		<include refid="common.sortCondition" />
 		<include refid="common.paginationCondition" />
 	</select>
@@ -227,6 +232,16 @@
 				, name AS tag_name
 	    FROM	my_card_tags
 		WHERE	my_card_id = #{myCardId}
+	</select>
+
+	<select id="selectAllMyCardsCount" resultType="java.lang.Integer">
+		SELECT	COUNT(*)
+		FROM	my_cards mc
+				INNER JOIN (
+				    <include refid="selectExploreCards"/>
+				) ec ON mc.card_id = ec.card_id
+		WHERE	mc.user_id = #{userId}
+				AND mc.is_active = true
 	</select>
 
 	<select id="selectMyCards" resultMap="mycardDTOResultMap" parameterType="com.junebay.plancard.common.dto.RequestDTO">
@@ -279,4 +294,5 @@
 		    	AND mc.user_id = #{userId}
 				AND mc.is_active = true
 	</select>
+
 </mapper>

@@ -17,13 +17,25 @@ import java.util.List;
 public interface CountryMapper {
 
     /**
+     * 국가DTO 목록의 총 건수를 반환하는 기능
+     */
+    int selectAllCountriesCount(@Param("requestDTO") RequestDTO requestDTO);
+
+    /**
      * 국가DTO 목록을 반환하는 기능
      */
     List<CountryDTO> selectCountries(@Param("requestDTO") RequestDTO requestDTO);
 
     /**
+     * 도시DTO 목록의 총 건수를 반환하는 기능
+     */
+    int selectAllCitiesCount(@Param("countryId") String countryId, @Param("requestDTO") RequestDTO requestDTO);
+    
+    /**
      * 도시DTO 목록을 반환하는 기능
      */
     List<CityDTO> selectCities(@Param("countryId") String countryId, @Param("requestDTO") RequestDTO requestDTO);
+
+ 
 }
 

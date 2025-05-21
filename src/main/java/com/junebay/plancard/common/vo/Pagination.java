@@ -19,9 +19,21 @@ public class Pagination {
     private int offset;         /* 오프셋 */
 
     public Pagination(int page, int size) {
+        if (size <= 0) throw new IllegalArgumentException("size must be greater than 0");
+
         this.page = page;
         this.size = size;
         this.offset = (page - 1) * size;
+    }
+
+    public void setTotalItems(int totalItems) {
+        this.totalItems = totalItems;
+
+        if (this.totalItems > 0) {
+            this.totalPages = (int) Math.ceil((double) this.totalItems / this.size);
+        } else {
+            this.totalPages = 0;
+        }
     }
 
     /**

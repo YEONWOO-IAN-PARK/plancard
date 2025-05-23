@@ -61,7 +61,7 @@ CREATE TABLE `country_theme` (
 
 CREATE TABLE `city_theme` (
   `theme_id` bigint COMMENT '테마 고유번호',
-  `city_id`  bigint COMMENT '도시 고유번호',
+  `city_id`  varchar(50) COMMENT '도시 고유번호',
   `created_date` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성일',
   `updated_date` datetime COMMENT '최종 수정일',
   PRIMARY KEY (`theme_id`, `city_id`)

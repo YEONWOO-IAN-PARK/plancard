@@ -14,38 +14,40 @@
 		<id property="cityId" column="city_id" />
 	</resultMap>
 
-	<sql id="filterCondition">
+	<sql id="countryThemeFilterCondition">
+		/* 필터: 테마 (국가 조회) */
+		<if test="requestDTO.filter != null and requestDTO.filter.theme != null and requestDTO.filter.theme.size() > 0">
+			AND EXISTS (
+				SELECT	1
+				FROM	country_theme t
+				WHERE	t.country_id = c.id
+				AND t.theme_id IN
+				<foreach item="themeId" collection="requestDTO.filter.theme" open="(" separator="," close=")">
+					#{themeId}
+				</foreach>
+				)
+		</if>
+	</sql>
+
+	<sql id="cityThemeFilterCondition">
+		/* 필터: 테마 (도시 조회) */
+		<if test="requestDTO.filter != null and requestDTO.filter.theme != null and requestDTO.filter.theme.size() > 0">
+			AND EXISTS (
+				SELECT	1
+				FROM	city_theme t
+				WHERE	t.city_id = ci.id
+				AND t.theme_id IN
+				<foreach item="themeId" collection="requestDTO.filter.theme" open="(" separator="," close=")">
+					#{themeId}
+				</foreach>
+			)
+		</if>
+	</sql>
+
+	<sql id="countryFilterCondition">
 		/* 필터: 국가 */
 		<if test='requestDTO.filter != null and requestDTO.filter.country != null and !"".equals(requestDTO.filter.country)'>
 			AND c.id = #{requestDTO.filter.country}
-		</if>
-
-		/* 필터: 테마 */
-		<if test="requestDTO.filter != null and requestDTO.filter.theme != null and requestDTO.filter.theme.size() > 0">
-		<choose>
-			<when test='countryId == null or "".equals(countryId)'>
-				AND EXISTS (
-					SELECT	1
-					FROM	country_theme t
-					WHERE	t.country_id = c.id
-							AND t.theme_id IN
-						<foreach item="themeId" collection="requestDTO.filter.theme" open="(" separator="," close=")">
-							#{themeId}
-						</foreach>
-				)
-			</when>
-			<otherwise>
-				AND EXISTS (
-					SELECT	1
-					FROM	city_theme t
-					WHERE	t.city_id = ci.id
-							AND t.theme_id IN
-						<foreach item="themeId" collection="requestDTO.filter.theme" open="(" separator="," close=")">
-							#{themeId}
-						</foreach>
-				)
-			</otherwise>
-		</choose>
 		</if>
 	</sql>
 
@@ -58,7 +60,8 @@
 						, CONCAT('/images/countries/', id)  AS image_url
 				FROM	countries c
 				WHERE 	1=1
-				<include refid="filterCondition" />
+				<include refid="countryFilterCondition" />
+				<include refid="countryThemeFilterCondition" />
 			) AS C
 	</select>
 
@@ -69,7 +72,8 @@
 				, CONCAT('/images/countries/', id)  AS image_url
 		FROM	countries c
 		WHERE 	1=1
-		<include refid="filterCondition" />
+		<include refid="countryFilterCondition" />
+		<include refid="countryThemeFilterCondition" />
 		<include refid="common.sortCondition" />
 		<include refid="common.paginationCondition" />
 	</select>
@@ -86,7 +90,7 @@
 					INNER JOIN countries c
 						ON ci.country_id = c.id
 			WHERE 	ci.country_id = #{countryId}
-			<include refid="filterCondition"/>
+			<include refid="cityThemeFilterCondition"/>
 		) AS C
 	</select>
 
@@ -100,7 +104,7 @@
 				INNER JOIN countries c
 					ON ci.country_id = c.id
 		WHERE 	ci.country_id = #{countryId}
-		<include refid="filterCondition" />
+		<include refid="cityThemeFilterCondition" />
 		<include refid="common.sortCondition" />
 		<include refid="common.paginationCondition" />
 	</select>

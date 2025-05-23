@@ -15,10 +15,10 @@ import lombok.Setter;
 @Setter
 public class RequestDTO {
 
-    private String search;          /* 검색어 */
-    private Filter filter;          /* 필터링 */
-    private Sort sort;                      /* 정렬 */
-    private Pagination pagination;  /* 페이지네이션 */
+    private String search;             /* 검색어 */
+    private Filter filter;              /* 필터링 */
+    private Sort sort;                 /* 정렬 */
+    private Pagination pagination;     /* 페이지네이션 */
 
 
     /**

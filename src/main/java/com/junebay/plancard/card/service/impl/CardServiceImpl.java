@@ -73,6 +73,7 @@ public class CardServiceImpl implements CardService {
         }
 
         requestDTO.getPagination().setTotalItems(totalItemsCount);
+
         return setResponseDTO(requestDTO, cardDTOList);
     }
 

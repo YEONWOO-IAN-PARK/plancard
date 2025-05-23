@@ -42,7 +42,6 @@ public class CountryServiceImpl implements CountryService {
 
         List<CountryDTO> countryDTOList = countryMapper.selectCountries(requestDTO);
 
-
         return setResponseDTO(requestDTO, countryDTOList);
     }
 

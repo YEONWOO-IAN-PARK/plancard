@@ -16,13 +16,13 @@
 
 	<sql id="countryThemeFilterCondition">
 		/* 필터: 테마 (국가 조회) */
-		<if test="requestDTO.filter != null and requestDTO.filter.theme != null and requestDTO.filter.theme.size() > 0">
+		<if test="searchDTO.filter != null and searchDTO.filter.theme != null and searchDTO.filter.theme.size() > 0">
 			AND EXISTS (
 				SELECT	1
 				FROM	country_theme t
 				WHERE	t.country_id = c.id
 				AND t.theme_id IN
-				<foreach item="themeId" collection="requestDTO.filter.theme" open="(" separator="," close=")">
+				<foreach item="themeId" collection="searchDTO.filter.theme" open="(" separator="," close=")">
 					#{themeId}
 				</foreach>
 				)
@@ -31,13 +31,13 @@
 
 	<sql id="cityThemeFilterCondition">
 		/* 필터: 테마 (도시 조회) */
-		<if test="requestDTO.filter != null and requestDTO.filter.theme != null and requestDTO.filter.theme.size() > 0">
+		<if test="searchDTO.filter != null and searchDTO.filter.theme != null and searchDTO.filter.theme.size() > 0">
 			AND EXISTS (
 				SELECT	1
 				FROM	city_theme t
 				WHERE	t.city_id = ci.id
 				AND t.theme_id IN
-				<foreach item="themeId" collection="requestDTO.filter.theme" open="(" separator="," close=")">
+				<foreach item="themeId" collection="searchDTO.filter.theme" open="(" separator="," close=")">
 					#{themeId}
 				</foreach>
 			)
@@ -46,8 +46,8 @@
 
 	<sql id="countryFilterCondition">
 		/* 필터: 국가 */
-		<if test='requestDTO.filter != null and requestDTO.filter.country != null and !"".equals(requestDTO.filter.country)'>
-			AND c.id = #{requestDTO.filter.country}
+		<if test='searchDTO.filter != null and searchDTO.filter.country != null and !"".equals(searchDTO.filter.country)'>
+			AND c.id = #{searchDTO.filter.country}
 		</if>
 	</sql>
 
@@ -65,7 +65,7 @@
 			) AS C
 	</select>
 
-	<select id="selectCountries" resultMap="countryDTOResultMap" parameterType="com.junebay.plancard.common.dto.RequestDTO">
+	<select id="selectCountries" resultMap="countryDTOResultMap" parameterType="com.junebay.plancard.common.dto.SearchDTO">
 		SELECT	id AS country_id
 				, name AS title
 				, description

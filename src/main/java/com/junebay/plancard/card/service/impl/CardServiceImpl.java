@@ -6,13 +6,13 @@ import com.junebay.plancard.card.dto.MyCardDTO;
 import com.junebay.plancard.card.dto.MyCardTagDTO;
 import com.junebay.plancard.card.mapper.CardMapper;
 import com.junebay.plancard.card.service.CardService;
-import com.junebay.plancard.common.dto.RequestDTO;
+import com.junebay.plancard.common.dto.SearchDTO;
 import com.junebay.plancard.common.dto.ResponseDTO;
 import com.junebay.plancard.common.enums.StatusCode;
 import com.junebay.plancard.common.exception.BadRequestException;
 import com.junebay.plancard.common.validator.CustomValidator;
 import com.junebay.plancard.common.vo.Pagination;
-import com.junebay.plancard.image.dto.MainImageRequestDTO;
+import com.junebay.plancard.image.dto.CardMainImageDTO;
 import com.junebay.plancard.image.enums.ImageType;
 import com.junebay.plancard.image.dto.MyCardImageDTO;
 import com.junebay.plancard.image.mapper.ImageMapper;
@@ -49,32 +49,31 @@ public class CardServiceImpl implements CardService {
     @Value("${url.image.mycard}") private String myCardImageUrl;
     @Value("${response.created.image.detail}") private String imageCreated;
 
-
     private final CustomValidator customValidator;
     private final CardMapper cardMapper;
     private final ImageMapper imageMapper;
     private final ImageService imageService;
 
     @Override
-    public ResponseDTO selectCards(RequestDTO requestDTO, String cardType) {
+    public ResponseDTO selectCards(SearchDTO searchDTO, String cardType) {
         int totalItemsCount;
         List<CardDTO> cardDTOList;
 
-        customValidator.validateRequest(requestDTO);   // RequestDTO Validation (throw 400)
+        customValidator.validateRequest(searchDTO);   // SearchDTO Validation (throw 400)
 
         long userId = 2;    // TODO : 임시 유저 아이디. 스프링 시큐리티 적용 시 대체한다.
 
         if ("explore".equals(cardType)) {
-            totalItemsCount = cardMapper.selectAllExploreCardsCount(requestDTO, userId);
-            cardDTOList = cardMapper.selectExploreCards(requestDTO, userId);
+            totalItemsCount = cardMapper.selectAllExploreCardsCount(searchDTO, userId);
+            cardDTOList = cardMapper.selectExploreCards(searchDTO, userId);
         } else {
-            totalItemsCount = cardMapper.selectAllMyCardsCount(requestDTO, userId);
-            cardDTOList = cardMapper.selectMyCards(requestDTO, userId);
+            totalItemsCount = cardMapper.selectAllMyCardsCount(searchDTO, userId);
+            cardDTOList = cardMapper.selectMyCards(searchDTO, userId);
         }
 
-        requestDTO.getPagination().setTotalItems(totalItemsCount);
+        searchDTO.getPagination().setTotalItems(totalItemsCount);
 
-        return setResponseDTO(requestDTO, cardDTOList);
+        return setResponseDTO(searchDTO, cardDTOList);
     }
 
     @Override
@@ -215,7 +214,7 @@ public class CardServiceImpl implements CardService {
     }
 
     @Override
-    public void updateMyCardMainImage(String cardType, long myCardId, long myCardImageId, MainImageRequestDTO mainImageRequestDTO) {
+    public void updateMyCardMainImage(String cardType, long myCardId, long myCardImageId, CardMainImageDTO mainImageSearchDTO) {
         MyCardDTO myCardDTO;
 
         long userId = 2;    // TODO : 임시 유저 아이디. 스프링 시큐리티 적용 시 대체한다.
@@ -228,7 +227,7 @@ public class CardServiceImpl implements CardService {
             customValidator.validateMyCardImage(myCardDTO.getMyImageList(), myCardImageId);
         }
 
-        String mainImageType = mainImageRequestDTO.getMainImageType();
+        String mainImageType = mainImageSearchDTO.getMainImageType();
         customValidator.validateMainImageType(mainImageType);
 
         cardMapper.updateMyCardMainImage(myCardImageId, mainImageType, myCardId);
@@ -329,11 +328,11 @@ public class CardServiceImpl implements CardService {
     /**
      * 카드목록 반환을 위한 ResponseDTO 세팅
      */
-    private ResponseDTO setResponseDTO(RequestDTO requestDTO, List<CardDTO> cardDTOList) {
+    private ResponseDTO setResponseDTO(SearchDTO searchDTO, List<CardDTO> cardDTOList) {
         ResponseDTO responseDTO = new ResponseDTO();
 
         if (!cardDTOList.isEmpty()) {
-            responseDTO.setPagination(requestDTO.getPagination());
+            responseDTO.setPagination(searchDTO.getPagination());
             responseDTO.setDetails(existCardList);
         } else {
             responseDTO.setDetails(notExistCardList);

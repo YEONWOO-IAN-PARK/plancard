@@ -3,14 +3,13 @@ package com.junebay.plancard.common.validator;
 import com.junebay.plancard.card.dto.CardDTO;
 import com.junebay.plancard.card.dto.MyCardDTO;
 import com.junebay.plancard.card.dto.MyCardTagDTO;
-import com.junebay.plancard.common.dto.RequestDTO;
+import com.junebay.plancard.common.dto.SearchDTO;
 import com.junebay.plancard.common.enums.StatusCode;
 import com.junebay.plancard.common.exception.BadRequestException;
 import com.junebay.plancard.common.exception.NoContentException;
 import com.junebay.plancard.common.exception.NotFoundException;
-import com.junebay.plancard.image.dto.MainImageRequestDTO;
+import com.junebay.plancard.common.util.CommonUtil;
 import com.junebay.plancard.image.dto.MyCardImageDTO;
-import com.junebay.plancard.image.enums.ImageType;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,6 +18,9 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.List;
 
 /**
@@ -31,15 +33,15 @@ import java.util.List;
 public class CustomValidator {
 
     /**
-     * RequestDTO를 받아 사용자 요청의 유효성 검사 시행
+     * SearchDTO를 받아 사용자 요청의 유효성 검사 시행
      * 유효성 검사를 통과하지 못할 시, 각 상황에 맞는 예외를 반환한다.
      */
-    public void validateRequest(RequestDTO requestDTO) {
-        if (requestDTO.getPagination() == null || requestDTO.getSort() == null) throw new BadRequestException(StatusCode.BAD_REQUEST);
+    public void validateRequest(SearchDTO searchDTO) {
+        if (searchDTO.getPagination() == null || searchDTO.getSort() == null) throw new BadRequestException(StatusCode.BAD_REQUEST);
     }
 
     /**
-     * RequestDTO를 받아 사용자 요청의 유효성 검사 시행
+     * SearchDTO를 받아 사용자 요청의 유효성 검사 시행
      * 유효성 검사를 통과하지 못할 시, 각 상황에 맞는 예외를 반환한다.
      */
     public void validateCardOne(CardDTO cardDTO) {
@@ -139,8 +141,36 @@ public class CustomValidator {
      * 전달받은 메인 이미지 등록 요청 타입 ( "C" : 탐험카드 || "M" : 내카드)이 올바른 값인지 검사
      */
     public void validateMainImageType(String mainImageType) {
-        if (mainImageType == null || mainImageType.isBlank() || (!"C".equals(mainImageType) && !"M".equals(mainImageType))) {
+        if (CommonUtil.isNullOrBlank(mainImageType)|| (!"C".equals(mainImageType) && !"M".equals(mainImageType))) {
             throw new BadRequestException(StatusCode.BAD_REQUEST);
         }
     }
+
+    /**
+     * 전달받은 문자열 시작일과 종료일의 유효성 검사.
+     * 허용형식은 (yyyy-MM-dd)
+     */
+    public void validateStringDateRange(String startDate, String endDate) {
+
+        // 시작일과 종료일이 null 또는 빈값인지 검증
+        if (CommonUtil.isNullOrBlank(startDate) || CommonUtil.isNullOrBlank(endDate)) {
+            throw new IllegalArgumentException("시작일과 종료일은 필수입니다.");
+        }
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        try {
+            LocalDate localStartDate = LocalDate.parse(startDate, formatter);
+            LocalDate localEndDate = LocalDate.parse(endDate, formatter);
+
+            // 종료일이 시작일보다 빠른지 검증
+            if (localEndDate.isBefore(localStartDate)) {
+                throw new IllegalArgumentException("종료일은 시작일보다 이전일 수 없습니다.");
+            }
+
+        } catch (DateTimeParseException e) {
+            throw new IllegalArgumentException("날짜 형식이 올바르지 않습니다.");
+        }
+
+    }
+
 }

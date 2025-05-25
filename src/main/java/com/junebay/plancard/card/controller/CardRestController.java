@@ -3,9 +3,9 @@ package com.junebay.plancard.card.controller;
 import com.junebay.plancard.card.dto.MyCardMemoDTO;
 import com.junebay.plancard.card.dto.MyCardTagDTO;
 import com.junebay.plancard.card.service.CardService;
-import com.junebay.plancard.common.dto.RequestDTO;
+import com.junebay.plancard.common.dto.SearchDTO;
 import com.junebay.plancard.common.dto.ResponseDTO;
-import com.junebay.plancard.image.dto.MainImageRequestDTO;
+import com.junebay.plancard.image.dto.CardMainImageDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.annotations.Delete;
@@ -30,8 +30,8 @@ public class CardRestController {
      * 탐험카드 또는 내 카드 목록 조회 요청핸들러메서드
      */
     @PostMapping("/search/{cardType}")
-    public ResponseEntity<ResponseDTO> cards(@RequestBody RequestDTO requestDTO, @PathVariable String cardType) {
-        ResponseDTO responseDTO = cardService.selectCards(requestDTO, cardType);
+    public ResponseEntity<ResponseDTO> cards(@RequestBody SearchDTO searchDTO, @PathVariable String cardType) {
+        ResponseDTO responseDTO = cardService.selectCards(searchDTO, cardType);
         return ResponseEntity.ok(responseDTO);
     }
 
@@ -112,8 +112,8 @@ public class CardRestController {
      * 내 카드 이미지 메인 이미지 등록
      */
     @PatchMapping("/{cardType}/{myCardId}/images/{myCardImageId}/main")
-    public ResponseEntity<ResponseDTO> mainImage(@PathVariable String cardType, @PathVariable long myCardId, @PathVariable long myCardImageId, @RequestBody MainImageRequestDTO mainImageRequestDTO) {
-        cardService.updateMyCardMainImage(cardType, myCardId, myCardImageId, mainImageRequestDTO);
+    public ResponseEntity<ResponseDTO> mainImage(@PathVariable String cardType, @PathVariable long myCardId, @PathVariable long myCardImageId, @RequestBody CardMainImageDTO mainImageSearchDTO) {
+        cardService.updateMyCardMainImage(cardType, myCardId, myCardImageId, mainImageSearchDTO);
         return ResponseEntity.status(204).build();
     }
 }

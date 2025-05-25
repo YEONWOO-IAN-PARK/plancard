@@ -1,7 +1,7 @@
 package com.junebay.plancard.card.controller;
 
 import com.junebay.plancard.card.service.CountryService;
-import com.junebay.plancard.common.dto.RequestDTO;
+import com.junebay.plancard.common.dto.SearchDTO;
 import com.junebay.plancard.common.dto.ResponseDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,14 +25,14 @@ public class CountryRestController {
      * 국가 조회 요청핸들러메서드
      */
     @GetMapping("/search")
-    public ResponseEntity<ResponseDTO> countries(@RequestBody RequestDTO requestDTO) {
-        ResponseDTO responseDTO = countryService.selectCountries(requestDTO);
+    public ResponseEntity<ResponseDTO> countries(@RequestBody SearchDTO searchDTO) {
+        ResponseDTO responseDTO = countryService.selectCountries(searchDTO);
         return ResponseEntity.ok(responseDTO);
     }
 
     @GetMapping("/{countryId}/cities/search")
-    public ResponseEntity<ResponseDTO> cities(@PathVariable String countryId, @RequestBody RequestDTO requestDTO) {
-        ResponseDTO responseDTO = countryService.selectCities(countryId, requestDTO);
+    public ResponseEntity<ResponseDTO> cities(@PathVariable String countryId, @RequestBody SearchDTO searchDTO) {
+        ResponseDTO responseDTO = countryService.selectCities(countryId, searchDTO);
         return ResponseEntity.ok(responseDTO);
     }
 }

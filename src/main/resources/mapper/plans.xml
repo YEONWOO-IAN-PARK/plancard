@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.junebay.plancard.plan.mapper.PlanMapper">
+
+	<insert id="insertMyPlan" useGeneratedKeys="true" keyProperty="planDTO.planId">
+		INSERT INTO plans (title, start_date, end_date, author_id)
+		VALUES (#{planDTO.title}, #{planDTO.startDate}, #{planDTO.endDate}, #{userId})
+	</insert>
+
+	<select id="selectPlanOne" resultType="com.junebay.plancard.plan.dto.CreatePlanDTO">
+		SELECT
+		FROM	plans p
+		WHERE	id = #{planId}
+	</select>
+</mapper>

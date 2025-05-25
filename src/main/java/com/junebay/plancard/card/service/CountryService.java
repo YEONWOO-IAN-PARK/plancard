@@ -1,6 +1,6 @@
 package com.junebay.plancard.card.service;
 
-import com.junebay.plancard.common.dto.RequestDTO;
+import com.junebay.plancard.common.dto.SearchDTO;
 import com.junebay.plancard.common.dto.ResponseDTO;
 
 /**
@@ -13,10 +13,10 @@ public interface CountryService {
     /**
      * 국가 목록이 담긴 응답 DTO를 반환하는 기능
      */
-    ResponseDTO selectCountries(RequestDTO requestDTO);
+    ResponseDTO selectCountries(SearchDTO searchDTO);
 
     /**
      * 도시 목록이 담긴 응답 DTO를 반환하는 기능
      */
-    ResponseDTO selectCities(String countryId, RequestDTO requestDTO);
+    ResponseDTO selectCities(String countryId, SearchDTO searchDTO);
 }

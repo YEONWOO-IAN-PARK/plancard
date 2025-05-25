@@ -13,7 +13,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class RequestDTO {
+public class SearchDTO {
 
     private String search;             /* 검색어 */
     private Filter filter;              /* 필터링 */

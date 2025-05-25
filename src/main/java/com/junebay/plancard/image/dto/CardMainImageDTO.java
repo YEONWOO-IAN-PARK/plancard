@@ -10,7 +10,7 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class MainImageRequestDTO {
+public class CardMainImageDTO {
 
     private String mainImageType;
 }

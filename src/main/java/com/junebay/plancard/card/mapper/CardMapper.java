@@ -2,7 +2,7 @@ package com.junebay.plancard.card.mapper;
 
 import com.junebay.plancard.card.dto.CardDTO;
 import com.junebay.plancard.card.dto.MyCardTagDTO;
-import com.junebay.plancard.common.dto.RequestDTO;
+import com.junebay.plancard.common.dto.SearchDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -19,23 +19,23 @@ public interface CardMapper {
     /**
      * 탐험 카드 목록의 총 건수를 조회하는 기능
      */
-    int selectAllExploreCardsCount(@Param("requestDTO") RequestDTO requestDTO, @Param("userId") long userId);
+    int selectAllExploreCardsCount(@Param("searchDTO") SearchDTO searchDTO, @Param("userId") long userId);
 
     /**
      * 탐험 카드 목록을 조회하는 기능
      */
-    List<CardDTO> selectExploreCards(@Param("requestDTO") RequestDTO requestDTO, @Param("userId") long userId);
+    List<CardDTO> selectExploreCards(@Param("searchDTO") SearchDTO searchDTO, @Param("userId") long userId);
 
     /**
      * 내 카드 목록의 총 건수를 조회하는 기능
      */
-    int selectAllMyCardsCount(@Param("requestDTO") RequestDTO requestDTO, @Param("userId") long userId);
+    int selectAllMyCardsCount(@Param("searchDTO") SearchDTO searchDTO, @Param("userId") long userId);
 
 
     /**
      * 내 카드 목록을 조회하는 기능
      */
-    List<CardDTO> selectMyCards(@Param("requestDTO") RequestDTO requestDTO, @Param("userId") long userId);
+    List<CardDTO> selectMyCards(@Param("searchDTO") SearchDTO searchDTO, @Param("userId") long userId);
 
     /**
      * 탐험카드를 조회하는 기능

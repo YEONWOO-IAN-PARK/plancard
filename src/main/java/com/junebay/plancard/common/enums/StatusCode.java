@@ -14,14 +14,18 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum StatusCode {
 
+    /* 2xx */
     OK("OK", 200, "요청이 성공적으로 되었습니다."),
     CREATED("Created", 201, "새로운 리소스가 생성되었습니다."),
     NO_CONTENT("No Content", 204, "요청이 성공했지만 반환할 데이터가 없습니다."),
 
+    /* 4xx */
     BAD_REQUEST("Bad Request", 400, "요청하신 데이터 타입이 맞지 않습니다."),
     UNAUTHORIZED("Unauthorized", 401, "인증 토큰이 만료되었습니다."),
     FORBIDDEN("Forbidden", 403, "해당 리소스에 대한 접근 권한이 없습니다."),
     NOT_FOUND("Not Found", 404, "요청하신 리소스를 찾을 수 없습니다."),
+
+    /* 5xx */
     INTERNAL_SERVER_ERROR("Internal Server Error", 500, "예상치 못한 에러가 발생했습니다."),
     GATEWAY_TIMEOUT("Gateway Timeout", 504,"서버의 연결이 원활하지 않습니다.");
 

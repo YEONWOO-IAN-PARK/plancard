@@ -1,8 +1,8 @@
 package com.junebay.plancard.card.service;
 
-import com.junebay.plancard.common.dto.RequestDTO;
+import com.junebay.plancard.common.dto.SearchDTO;
 import com.junebay.plancard.common.dto.ResponseDTO;
-import com.junebay.plancard.image.dto.MainImageRequestDTO;
+import com.junebay.plancard.image.dto.CardMainImageDTO;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -14,10 +14,10 @@ public interface CardService {
 
     /**
      * 탐험카드 또는 내 카드 목록을 가져오는 기능
-     * @param requestDTO 요청 DTO
+     * @param searchDTO 요청 DTO
      * @param cardType 조회카드 유형("explore" || "my")
      */
-    ResponseDTO selectCards(RequestDTO requestDTO, String cardType);
+    ResponseDTO selectCards(SearchDTO searchDTO, String cardType);
 
     /**
      * 탐험카드 또는 내 카드를 가져오는 기능
@@ -83,7 +83,7 @@ public interface CardService {
      * @param cardType 조회카드 유형("explore" || "my")
      * @param myCardId 내 카드 ID
      * @param myCardImageId 내 이미지 카드 ID
-     * @param mainImageRequestDTO 메인이미지 타입 정보 ("C" || "M")
+     * @param mainImageSearchDTO 메인이미지 타입 정보 ("C" || "M")
      */
-    void updateMyCardMainImage(String cardType, long myCardId, long myCardImageId, MainImageRequestDTO mainImageRequestDTO);
+    void updateMyCardMainImage(String cardType, long myCardId, long myCardImageId, CardMainImageDTO mainImageSearchDTO);
 }

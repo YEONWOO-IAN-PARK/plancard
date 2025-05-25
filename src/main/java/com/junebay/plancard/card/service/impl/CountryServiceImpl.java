@@ -4,7 +4,7 @@ import com.junebay.plancard.card.dto.CityDTO;
 import com.junebay.plancard.card.dto.CountryDTO;
 import com.junebay.plancard.card.mapper.CountryMapper;
 import com.junebay.plancard.card.service.CountryService;
-import com.junebay.plancard.common.dto.RequestDTO;
+import com.junebay.plancard.common.dto.SearchDTO;
 import com.junebay.plancard.common.dto.ResponseDTO;
 import com.junebay.plancard.common.validator.CustomValidator;
 import lombok.RequiredArgsConstructor;
@@ -32,40 +32,40 @@ public class CountryServiceImpl implements CountryService {
     @Value("${response.ok.notExist.list.detail}") private String notExistList;
 
     @Override
-    public ResponseDTO selectCountries(RequestDTO requestDTO) {
+    public ResponseDTO selectCountries(SearchDTO searchDTO) {
         int totalItemsCount;
 
-        customValidator.validateRequest(requestDTO);
+        customValidator.validateRequest(searchDTO);
 
-        totalItemsCount = countryMapper.selectAllCountriesCount(requestDTO);
-        requestDTO.getPagination().setTotalItems(totalItemsCount);
+        totalItemsCount = countryMapper.selectAllCountriesCount(searchDTO);
+        searchDTO.getPagination().setTotalItems(totalItemsCount);
 
-        List<CountryDTO> countryDTOList = countryMapper.selectCountries(requestDTO);
+        List<CountryDTO> countryDTOList = countryMapper.selectCountries(searchDTO);
 
-        return setResponseDTO(requestDTO, countryDTOList);
+        return setResponseDTO(searchDTO, countryDTOList);
     }
 
     @Override
-    public ResponseDTO selectCities(String countryId, RequestDTO requestDTO) {
+    public ResponseDTO selectCities(String countryId, SearchDTO searchDTO) {
         int totalItemsCount;
 
-        customValidator.validateRequest(requestDTO);
+        customValidator.validateRequest(searchDTO);
 
-        totalItemsCount = countryMapper.selectAllCitiesCount(countryId, requestDTO);
-        requestDTO.getPagination().setTotalItems(totalItemsCount);
+        totalItemsCount = countryMapper.selectAllCitiesCount(countryId, searchDTO);
+        searchDTO.getPagination().setTotalItems(totalItemsCount);
 
-        List<CityDTO> dtoList = countryMapper.selectCities(countryId, requestDTO);
+        List<CityDTO> dtoList = countryMapper.selectCities(countryId, searchDTO);
 
-        return setResponseDTO(requestDTO, dtoList);
+        return setResponseDTO(searchDTO, dtoList);
     }
 
     /**
      * 국가 또는 도시 목록이 포함된 응답DTO 세팅
      */
-    private ResponseDTO setResponseDTO(RequestDTO requestDTO, List<?> dtoList) {
+    private ResponseDTO setResponseDTO(SearchDTO searchDTO, List<?> dtoList) {
         ResponseDTO responseDTO = new ResponseDTO();
         responseDTO.setResult(dtoList);
-        responseDTO.setPagination(requestDTO.getPagination());
+        responseDTO.setPagination(searchDTO.getPagination());
 
         boolean isEmpty = dtoList.isEmpty();
         String details;

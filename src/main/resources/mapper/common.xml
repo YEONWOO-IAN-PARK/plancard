@@ -4,16 +4,16 @@
 
 	<!-- 카드목록 조회 ORDER BY -->
 	<sql id="sortCondition">
-		<if test="requestDTO.sort != null and requestDTO.sort.sortBy != null">
-		ORDER BY ${requestDTO.sort.sortBy.column} ${requestDTO.sort.sortOrder}
+		<if test="searchDTO.sort != null and searchDTO.sort.sortBy != null">
+		ORDER BY ${searchDTO.sort.sortBy.column} ${searchDTO.sort.sortOrder}
 		</if>
 	</sql>
 
 	<!-- 페이징 처리 OFFSET-->
 	<sql id="paginationCondition">
-		<if test="requestDTO.pagination != null">
-			LIMIT #{requestDTO.pagination.size}
-			OFFSET #{requestDTO.pagination.offset}
+		<if test="searchDTO.pagination != null">
+			LIMIT #{searchDTO.pagination.size}
+			OFFSET #{searchDTO.pagination.offset}
 		</if>
 	</sql>
 

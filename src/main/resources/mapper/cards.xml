@@ -41,50 +41,50 @@
 
 	<sql id="searchCondition">
 		/* 검색 */
-		<if test="requestDTO.search != null and requestDTO.search != ''">
+		<if test="searchDTO.search != null and searchDTO.search != ''">
 			AND (
-			    c.title LIKE CONCAT('%', #{requestDTO.search}, '%')
-				OR c.description LIKE CONCAT('%', #{requestDTO.search}, '%')
+			    c.title LIKE CONCAT('%', #{searchDTO.search}, '%')
+				OR c.description LIKE CONCAT('%', #{searchDTO.search}, '%')
 			)
 		</if>
 	</sql>
 
 	<sql id="filterCondition">
 		/* 필터: 국가 */
-		<if test='requestDTO.filter != null and requestDTO.filter.country != null and !"".equals(requestDTO.filter.country)'>
-			AND co.id = #{requestDTO.filter.country}
+		<if test='searchDTO.filter != null and searchDTO.filter.country != null and !"".equals(searchDTO.filter.country)'>
+			AND co.id = #{searchDTO.filter.country}
 		</if>
 
 		/* 필터: 도시 */
-		<if test='requestDTO.filter != null and requestDTO.filter.city != null and !"".equals(requestDTO.filter.city)'>
-			AND ct.id = #{requestDTO.filter.city}
+		<if test='searchDTO.filter != null and searchDTO.filter.city != null and !"".equals(searchDTO.filter.city)'>
+			AND ct.id = #{searchDTO.filter.city}
 		</if>
 
 		/* 필터: 카테고리 (배열) */
-		<if test="requestDTO.filter != null and requestDTO.filter.category != null and requestDTO.filter.category.size() > 0">
+		<if test="searchDTO.filter != null and searchDTO.filter.category != null and searchDTO.filter.category.size() > 0">
 			AND cg.id IN
-			<foreach item="cat" collection="requestDTO.filter.category" open="(" separator="," close=")">
+			<foreach item="cat" collection="searchDTO.filter.category" open="(" separator="," close=")">
 				#{cat}
 			</foreach>
 		</if>
 
 		/* 필터: 테마 */
-		<if test="requestDTO.filter != null and requestDTO.filter.theme != null and requestDTO.filter.theme.size() > 0">
+		<if test="searchDTO.filter != null and searchDTO.filter.theme != null and searchDTO.filter.theme.size() > 0">
 			AND EXISTS (
 				SELECT	1
 				FROM	card_theme t
 				WHERE	t.card_id = c.id
 						AND t.theme_id IN
-					<foreach item="themeId" collection="requestDTO.filter.theme" open="(" separator="," close=")">
+					<foreach item="themeId" collection="searchDTO.filter.theme" open="(" separator="," close=")">
 						#{themeId}
 					</foreach>
 			)
 		</if>
 
 		/* 필터: 스크랩 여부 */
-		<if test="requestDTO.filter != null and requestDTO.filter.scrap != null">
+		<if test="searchDTO.filter != null and searchDTO.filter.scrap != null">
 		<choose>
-			<when test="requestDTO.filter.scrap == true">
+			<when test="searchDTO.filter.scrap == true">
 				AND cs.card_id IS NOT NULL
 			</when>
 			<otherwise>
@@ -192,7 +192,7 @@
 		) AS C
 	</select>
 
-	<select id="selectExploreCards" resultMap="cardDTOResultMap" parameterType="com.junebay.plancard.common.dto.RequestDTO">
+	<select id="selectExploreCards" resultMap="cardDTOResultMap" parameterType="com.junebay.plancard.common.dto.SearchDTO">
 		<include refid="selectExploreCards" />
 		<include refid="common.sortCondition" />
 		<include refid="common.paginationCondition" />
@@ -244,7 +244,7 @@
 				AND mc.is_active = true
 	</select>
 
-	<select id="selectMyCards" resultMap="mycardDTOResultMap" parameterType="com.junebay.plancard.common.dto.RequestDTO">
+	<select id="selectMyCards" resultMap="mycardDTOResultMap" parameterType="com.junebay.plancard.common.dto.SearchDTO">
 		SELECT	mc.id AS my_card_id
 		       	, ec.card_id
 				, ec.card_title

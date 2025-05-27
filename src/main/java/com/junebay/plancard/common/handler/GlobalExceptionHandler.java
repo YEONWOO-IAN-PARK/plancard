@@ -9,6 +9,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.time.format.DateTimeParseException;
+
 /**
  * @author : IAN
  * @date : 2025-04-22
@@ -43,6 +45,13 @@ public class GlobalExceptionHandler {
         ResponseDTO responseDTO = new ResponseDTO();
         responseDTO.setDetails(ex.getMessage());
         // 400으로 반환하는 이유는 이미지 파일 유효성 검사를 통과못했기 때문에 잘못된 요청이라고 판단했기 때문
+        return ResponseEntity.status(400).body(responseDTO);
+    }
+
+    @ExceptionHandler(DateTimeParseException.class)
+    public ResponseEntity<ResponseDTO> handleDateTimeParseException(DateTimeParseException ex) {
+        ResponseDTO responseDTO = new ResponseDTO();
+        responseDTO.setDetails("날짜 형식이 올바르지 않습니다.");
         return ResponseEntity.status(400).body(responseDTO);
     }
 }

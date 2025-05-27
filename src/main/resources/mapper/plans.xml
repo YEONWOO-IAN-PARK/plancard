@@ -8,7 +8,11 @@
 	</insert>
 
 	<select id="selectPlanOne" resultType="com.junebay.plancard.plan.dto.CreatePlanDTO">
-		SELECT
+		SELECT	id AS planId
+				, title
+				, startDate
+				, endDate
+				, DATEDIFF(endDate, startDate) AS duration
 		FROM	plans p
 		WHERE	id = #{planId}
 	</select>

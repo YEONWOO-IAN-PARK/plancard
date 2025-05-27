@@ -5,9 +5,9 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
-import java.time.Period;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
 
 
 /**
@@ -19,24 +19,17 @@ public class CreatePlanDTO {
 
     private long planId;
     private String title;
-    private String startDate;
-    private String endDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
     private int duration;
 
-    public CreatePlanDTO(String startDate, String endDate) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
+    public void setDuration(int duration) {
         try {
-            LocalDate start = LocalDate.parse(this.startDate, formatter);
-            LocalDate end = LocalDate.parse(this.endDate, formatter);
-
-            int days = Period.between(start, end).getDays();
-            this.duration = days + 1;
+            double days = ChronoUnit.DAYS.between(this.startDate, this.endDate);
+            this.duration = (int) days + 1;
 
         } catch (DateTimeParseException e) {
             throw new IllegalArgumentException("날짜 형식이 올바르지 않습니다.");
         }
     }
-
-
 }

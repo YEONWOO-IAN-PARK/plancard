@@ -150,20 +150,12 @@ public class CustomValidator {
      * 전달받은 문자열 시작일과 종료일의 유효성 검사.
      * 허용형식은 (yyyy-MM-dd)
      */
-    public void validateStringDateRange(String startDate, String endDate) {
+    public void validateStringDateRange(LocalDate startDate, LocalDate endDate) {
 
-        // 시작일과 종료일이 null 또는 빈값인지 검증
-        if (CommonUtil.isNullOrBlank(startDate) || CommonUtil.isNullOrBlank(endDate)) {
-            throw new IllegalArgumentException("시작일과 종료일은 필수입니다.");
-        }
-
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
         try {
-            LocalDate localStartDate = LocalDate.parse(startDate, formatter);
-            LocalDate localEndDate = LocalDate.parse(endDate, formatter);
 
             // 종료일이 시작일보다 빠른지 검증
-            if (localEndDate.isBefore(localStartDate)) {
+            if (endDate.isBefore(startDate)) {
                 throw new IllegalArgumentException("종료일은 시작일보다 이전일 수 없습니다.");
             }
 

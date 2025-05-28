@@ -6,15 +6,12 @@ import com.junebay.plancard.card.dto.MyCardDTO;
 import com.junebay.plancard.card.dto.MyCardTagDTO;
 import com.junebay.plancard.card.mapper.CardMapper;
 import com.junebay.plancard.card.service.CardService;
-import com.junebay.plancard.common.dto.SearchDTO;
 import com.junebay.plancard.common.dto.ResponseDTO;
-import com.junebay.plancard.common.enums.StatusCode;
-import com.junebay.plancard.common.exception.BadRequestException;
+import com.junebay.plancard.common.dto.SearchDTO;
 import com.junebay.plancard.common.validator.CustomValidator;
-import com.junebay.plancard.common.vo.Pagination;
 import com.junebay.plancard.image.dto.CardMainImageDTO;
-import com.junebay.plancard.image.enums.ImageType;
 import com.junebay.plancard.image.dto.MyCardImageDTO;
+import com.junebay.plancard.image.enums.ImageType;
 import com.junebay.plancard.image.mapper.ImageMapper;
 import com.junebay.plancard.image.service.ImageService;
 import com.junebay.plancard.image.vo.CardImage;
@@ -56,7 +53,7 @@ public class CardServiceImpl implements CardService {
 
     @Override
     public ResponseDTO selectCards(SearchDTO searchDTO, String cardType) {
-        int totalItemsCount;
+        int totalItemCount;
         List<CardDTO> cardDTOList;
 
         customValidator.validateRequest(searchDTO);   // SearchDTO Validation (throw 400)
@@ -64,14 +61,14 @@ public class CardServiceImpl implements CardService {
         long userId = 2;    // TODO : 임시 유저 아이디. 스프링 시큐리티 적용 시 대체한다.
 
         if ("explore".equals(cardType)) {
-            totalItemsCount = cardMapper.selectAllExploreCardsCount(searchDTO, userId);
+            totalItemCount = cardMapper.selectAllExploreCardsCount(searchDTO, userId);
             cardDTOList = cardMapper.selectExploreCards(searchDTO, userId);
         } else {
-            totalItemsCount = cardMapper.selectAllMyCardsCount(searchDTO, userId);
+            totalItemCount = cardMapper.selectAllMyCardsCount(searchDTO, userId);
             cardDTOList = cardMapper.selectMyCards(searchDTO, userId);
         }
 
-        searchDTO.getPagination().setTotalItems(totalItemsCount);
+        searchDTO.getPagination().setTotalItems(totalItemCount);
 
         return setResponseDTO(searchDTO, cardDTOList);
     }

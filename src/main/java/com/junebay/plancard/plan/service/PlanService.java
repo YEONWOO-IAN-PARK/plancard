@@ -1,6 +1,7 @@
 package com.junebay.plancard.plan.service;
 
 import com.junebay.plancard.common.dto.ResponseDTO;
+import com.junebay.plancard.common.dto.SearchDTO;
 import com.junebay.plancard.plan.dto.CreatePlanDTO;
 
 /**
@@ -13,4 +14,10 @@ public interface PlanService {
      * @param planDTO
      */
     ResponseDTO createMyPlan(CreatePlanDTO planDTO);
+
+    /**
+     * @param planType 조회플랜 유형("explore" || "my")
+     * @param searchDTO 요청 DTO
+     */
+    ResponseDTO selectPlanList(String planType, SearchDTO searchDTO);
 }

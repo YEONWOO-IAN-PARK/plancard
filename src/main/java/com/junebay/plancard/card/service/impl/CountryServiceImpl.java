@@ -33,12 +33,12 @@ public class CountryServiceImpl implements CountryService {
 
     @Override
     public ResponseDTO selectCountries(SearchDTO searchDTO) {
-        int totalItemsCount;
+        int totalItemCount;
 
         customValidator.validateRequest(searchDTO);
 
-        totalItemsCount = countryMapper.selectAllCountriesCount(searchDTO);
-        searchDTO.getPagination().setTotalItems(totalItemsCount);
+        totalItemCount = countryMapper.selectAllCountriesCount(searchDTO);
+        searchDTO.getPagination().setTotalItems(totalItemCount);
 
         List<CountryDTO> countryDTOList = countryMapper.selectCountries(searchDTO);
 
@@ -47,12 +47,12 @@ public class CountryServiceImpl implements CountryService {
 
     @Override
     public ResponseDTO selectCities(String countryId, SearchDTO searchDTO) {
-        int totalItemsCount;
+        int totalItemCount;
 
         customValidator.validateRequest(searchDTO);
 
-        totalItemsCount = countryMapper.selectAllCitiesCount(countryId, searchDTO);
-        searchDTO.getPagination().setTotalItems(totalItemsCount);
+        totalItemCount = countryMapper.selectAllCitiesCount(countryId, searchDTO);
+        searchDTO.getPagination().setTotalItems(totalItemCount);
 
         List<CityDTO> dtoList = countryMapper.selectCities(countryId, searchDTO);
 

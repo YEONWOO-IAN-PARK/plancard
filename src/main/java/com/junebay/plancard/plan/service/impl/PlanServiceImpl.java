@@ -1,6 +1,7 @@
 package com.junebay.plancard.plan.service.impl;
 
 import com.junebay.plancard.common.dto.ResponseDTO;
+import com.junebay.plancard.common.dto.SearchDTO;
 import com.junebay.plancard.common.validator.CustomValidator;
 import com.junebay.plancard.plan.dto.CreatePlanDTO;
 import com.junebay.plancard.plan.mapper.PlanMapper;
@@ -29,11 +30,33 @@ public class PlanServiceImpl implements PlanService {
 
         customValidator.validateStringDateRange(planDTO.getStartDate(), planDTO.getEndDate());
 
-        long createdPlanId = planMapper.insertMyPlan(planDTO, userId);
+        planMapper.insertMyPlan(planDTO, userId);
 
-        CreatePlanDTO justCreatedPlanDTO = planMapper.selectPlanOne(createdPlanId);
+        CreatePlanDTO justCreatedPlanDTO = planMapper.selectPlanOne(planDTO.getPlanId());
 
         return setResponseDTO(justCreatedPlanDTO, insertedPlan);
+    }
+
+    @Override
+    public ResponseDTO selectPlanList(String planType, SearchDTO searchDTO) {
+        int totalItemCount;
+        List<PlanDTO> planDTOList;
+
+        long userId = 2;    // TODO : 임시 유저 아이디. 스프링 시큐리티 적용 시 대체한다.
+
+        customValidator.validateRequest(searchDTO);
+
+        if ("explore".equals(planType)) {
+            totalItemCount = planMapper.selectAllExplorePlanCount(searchDTO, userId);
+            planDTOList = planMapper.selectExplorePlanList(searchDTO, userId);
+        } else {
+            totalItemCount = planMapper.selectAllMyPlanCount(searchDTO, userId);
+            planDTOList = planMapper.selectMyPlanList(searchDTO, userId);
+        }
+
+        searchDTO.getPagination().setTotalItems(totalItemCount);
+
+        return setResponseDTO();
     }
 
     /**

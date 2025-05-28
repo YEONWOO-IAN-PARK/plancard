@@ -1,5 +1,6 @@
 package com.junebay.plancard.card.dto;
 
+import com.junebay.plancard.common.vo.Tag;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,9 +11,6 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class MyCardTagDTO {
-
-    private long tagId;
+public class MyCardTagDTO extends Tag {
     private long myCardId;
-    private String tagName;
 }

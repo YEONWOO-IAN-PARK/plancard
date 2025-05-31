@@ -2,6 +2,7 @@ package com.junebay.plancard.plan.service;
 
 import com.junebay.plancard.common.dto.ResponseDTO;
 import com.junebay.plancard.common.dto.SearchDTO;
+import com.junebay.plancard.plan.dto.BasicPlanDTO;
 import com.junebay.plancard.plan.dto.CreatePlanDTO;
 
 /**

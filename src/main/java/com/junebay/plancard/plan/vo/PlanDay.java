@@ -2,6 +2,7 @@ package com.junebay.plancard.plan.vo;
 
 import lombok.Builder;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 /**
@@ -15,11 +16,12 @@ public class PlanDay {
     private long id;
     private long planId;
     private String title;
+    private LocalDate travelDate;
     private String visibility;
     private int likeCount;
-    private boolean isLike;
-    private boolean isScrap;
-    private long authorId;  // author's userId
+//    private boolean isLike;
+//    private boolean isScrap;
+    private long authorId;                  // author's userId
     private LocalDateTime createdDate;
     private LocalDateTime updatedDate;
 }

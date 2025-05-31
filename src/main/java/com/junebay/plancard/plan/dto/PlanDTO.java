@@ -1,10 +1,10 @@
 package com.junebay.plancard.plan.dto;
 
+import com.junebay.plancard.card.dto.CardDTO;
 import com.junebay.plancard.common.vo.Tag;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -13,14 +13,15 @@ import java.util.List;
  */
 @Getter
 @Setter
-public class PlanDTO extends CreatePlanDTO {
+public class PlanDTO extends BasicPlanDTO {
 
     private String visibility;
     private int likeCount;
-    private boolean scrap;
     private boolean like;
+    private boolean scrap;
     private String author;
     private Date createdDate;
     private Date lastUpdateDate;
     private List<Tag> tagList;
+    private List<CardDTO> thumbnailCardList;
 }

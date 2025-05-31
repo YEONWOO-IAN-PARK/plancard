@@ -228,7 +228,8 @@
 	</select>
 
 	<select id="selectTagsByMyCardId" resultType="com.junebay.plancard.card.dto.MyCardTagDTO">
-		SELECT	id AS tag_id
+		SELECT	my_card_id
+		       	, id AS tag_id
 				, name AS tag_name
 	    FROM	my_card_tags
 		WHERE	my_card_id = #{myCardId}

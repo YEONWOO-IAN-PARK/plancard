@@ -2,12 +2,12 @@ package com.junebay.plancard.plan.controller;
 
 import com.junebay.plancard.common.dto.ResponseDTO;
 import com.junebay.plancard.common.dto.SearchDTO;
+import com.junebay.plancard.plan.dto.BasicPlanDTO;
 import com.junebay.plancard.plan.dto.CreatePlanDTO;
 import com.junebay.plancard.plan.service.PlanService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.parameters.P;
 import org.springframework.web.bind.annotation.*;
 
 /**

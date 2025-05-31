@@ -1,35 +1,8 @@
 package com.junebay.plancard.plan.dto;
 
-import com.junebay.plancard.common.exception.BadRequestException;
-import lombok.Getter;
-import lombok.Setter;
+import java.util.List;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.time.temporal.ChronoUnit;
+public class CreatePlanDTO extends BasicPlanDTO {
 
-
-/**
- * 내 플랜 등록을 위한 DTO
- */
-@Getter
-@Setter
-public class CreatePlanDTO {
-
-    private long planId;
-    private String title;
-    private LocalDate startDate;
-    private LocalDate endDate;
-    private int duration;
-
-    public void setDuration(int duration) {
-        try {
-            double days = ChronoUnit.DAYS.between(this.startDate, this.endDate);
-            this.duration = (int) days + 1;
-
-        } catch (DateTimeParseException e) {
-            throw new IllegalArgumentException("날짜 형식이 올바르지 않습니다.");
-        }
-    }
+    private List<PlanDayDTO> planDayList;
 }

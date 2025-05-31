@@ -2,18 +2,41 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.junebay.plancard.plan.mapper.PlanMapper">
 
+	<!-- 내 카드 반환을 위한 ResultMap -->
+	<resultMap id="myPlanDTOResultMap" type="com.junebay.plancard.plan.dto.PlanDTO">
+		<id property="planId" column="plan_id" />
+		<result property="title" column="title"/>
+		<result property="startDate" column="start_date"/>
+		<result property="endDate" column="end_date"/>
+		<result property="duration" column="duration"/>
+		<result property="visibility" column="visibility"/>
+		<result property="likeCount" column="like_count"/>
+		<result property="like" column="like"/>
+		<result property="scrap" column="scrap"/>
+		<result property="author" column="author"/>
+		<result property="createdDate" column="createdDate"/>
+		<result property="lastUpdateDate" column="lastUpdateDate"/>
+		/* TODO : 찬이한테 내 플랜 등록 시 tag 추가로 입력하는 곳이 있는지 물어봐야함. */
+<!--		<collection property="tagList" ofType="com.junebay.plancard.common.vo.Tag" column="my_card_id" javaType="ArrayList" select="selectTagsByMyCardId" />-->
+	</resultMap>
+
 	<insert id="insertMyPlan" useGeneratedKeys="true" keyProperty="planDTO.planId">
 		INSERT INTO plans (title, start_date, end_date, author_id)
 		VALUES (#{planDTO.title}, #{planDTO.startDate}, #{planDTO.endDate}, #{userId})
 	</insert>
 
-	<select id="selectPlanOne" resultType="com.junebay.plancard.plan.dto.CreatePlanDTO">
+	<select id="selectPlanOne" resultType="com.junebay.plancard.plan.dto.BasicPlanDTO">
 		SELECT	id AS planId
 				, title
 				, start_date
 				, end_date
+		     	/* MyBatis를 통해 조회한 자바빈은 Setter로 조회하기 때문에 해당 필드는 계산해서 넣어야함  */
 				, DATEDIFF(end_date, start_date) + 1 AS duration
 		FROM	plans p
 		WHERE	id = #{planId}
+	</select>
+
+	<select id="selectMyPlanList" resultType="com.junebay.plancard.plan.dto.PlanDTO">
+
 	</select>
 </mapper>

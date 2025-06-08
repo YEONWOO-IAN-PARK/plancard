@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.junebay.plancard.plan.mapper.PlanMapper">
 
-	<!-- 내 카드 반환을 위한 ResultMap -->
+	<!-- 내 플랜 반환을 위한 ResultMap -->
 	<resultMap id="myPlanDTOResultMap" type="com.junebay.plancard.plan.dto.PlanDTO">
 		<id property="planId" column="plan_id" />
 		<result property="title" column="title"/>
@@ -16,13 +16,35 @@
 		<result property="author" column="author"/>
 		<result property="createdDate" column="createdDate"/>
 		<result property="lastUpdateDate" column="lastUpdateDate"/>
-		/* TODO : 찬이한테 내 플랜 등록 시 tag 추가로 입력하는 곳이 있는지 물어봐야함. */
-<!--		<collection property="tagList" ofType="com.junebay.plancard.common.vo.Tag" column="my_card_id" javaType="ArrayList" select="selectTagsByMyCardId" />-->
+		<!-- TODO : 찬이한테 plan-list 조회 결과에 tagList 뭔지 물어봐야됨.(화면상에는 안보임) -->
+<!--		<collection property="tagList" ofType="com.junebay.plancard.common.vo.Tag" column="card_id" javaType="ArrayList" select="selectTagsByMyCardId" />-->
+		<collection property="thumbnailCardList" ofType="com.junebay.plancard.card.dto.ThumbnailCardDTO" column="plan_id" javaType="ArrayList" select="selectThumbnailCardListByPlanId" />
 	</resultMap>
 
 	<insert id="insertMyPlan" useGeneratedKeys="true" keyProperty="planDTO.planId">
-		INSERT INTO plans (title, start_date, end_date, author_id)
-		VALUES (#{planDTO.title}, #{planDTO.startDate}, #{planDTO.endDate}, #{userId})
+		INSERT INTO plans (title, start_date, end_date, user_id, author_id)
+		VALUES (#{planDTO.title}, #{planDTO.startDate}, #{planDTO.endDate}, #{userId}, #{userId})
+	</insert>
+
+	<insert id="insertPlanDay" useGeneratedKeys="true" keyProperty="planDayDTO.planDayId">
+		INSERT INTO plan_days (plan_id, title, travel_date, author_id)
+		VALUES (#{planId}, #{planDayDTO.title}, #{planDayDTO.travelDate}, #{userId})
+	</insert>
+
+	<insert id="insertPlanDayCards">
+		INSERT INTO plan_day_cards (plan_day_id, seq, card_id)
+		VALUES
+		<foreach collection="planDayDTO.planDayCardList" index="idx" item="card" separator=",">
+			(#{planDayDTO.planDayId}, ${idx} + 1, #{card})
+		</foreach>
+	</insert>
+
+	<insert id="insertPlanDayBridges">
+		INSERT INTO plan_day_bridges (plan_day_id, seq, memo)
+		VALUES
+		<foreach collection="planDayDTO.planDayBridgeList" index="idx" item="bridge" separator=",">
+			(#{planDayDTO.planDayId}, ${idx} + 1, #{bridge.memo})
+		</foreach>
 	</insert>
 
 	<select id="selectPlanOne" resultType="com.junebay.plancard.plan.dto.BasicPlanDTO">
@@ -30,7 +52,7 @@
 				, title
 				, start_date
 				, end_date
-		     	/* MyBatis를 통해 조회한 자바빈은 Setter로 조회하기 때문에 해당 필드는 계산해서 넣어야함  */
+		     	/* MyBatis의 조회값 세팅 기준은 자바빈에서 설정한 Setter가 아니라 조회값을 주입하는 형식이기 때문에 여기서 계산해서 넣어주어야함  */
 				, DATEDIFF(end_date, start_date) + 1 AS duration
 		FROM	plans p
 		WHERE	id = #{planId}
@@ -38,5 +60,11 @@
 
 	<select id="selectMyPlanList" resultType="com.junebay.plancard.plan.dto.PlanDTO">
 
+	</select>
+
+	<select id="selectThumbnailCardListByPlanId" resultType="com.junebay.plancard.card.dto.ThumbnailCardDTO">
+-- 		SELECT
+-- 		FROM
+-- 		WHERE
 	</select>
 </mapper>

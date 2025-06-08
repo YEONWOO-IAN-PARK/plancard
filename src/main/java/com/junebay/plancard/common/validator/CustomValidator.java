@@ -10,6 +10,7 @@ import com.junebay.plancard.common.exception.NoContentException;
 import com.junebay.plancard.common.exception.NotFoundException;
 import com.junebay.plancard.common.util.CommonUtil;
 import com.junebay.plancard.image.dto.MyCardImageDTO;
+import com.junebay.plancard.plan.dto.PlanDayDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,7 +20,6 @@ import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 
@@ -150,10 +150,9 @@ public class CustomValidator {
      * 전달받은 문자열 시작일과 종료일의 유효성 검사.
      * 허용형식은 (yyyy-MM-dd)
      */
-    public void validateStringDateRange(LocalDate startDate, LocalDate endDate) {
+    public void validateDateRange(LocalDate startDate, LocalDate endDate) {
 
         try {
-
             // 종료일이 시작일보다 빠른지 검증
             if (endDate.isBefore(startDate)) {
                 throw new IllegalArgumentException("종료일은 시작일보다 이전일 수 없습니다.");
@@ -165,4 +164,10 @@ public class CustomValidator {
 
     }
 
+    /**
+     * 전달받은 PlanDay 목록의 PlanDay의 유효성 검사
+     */
+    public void validatePlanDays(List<PlanDayDTO> planDayList) {
+        if (planDayList == null) throw new BadRequestException(StatusCode.BAD_REQUEST);
+    }
 }

@@ -6,6 +6,7 @@ import com.junebay.plancard.common.validator.CustomValidator;
 import com.junebay.plancard.plan.dto.BasicPlanDTO;
 import com.junebay.plancard.plan.dto.CreatePlanDTO;
 import com.junebay.plancard.plan.dto.PlanDTO;
+import com.junebay.plancard.plan.dto.PlanDayDTO;
 import com.junebay.plancard.plan.mapper.PlanMapper;
 import com.junebay.plancard.plan.service.PlanService;
 import lombok.RequiredArgsConstructor;
@@ -32,19 +33,22 @@ public class PlanServiceImpl implements PlanService {
     public ResponseDTO createMyPlan(CreatePlanDTO planDTO) {
         long userId = 2;    // TODO : 임시 유저 아이디. 스프링 시큐리티 적용 시 대체한다.
 
-        customValidator.validateStringDateRange(planDTO.getStartDate(), planDTO.getEndDate());
-
         // 1. Plan Insert
+        customValidator.validateDateRange(planDTO.getStartDate(), planDTO.getEndDate());
         planMapper.insertMyPlan(planDTO, userId);
-
-        // TODO: 2. PlanDay Insert
-
-        // TODO: 3. planDayCard Insert
-
-        // TODO: 4. PlanDayBridge Insert
-
-
         BasicPlanDTO justCreatedPlanDTO = planMapper.selectPlanOne(planDTO.getPlanId());
+
+        List<PlanDayDTO> planDayList = planDTO.getPlanDayList();
+        customValidator.validatePlanDays(planDayList);
+        // PlanDayDTO 객체는 Plan Day 수 만큼 존재하며 travelDate를 필수값으로 보유함
+        planDayList.forEach(pd -> {
+            planMapper.insertPlanDay(justCreatedPlanDTO.getPlanId(), pd, userId);
+            List<Integer> planDayCardList = pd.getPlanDayCardList();
+            if (planDayCardList != null) {
+                if (!planDayCardList.isEmpty()) planMapper.insertPlanDayCards(pd, userId);
+                if (planDayCardList.size() > 1) planMapper.insertPlanDayBridges(pd, userId);
+            }
+        });
 
         return setResponseDTO(justCreatedPlanDTO, insertedPlan);
     }

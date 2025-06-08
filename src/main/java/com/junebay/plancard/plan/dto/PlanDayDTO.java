@@ -14,9 +14,9 @@ import java.util.List;
 @Setter
 public class PlanDayDTO {
 
+    private long planDayId;
     private String title;
     private LocalDate travelDate;
     private List<Integer> planDayCardList;
     private List<PlanDayBridge> planDayBridgeList;
-
 }

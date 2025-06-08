@@ -3,6 +3,8 @@ package com.junebay.plancard.plan.mapper;
 import com.junebay.plancard.common.dto.SearchDTO;
 import com.junebay.plancard.plan.dto.BasicPlanDTO;
 import com.junebay.plancard.plan.dto.PlanDTO;
+import com.junebay.plancard.plan.dto.PlanDayDTO;
+import com.junebay.plancard.plan.vo.PlanDayBridge;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -27,10 +29,29 @@ public interface PlanMapper {
     /**
      * 탐험 플랜 DTO 목록을 조회하는 기능
      */
-    List<PlanDTO> selectExplorePlanList(SearchDTO searchDTO, long userId);
+    List<PlanDTO> selectExplorePlanList(@Param("searchDTO") SearchDTO searchDTO, @Param("userId")long userId);
 
     /**
      * 내 플랜 DTO 목록을 조회하는 기능
      */
-    List<PlanDTO> selectMyPlanList(SearchDTO searchDTO, long userId);
+    List<PlanDTO> selectMyPlanList(@Param("searchDTO") SearchDTO searchDTO, @Param("userId") long userId);
+
+    /**
+     * 내 플랜을 저장하는 기능
+     * TODO : 검증
+     */
+    void insertPlanDay(@Param("planId") long planId, @Param("planDayDTO") PlanDayDTO planDayDTO, @Param("userId") long userId);
+
+    /**
+     * 내 플랜 > 플랜데이 카드 목록을 추가하는 기능
+     * TODO : 검증
+     */
+    void insertPlanDayCards(@Param("planDayDTO") PlanDayDTO planDayDTO, @Param("userId") long userId);
+
+    /**
+     * 내 플랜 > 플렌데이 카드를 잇는 브릿지를 추가하는 기능
+     * 카드가 2개일떄 카드를 잇는 브릿지는 1개이다. 브릿지 개수 = (카드 개수 - 1)
+     * TODO : 검증 (미구현)
+     */
+    void insertPlanDayBridges(@Param("planDayDTO") PlanDayDTO planDayDTO, @Param("userId") long userId);
 }

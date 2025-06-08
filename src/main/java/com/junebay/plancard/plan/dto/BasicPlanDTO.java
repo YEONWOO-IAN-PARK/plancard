@@ -9,7 +9,7 @@ import java.time.temporal.ChronoUnit;
 
 
 /**
- * 내 플랜 등록을 위한 DTO
+ * 내 플랜 등록을 위한 Plan DTO
  */
 @Getter
 @Setter

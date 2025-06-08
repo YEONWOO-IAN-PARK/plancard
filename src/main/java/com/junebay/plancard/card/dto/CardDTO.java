@@ -13,18 +13,10 @@ import java.util.List;
  */
 @Getter
 @Setter
-public class CardDTO {
+public class CardDTO extends BasicCardDTO {
 
-    private long cardId;
-    private String title;
-    private String description;
-    private String country;
-    private String city;
     private List<String> theme;
-    private String category;
-    private int rating;
     private long mainImageId;       // ### 수정 후 버전 ###
-    private boolean scrap;
     private String mapLink;
     private List<CardImageDTO> imageList;
 

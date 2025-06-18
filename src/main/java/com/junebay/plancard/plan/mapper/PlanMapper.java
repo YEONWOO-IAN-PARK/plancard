@@ -30,7 +30,12 @@ public interface PlanMapper {
      * 탐험 플랜 DTO 목록을 조회하는 기능
      */
     List<PlanDTO> selectExplorePlanList(@Param("searchDTO") SearchDTO searchDTO, @Param("userId")long userId);
-
+    
+    /**
+     * 내 플랜 리스트의 총 건수를 조회하는 기능
+     */
+    int selectAllMyPlanCount(SearchDTO searchDTO, long userId);
+    
     /**
      * 내 플랜 DTO 목록을 조회하는 기능
      */
@@ -54,4 +59,6 @@ public interface PlanMapper {
      * TODO : 검증 (미구현)
      */
     void insertPlanDayBridges(@Param("planDayDTO") PlanDayDTO planDayDTO, @Param("userId") long userId);
+
+
 }

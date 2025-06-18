@@ -55,22 +55,22 @@ public class PlanServiceImpl implements PlanService {
 
     @Override
     public ResponseDTO selectPlanList(String planType, SearchDTO searchDTO) {
-        int totalItemCount;
+        int totalItemCount = -1;
         List<PlanDTO> planDTOList;
 
         long userId = 2;    // TODO : 임시 유저 아이디. 스프링 시큐리티 적용 시 대체한다.
 
         customValidator.validateRequest(searchDTO);
 
-//        if ("explore".equals(planType)) {
+        if ("explore".equals(planType)) {
 //            totalItemCount = planMapper.selectAllExplorePlanCount(searchDTO, userId);
 //            planDTOList = planMapper.selectExplorePlanList(searchDTO, userId);
-//        } else {
-//            totalItemCount = planMapper.selectAllMyPlanCount(searchDTO, userId);
-//            planDTOList = planMapper.selectMyPlanList(searchDTO, userId);
-//        }
+        } else {
+            totalItemCount = planMapper.selectAllMyPlanCount(searchDTO, userId);
+            planDTOList = planMapper.selectMyPlanList(searchDTO, userId);
+        }
 
-//        searchDTO.getPagination().setTotalItems(totalItemCount);
+        searchDTO.getPagination().setTotalItems(totalItemCount);
 
 //        return setResponseDTO();
 

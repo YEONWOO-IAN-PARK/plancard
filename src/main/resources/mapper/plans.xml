@@ -58,6 +58,22 @@
 		WHERE	id = #{planId}
 	</select>
 
+	<select id="selectAllMyPlanCount" resultType="java.lang.Integer">
+		/* 작성중 */
+		SELECT	p.id
+				, p.visibility
+		        , p.title
+		        , p.like_count
+		        , CASE WHEN ps.
+		FROM 	plans p
+				INNER JOIN plan_days pd
+					ON p.id = pd.plan_id
+				LEFT OUTER JOIN plan_scraps ps
+					ON ps.plan_id =
+		WHERE	p.user_id = 2
+		/* 작성중 */
+	</select>
+
 	<select id="selectMyPlanList" resultType="com.junebay.plancard.plan.dto.PlanDTO">
 
 	</select>
@@ -67,4 +83,6 @@
 -- 		FROM
 -- 		WHERE
 	</select>
+
+
 </mapper>

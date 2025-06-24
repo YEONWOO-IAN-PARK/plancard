@@ -14,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -26,6 +27,13 @@ public class PlanServiceImpl implements PlanService {
 
     @Value("${response.created.plan.detail}")
     private String insertedPlan;
+
+    @Value("${response.ok.exist.plan.list.detail}")
+    private String existPlans;
+
+    @Value("${response.ok.notExist.list.detail}")
+    private String notExist;
+
     private final PlanMapper planMapper;
     private final CustomValidator customValidator;
 
@@ -50,13 +58,13 @@ public class PlanServiceImpl implements PlanService {
             }
         });
 
-        return setResponseDTO(justCreatedPlanDTO, insertedPlan);
+        return setResponseDTO(justCreatedPlanDTO);
     }
 
     @Override
     public ResponseDTO selectPlanList(String planType, SearchDTO searchDTO) {
         int totalItemCount = -1;
-        List<PlanDTO> planDTOList;
+        List<PlanDTO> planDTOList = new ArrayList<>();
 
         long userId = 2;    // TODO : 임시 유저 아이디. 스프링 시큐리티 적용 시 대체한다.
 
@@ -67,25 +75,40 @@ public class PlanServiceImpl implements PlanService {
 //            planDTOList = planMapper.selectExplorePlanList(searchDTO, userId);
         } else {
             totalItemCount = planMapper.selectAllMyPlanCount(searchDTO, userId);
-            planDTOList = planMapper.selectMyPlanList(searchDTO, userId);
+            if (totalItemCount > 0) {
+                planDTOList = planMapper.selectMyPlanList(searchDTO, userId);
+            }
         }
 
         searchDTO.getPagination().setTotalItems(totalItemCount);
 
-//        return setResponseDTO();
+        return setResponseDTO(searchDTO, planDTOList);
+    }
 
-        return null;
+    private ResponseDTO setResponseDTO(SearchDTO searchDTO, List<PlanDTO> planDTOList) {
+        ResponseDTO responseDTO = new ResponseDTO();
+
+        if (!planDTOList.isEmpty()) {
+            responseDTO.setPagination(searchDTO.getPagination());
+            responseDTO.setDetails(existPlans);
+        } else {
+            responseDTO.setDetails(notExist);
+        }
+
+        responseDTO.setResult(planDTOList);
+
+        return responseDTO;
     }
 
     /**
      * 단일 카드 반환을 위한 ResponseDTO 세팅
      * 플랜 상세 조회 || 플랜 추가 시 사용된다.
      */
-    private ResponseDTO setResponseDTO(BasicPlanDTO planDTO, String detail) {
+    private ResponseDTO setResponseDTO(BasicPlanDTO planDTO) {
         ResponseDTO responseDTO = new ResponseDTO();
 
         if (planDTO != null) {
-            responseDTO.setDetails(detail);
+            responseDTO.setDetails(insertedPlan);
         }
         responseDTO.setResult(planDTO);
 

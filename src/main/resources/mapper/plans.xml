@@ -21,6 +21,29 @@
 		<collection property="thumbnailCardList" ofType="com.junebay.plancard.card.dto.ThumbnailCardDTO" column="plan_id" javaType="ArrayList" select="selectThumbnailCardListByPlanId" />
 	</resultMap>
 
+	<sql id="searchCondition">
+		/* 검색 */
+		<if test="searchDTO.search != null and searchDTO.search != ''">
+			AND (
+			    p.title LIKE CONCAT('%', #{searchDTO.search}, '%')
+			)
+		</if>
+	</sql>
+
+	<sql id="filterCondition">
+		/* 필터: 스크랩 여부 */
+		<if test="searchDTO.filter != null and searchDTO.filter.scrap != null">
+		<choose>
+			<when test="searchDTO.filter.scrap == true">
+				AND ps.plan_id IS NOT NULL
+			</when>
+			<otherwise>
+				AND ps.plan_id IS NULL
+			</otherwise>
+		</choose>
+		</if>
+	</sql>
+
 	<insert id="insertMyPlan" useGeneratedKeys="true" keyProperty="planDTO.planId">
 		INSERT INTO plans (title, start_date, end_date, user_id, author_id)
 		VALUES (#{planDTO.title}, #{planDTO.startDate}, #{planDTO.endDate}, #{userId}, #{userId})
@@ -52,36 +75,85 @@
 				, title
 				, start_date
 				, end_date
-		     	/* MyBatis의 조회값 세팅 기준은 자바빈에서 설정한 Setter가 아니라 조회값을 주입하는 형식이기 때문에 여기서 계산해서 넣어주어야함  */
+		     	/* MyBatis의 조회값 세팅 기준은 자바빈에서 설정한 Setter가 아니라 조회값을 주입하는 형식이기 때문에 여기서 계산해서 넣어주어야함 */
 				, DATEDIFF(end_date, start_date) + 1 AS duration
 		FROM	plans p
 		WHERE	id = #{planId}
 	</select>
 
 	<select id="selectAllMyPlanCount" resultType="java.lang.Integer">
-		/* 작성중 */
-		SELECT	p.id
+		SELECT	COUNT(*)
+		FROM	(
+			SELECT	p.id AS plan_id
+					, p.visibility
+			        , p.title
+			        , p.like_count
+			        , CASE WHEN ps.plan_id IS NULL THEN false ELSE true END AS scrap
+			        -- , CASE WHEN pl.plan_id IS NULL THEN false ELSE true END AS like
+			        , p.author_id
+			        , p.created_date
+			        , p.updated_date as lastUpdateDate
+			        , DATEDIFF(end_date, start_date) + 1 AS duration
+			FROM 	plans p
+					LEFT OUTER JOIN plan_scraps ps
+						ON p.id = ps.plan_id AND ps.user_id = #{userId}
+					-- LEFT OUTER JOIN plan_like pl ON p.id = pl.plan_id
+			WHERE	p.user_id = #{userId}
+					<include refid="searchCondition" />
+					<include refid="filterCondition" />
+		) Z
+	</select>
+
+	<select id="selectMyPlanList" resultMap="myPlanDTOResultMap">
+		SELECT	p.id AS plan_id
 				, p.visibility
 		        , p.title
 		        , p.like_count
-		        , CASE WHEN ps.
+		        , CASE WHEN ps.plan_id IS NULL THEN false ELSE true END AS scrap
+		        -- , CASE WHEN pl.plan_id IS NULL THEN false ELSE true END AS like
+		        , p.author_id
+		        , p.created_date
+		        , p.updated_date as lastUpdateDate
+		        , DATEDIFF(end_date, start_date) + 1 AS duration
 		FROM 	plans p
-				INNER JOIN plan_days pd
-					ON p.id = pd.plan_id
 				LEFT OUTER JOIN plan_scraps ps
-					ON ps.plan_id =
-		WHERE	p.user_id = 2
-		/* 작성중 */
-	</select>
-
-	<select id="selectMyPlanList" resultType="com.junebay.plancard.plan.dto.PlanDTO">
-
+					ON p.id = ps.plan_id AND ps.user_id = #{userId}
+				-- LEFT OUTER JOIN plan_like pl ON p.id = pl.plan_id
+		WHERE	p.user_id = #{userId}
+				<include refid="searchCondition" />
+				<include refid="filterCondition" />
+				<include refid="common.sortCondition" />
+				<include refid="common.paginationCondition" />
 	</select>
 
 	<select id="selectThumbnailCardListByPlanId" resultType="com.junebay.plancard.card.dto.ThumbnailCardDTO">
--- 		SELECT
--- 		FROM
--- 		WHERE
+		SELECT	r.card_id, r.title, r.description, ct.name, co.name, cg.name, r.rating, r.image_url, r.scrap
+		FROM (
+			SELECT	pdc.card_id
+					, c.title
+					, c.description
+					, c.city_id
+					, c.category_id
+					, c.rating
+					, CONCAT('/images/cards/', c.main_image_id) AS image_url
+					, CASE WHEN cs.card_id IS NULL THEN false ELSE true END AS scrap
+			FROM	plans p
+					INNER JOIN plan_days pd
+						ON p.id = pd.plan_id
+					INNER JOIN plan_day_cards pdc
+						ON pd.id = pdc.plan_day_id
+					INNER JOIN cards c
+						ON pdc.card_id = c.id AND c.is_active = true
+					LEFT OUTER JOIN card_scraps cs
+					    ON pdc.card_id = cs.card_id AND cs.user_id = p.user_id
+			WHERE	p.id = #{planId}
+		) r
+		INNER JOIN cities ct
+			ON ct.id = r.city_id AND ct.is_active = true
+		INNER JOIN countries co
+			ON co.id = ct.country_id AND co.is_active = true
+		INNER JOIN categories cg
+			ON cg.id = r.category_id AND cg.is_active = true
 	</select>
 
 

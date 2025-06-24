@@ -32,7 +32,7 @@ public interface PlanMapper {
     List<PlanDTO> selectExplorePlanList(@Param("searchDTO") SearchDTO searchDTO, @Param("userId")long userId);
     
     /**
-     * 내 플랜 리스트의 총 건수를 조회하는 기능
+     * 내 플랜 DTO 목록의 총 건수를 조회하는 기능
      */
     int selectAllMyPlanCount(SearchDTO searchDTO, long userId);
     
@@ -43,13 +43,11 @@ public interface PlanMapper {
 
     /**
      * 내 플랜을 저장하는 기능
-     * TODO : 검증
      */
     void insertPlanDay(@Param("planId") long planId, @Param("planDayDTO") PlanDayDTO planDayDTO, @Param("userId") long userId);
 
     /**
      * 내 플랜 > 플랜데이 카드 목록을 추가하는 기능
-     * TODO : 검증
      */
     void insertPlanDayCards(@Param("planDayDTO") PlanDayDTO planDayDTO, @Param("userId") long userId);
 

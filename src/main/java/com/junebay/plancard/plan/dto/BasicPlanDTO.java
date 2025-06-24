@@ -23,8 +23,10 @@ public class BasicPlanDTO {
 
     public void setDuration(int duration) {
         try {
-            double days = ChronoUnit.DAYS.between(this.startDate, this.endDate);
-            this.duration = (int) days + 1;
+            if (this.startDate != null && this.endDate != null) {
+                double days = ChronoUnit.DAYS.between(this.startDate, this.endDate);
+                this.duration = (int) days + 1;
+            }
 
         } catch (DateTimeParseException e) {
             throw new IllegalArgumentException("날짜 형식이 올바르지 않습니다.");

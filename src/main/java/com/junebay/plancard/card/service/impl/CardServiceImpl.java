@@ -39,7 +39,7 @@ public class CardServiceImpl implements CardService {
 
     @Value("${response.ok.exist.card.one.detail}") private String existCard;
     @Value("${response.ok.exist.card.list.detail}") private String existCardList;
-    @Value("${response.ok.notExist.list.detail}") private String notExistCardList;
+    @Value("${response.ok.notExist.list.detail}") private String notExist;
     @Value("${response.ok.scrapped.card.detail}") private String scrapped;
     @Value("${response.ok.tagged.detail}") private String insertedTag;
     @Value("${upload.image.mycard}") private String myCardSavePath;
@@ -332,7 +332,7 @@ public class CardServiceImpl implements CardService {
             responseDTO.setPagination(searchDTO.getPagination());
             responseDTO.setDetails(existCardList);
         } else {
-            responseDTO.setDetails(notExistCardList);
+            responseDTO.setDetails(notExist);
         }
 
         responseDTO.setResult(cardDTOList);

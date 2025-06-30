@@ -35,7 +35,7 @@ public class PlanRestController {
      */
     @PostMapping("/search/{planType}")
     public ResponseEntity<ResponseDTO> plans(@PathVariable String planType, @RequestBody SearchDTO searchDTO) {
-        ResponseDTO responseDTO = planService.selectPlanList(planType, searchDTO);
+        ResponseDTO responseDTO = planService.selectPlanList(searchDTO, planType);
         return ResponseEntity.ok(responseDTO);
     }
 

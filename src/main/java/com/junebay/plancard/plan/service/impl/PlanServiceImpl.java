@@ -62,7 +62,7 @@ public class PlanServiceImpl implements PlanService {
     }
 
     @Override
-    public ResponseDTO selectPlanList(String planType, SearchDTO searchDTO) {
+    public ResponseDTO selectPlanList(SearchDTO searchDTO, String planType) {
         int totalItemCount = -1;
         List<PlanDTO> planDTOList = new ArrayList<>();
 
@@ -71,8 +71,10 @@ public class PlanServiceImpl implements PlanService {
         customValidator.validateRequest(searchDTO);
 
         if ("explore".equals(planType)) {
-//            totalItemCount = planMapper.selectAllExplorePlanCount(searchDTO, userId);
-//            planDTOList = planMapper.selectExplorePlanList(searchDTO, userId);
+            customValidator.validateRequestForFilter(searchDTO);
+
+            totalItemCount = planMapper.selectAllExplorePlanCount(searchDTO, userId);   // TODO
+            planDTOList = planMapper.selectExplorePlanList(searchDTO, userId);          // TODO
         } else {
             totalItemCount = planMapper.selectAllMyPlanCount(searchDTO, userId);
             if (totalItemCount > 0) {

@@ -14,11 +14,27 @@
 		<result property="like" column="like"/>
 		<result property="scrap" column="scrap"/>
 		<result property="author" column="author"/>
-		<result property="createdDate" column="createdDate"/>
-		<result property="lastUpdateDate" column="lastUpdateDate"/>
-		<!-- TODO : 찬이한테 plan-list 조회 결과에 tagList 뭔지 물어봐야됨.(화면상에는 안보임) -->
-<!--		<collection property="tagList" ofType="com.junebay.plancard.common.vo.Tag" column="card_id" javaType="ArrayList" select="selectTagsByMyCardId" />-->
+		<result property="createdDate" column="created_date"/>
+		<result property="lastUpdateDate" column="updated_date"/>
 		<collection property="thumbnailCardList" ofType="com.junebay.plancard.card.dto.ThumbnailCardDTO" column="plan_id" javaType="ArrayList" select="selectThumbnailCardListByPlanId" />
+	</resultMap>
+
+	<!-- 내 플랜 반환을 위한 ResultMap -->
+	<resultMap id="explorePlanDTOResultMap" type="com.junebay.plancard.plan.dto.PlanDTO">
+		<id property="planId" column="plan_id" />
+		<result property="visibility" column="visibility"/>
+		<result property="title" column="title"/>
+		<result property="likeCount" column="like_count"/>
+		<result property="scrap" column="scrap"/>
+		<result property="like" column="like"/>
+		<result property="author" column="author"/>
+		<result property="createdDate" column="created_date"/>
+		<result property="lastUpdateDate" column="updated_date"/>
+		<result property="startDate" column="start_date"/>
+		<result property="endDate" column="end_date"/>
+		<result property="duration" column="duration"/>
+		<collection property="categoryList" ofType="com.junebay.plancard.card.vo.Category" column="plan_id" javaType="ArrayList" select="selectCategoryListByPlanId" />
+		<collection property="categoryList" ofType="com.junebay.plancard.card.vo.Theme" column="plan_id" javaType="ArrayList" select="selectThemeListByPlanId" />
 	</resultMap>
 
 	<sql id="searchCondition">
@@ -41,6 +57,37 @@
 				AND ps.plan_id IS NULL
 			</otherwise>
 		</choose>
+		</if>
+
+		/* 필터: 국가 */
+		<if test='searchDTO.filter != null and searchDTO.filter.country != null and !"".equals(searchDTO.filter.country)'>
+			AND co.id = #{searchDTO.filter.country}
+		</if>
+
+		/* 필터: 도시 */
+		<if test='searchDTO.filter != null and searchDTO.filter.city != null and !"".equals(searchDTO.filter.city)'>
+			AND ct.id = #{searchDTO.filter.city}
+		</if>
+
+		/* 필터: 카테고리 (배열) */
+		<if test="searchDTO.filter != null and searchDTO.filter.category != null and searchDTO.filter.category.size() > 0">
+			AND cg.id IN
+			<foreach item="cat" collection="searchDTO.filter.category" open="(" separator="," close=")">
+				#{cat}
+			</foreach>
+		</if>
+
+		/* 필터: 테마 */
+		<if test="searchDTO.filter != null and searchDTO.filter.theme != null and searchDTO.filter.theme.size() > 0">
+			AND EXISTS (
+				SELECT	1
+				FROM	card_theme t
+				WHERE	t.card_id = c.id
+						AND t.theme_id IN
+					<foreach item="themeId" collection="searchDTO.filter.theme" open="(" separator="," close=")">
+						#{themeId}
+					</foreach>
+			)
 		</if>
 	</sql>
 
@@ -81,6 +128,35 @@
 		WHERE	id = #{planId}
 	</select>
 
+	<select id="selectAllExplorePlanCount" resultType="java.lang.Integer">
+		SELECT	COUNT(*)
+		FROM	(
+			SELECT	p.id AS plan_id
+					, p.visibility
+			        , p.title
+			        , p.like_count
+			        , CASE WHEN ps.plan_id IS NULL THEN false ELSE true END AS scrap
+			        , CASE WHEN pl.plan_id IS NULL THEN false ELSE true END AS like
+			        , p.start_date
+			        , p.end_date
+					, u.name AS author
+			        , p.created_date
+			        , p.updated_date
+			        , DATEDIFF(end_date, start_date) + 1 AS duration
+			FROM 	plans p
+					LEFT OUTER JOIN plan_scraps ps
+						ON p.id = ps.plan_id AND ps.user_id = #{userId}
+					LEFT OUTER JOIN plan_like pl
+						ON p.id = pl.plan_id
+					INNER JOIN users u
+						ON u.id = p.author_id
+			WHERE	u.is_active = true
+					AND p.visibillity = 'public'
+					<include refid="searchCondition" />
+					<include refid="filterCondition" />
+		) Z
+	</select>
+
 	<select id="selectAllMyPlanCount" resultType="java.lang.Integer">
 		SELECT	COUNT(*)
 		FROM	(
@@ -89,15 +165,18 @@
 			        , p.title
 			        , p.like_count
 			        , CASE WHEN ps.plan_id IS NULL THEN false ELSE true END AS scrap
-			        -- , CASE WHEN pl.plan_id IS NULL THEN false ELSE true END AS like
-			        , p.author_id
+			     	, p.start_date
+			     	, p.end_date
+					, u.name AS author
 			        , p.created_date
-			        , p.updated_date as lastUpdateDate
+			        , p.updated_date
 			        , DATEDIFF(end_date, start_date) + 1 AS duration
 			FROM 	plans p
 					LEFT OUTER JOIN plan_scraps ps
 						ON p.id = ps.plan_id AND ps.user_id = #{userId}
 					-- LEFT OUTER JOIN plan_like pl ON p.id = pl.plan_id
+					INNER JOIN users u
+						ON u.id = p.user_id AND u.is_active = true
 			WHERE	p.user_id = #{userId}
 					<include refid="searchCondition" />
 					<include refid="filterCondition" />
@@ -111,14 +190,18 @@
 		        , p.like_count
 		        , CASE WHEN ps.plan_id IS NULL THEN false ELSE true END AS scrap
 		        -- , CASE WHEN pl.plan_id IS NULL THEN false ELSE true END AS like
-		        , p.author_id
+				, p.start_date
+		        , p.end_date
+		        , u.name AS author
 		        , p.created_date
-		        , p.updated_date as lastUpdateDate
+		        , p.updated_date
 		        , DATEDIFF(end_date, start_date) + 1 AS duration
 		FROM 	plans p
 				LEFT OUTER JOIN plan_scraps ps
 					ON p.id = ps.plan_id AND ps.user_id = #{userId}
 				-- LEFT OUTER JOIN plan_like pl ON p.id = pl.plan_id
+				INNER JOIN users u
+					ON u.id = p.user_id AND u.is_active = true
 		WHERE	p.user_id = #{userId}
 				<include refid="searchCondition" />
 				<include refid="filterCondition" />
@@ -127,7 +210,17 @@
 	</select>
 
 	<select id="selectThumbnailCardListByPlanId" resultType="com.junebay.plancard.card.dto.ThumbnailCardDTO">
-		SELECT	r.card_id, r.title, r.description, ct.name, co.name, cg.name, r.rating, r.image_url, r.scrap
+		SELECT	r.card_id
+		     	, r.title
+		     	, r.description
+		     	, ct.name AS city
+				, co.name AS country
+				, cg.name AS category
+				, r.rating
+				, r.image_url
+				, r.scrap
+			    , r.image_id
+	            , ci.alt
 		FROM (
 			SELECT	pdc.card_id
 					, c.title
@@ -137,6 +230,7 @@
 					, c.rating
 					, CONCAT('/images/cards/', c.main_image_id) AS image_url
 					, CASE WHEN cs.card_id IS NULL THEN false ELSE true END AS scrap
+					, c.main_image_id AS image_id
 			FROM	plans p
 					INNER JOIN plan_days pd
 						ON p.id = pd.plan_id
@@ -154,6 +248,16 @@
 			ON co.id = ct.country_id AND co.is_active = true
 		INNER JOIN categories cg
 			ON cg.id = r.category_id AND cg.is_active = true
+		INNER JOIN card_images ci
+			ON ci.id = r.image_id
+	</select>
+
+	<select id="selectCategoryListByPlanId" resultType="com.junebay.plancard.card.vo.Category">
+
+	</select>
+
+	<select id="selectThemeListByPlanId" resultType="com.junebay.plancard.card.vo.Theme">
+
 	</select>
 
 

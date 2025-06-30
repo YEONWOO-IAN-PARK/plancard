@@ -20,5 +20,5 @@ public interface PlanService {
      * @param planType 조회플랜 유형("explore" || "my")
      * @param searchDTO 요청 DTO
      */
-    ResponseDTO selectPlanList(String planType, SearchDTO searchDTO);
+    ResponseDTO selectPlanList(SearchDTO searchDTO, String planType);
 }

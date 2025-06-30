@@ -14,8 +14,8 @@ public class Pagination {
 
     private int page;           /* 불러올 페이지 번호 */
     private int size;           /* 한 페이지에 가져올 row 개수 */
-    private int totalPages;     /* TODO : 총 페이지 수 */
-    private int totalItems;     /* TODO : 총 row 수 */
+    private int totalPages;     /* 총 페이지 수 */
+    private int totalItems;     /* 총 row 수 */
     private int offset;         /* 오프셋 */
 
     public Pagination(int page, int size) {

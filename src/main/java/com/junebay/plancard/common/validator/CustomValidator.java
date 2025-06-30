@@ -41,6 +41,14 @@ public class CustomValidator {
     }
 
     /**
+     * SearchDTO를 받아 사용자 요청 중 검색 Filter의 누락 유효성 검사 시행
+     * 유효성 검사를 통과하지 못할 시, 각 상황에 맞는 예외를 반환한다.
+     */
+    public void validateRequestForFilter(SearchDTO searchDTO) {
+        if (searchDTO.getFilter() == null) throw new BadRequestException(StatusCode.BAD_REQUEST);
+    }
+
+    /**
      * SearchDTO를 받아 사용자 요청의 유효성 검사 시행
      * 유효성 검사를 통과하지 못할 시, 각 상황에 맞는 예외를 반환한다.
      */
@@ -170,4 +178,5 @@ public class CustomValidator {
     public void validatePlanDays(List<PlanDayDTO> planDayList) {
         if (planDayList == null) throw new BadRequestException(StatusCode.BAD_REQUEST);
     }
+
 }

@@ -27,6 +27,7 @@ public class Filter {
             "scrap": false,
             "like": false,
             "day": false,
+
             "country": "FR",
             "city": "1301",
             "theme": ["7","132"],

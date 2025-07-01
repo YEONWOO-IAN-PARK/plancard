@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.junebay.plancard.plan.mapper.PlanMapper">
 
-	<!-- 내 플랜 반환을 위한 ResultMap -->
+	<!-- 내 플랜 DTO 반환을 위한 ResultMap -->
 	<resultMap id="myPlanDTOResultMap" type="com.junebay.plancard.plan.dto.PlanDTO">
 		<id property="planId" column="plan_id" />
 		<result property="title" column="title"/>
@@ -19,7 +19,7 @@
 		<collection property="thumbnailCardList" ofType="com.junebay.plancard.card.dto.ThumbnailCardDTO" column="plan_id" javaType="ArrayList" select="selectThumbnailCardListByPlanId" />
 	</resultMap>
 
-	<!-- 내 플랜 반환을 위한 ResultMap -->
+	<!-- 탐험 플랜 DTO 반환을 위한 ResultMap -->
 	<resultMap id="explorePlanDTOResultMap" type="com.junebay.plancard.plan.dto.PlanDTO">
 		<id property="planId" column="plan_id" />
 		<result property="visibility" column="visibility"/>
@@ -33,8 +33,8 @@
 		<result property="startDate" column="start_date"/>
 		<result property="endDate" column="end_date"/>
 		<result property="duration" column="duration"/>
-		<collection property="categoryList" ofType="com.junebay.plancard.card.vo.Category" column="plan_id" javaType="ArrayList" select="selectCategoryListByPlanId" />
-		<collection property="categoryList" ofType="com.junebay.plancard.card.vo.Theme" column="plan_id" javaType="ArrayList" select="selectThemeListByPlanId" />
+		<collection property="categoryList" ofType="com.junebay.plancard.plan.dto.ExplorePlanTagDTO" column="plan_id" javaType="ArrayList" select="selectCategoryListByPlanId" />
+		<collection property="themeList" ofType="com.junebay.plancard.plan.dto.ExplorePlanTagDTO" column="plan_id" javaType="ArrayList" select="selectThemeListByPlanId" />
 	</resultMap>
 
 	<sql id="searchCondition">
@@ -136,7 +136,7 @@
 			        , p.title
 			        , p.like_count
 			        , CASE WHEN ps.plan_id IS NULL THEN false ELSE true END AS scrap
-			        , CASE WHEN pl.plan_id IS NULL THEN false ELSE true END AS like
+			        , CASE WHEN pl.plan_id IS NULL THEN false ELSE true END AS "like"
 			        , p.start_date
 			        , p.end_date
 					, u.name AS author
@@ -146,15 +146,43 @@
 			FROM 	plans p
 					LEFT OUTER JOIN plan_scraps ps
 						ON p.id = ps.plan_id AND ps.user_id = #{userId}
-					LEFT OUTER JOIN plan_like pl
+					LEFT OUTER JOIN plan_likes pl
 						ON p.id = pl.plan_id
 					INNER JOIN users u
 						ON u.id = p.author_id
 			WHERE	u.is_active = true
-					AND p.visibillity = 'public'
+					AND p.visibility = 'public'
 					<include refid="searchCondition" />
 					<include refid="filterCondition" />
 		) Z
+	</select>
+
+	<select id="selectExplorePlanList" resultMap="explorePlanDTOResultMap">
+		SELECT	p.id AS plan_id
+				, p.visibility
+		        , p.title
+		        , p.like_count
+		        , CASE WHEN ps.plan_id IS NULL THEN false ELSE true END AS scrap
+		        , CASE WHEN pl.plan_id IS NULL THEN false ELSE true END AS "like"
+		        , p.start_date
+		        , p.end_date
+				, u.name AS author
+		        , p.created_date
+		        , p.updated_date
+		        , DATEDIFF(end_date, start_date) + 1 AS duration
+		FROM 	plans p
+				LEFT OUTER JOIN plan_scraps ps
+					ON p.id = ps.plan_id AND ps.user_id = #{userId}
+				LEFT OUTER JOIN plan_likes pl
+					ON p.id = pl.plan_id
+				INNER JOIN users u
+					ON u.id = p.author_id
+		WHERE	u.is_active = true
+				AND p.visibility = 'public'
+				<include refid="searchCondition" />
+				<include refid="filterCondition" />
+				<include refid="common.sortCondition" />
+				<include refid="common.paginationCondition" />
 	</select>
 
 	<select id="selectAllMyPlanCount" resultType="java.lang.Integer">
@@ -174,7 +202,6 @@
 			FROM 	plans p
 					LEFT OUTER JOIN plan_scraps ps
 						ON p.id = ps.plan_id AND ps.user_id = #{userId}
-					-- LEFT OUTER JOIN plan_like pl ON p.id = pl.plan_id
 					INNER JOIN users u
 						ON u.id = p.user_id AND u.is_active = true
 			WHERE	p.user_id = #{userId}
@@ -189,7 +216,6 @@
 		        , p.title
 		        , p.like_count
 		        , CASE WHEN ps.plan_id IS NULL THEN false ELSE true END AS scrap
-		        -- , CASE WHEN pl.plan_id IS NULL THEN false ELSE true END AS like
 				, p.start_date
 		        , p.end_date
 		        , u.name AS author
@@ -199,7 +225,6 @@
 		FROM 	plans p
 				LEFT OUTER JOIN plan_scraps ps
 					ON p.id = ps.plan_id AND ps.user_id = #{userId}
-				-- LEFT OUTER JOIN plan_like pl ON p.id = pl.plan_id
 				INNER JOIN users u
 					ON u.id = p.user_id AND u.is_active = true
 		WHERE	p.user_id = #{userId}
@@ -252,12 +277,46 @@
 			ON ci.id = r.image_id
 	</select>
 
-	<select id="selectCategoryListByPlanId" resultType="com.junebay.plancard.card.vo.Category">
-
+	<select id="selectCategoryListByPlanId" resultType="com.junebay.plancard.plan.dto.ExplorePlanTagDTO">
+		SELECT	distinct cg.id
+		        , cg.name
+				, false AS isTheme
+		FROM	plans p
+				INNER JOIN plan_days pd
+					ON p.id = pd.plan_id
+				INNER JOIN plan_day_cards pdc
+					ON pd.id = pdc.plan_day_id
+				INNER JOIN cards c
+					ON pdc.card_id = c.id
+				INNER JOIN categories cg
+					ON cg.id = c.category_id
+		WHERE	p.id = #{planId}
+				AND p.visibility = 'public'
+		        AND c.is_active = true
+		        AND cg.is_active = true
+		ORDER BY cg.id ASC
 	</select>
 
-	<select id="selectThemeListByPlanId" resultType="com.junebay.plancard.card.vo.Theme">
-
+	<select id="selectThemeListByPlanId" resultType="com.junebay.plancard.plan.dto.ExplorePlanTagDTO">
+		SELECT	DISTINCT t.id
+				, t.name
+		        , true AS isTheme
+		FROM	plans p
+				INNER JOIN plan_days pd
+					ON p.id = pd.plan_id
+				INNER JOIN plan_day_cards pdc
+					ON pd.id = pdc.plan_day_id
+				INNER JOIN cards c
+					ON pdc.card_id = c.id
+				INNER JOIN card_theme ct
+					ON ct.card_id = c.id
+				INNER JOIN themes t
+					ON t.id = ct.theme_id
+		WHERE	p.id = #{planId}
+				AND p.visibility = 'public'
+				AND c.is_active = true
+		  		AND t.is_active = true
+		ORDER BY t.id ASC
 	</select>
 
 

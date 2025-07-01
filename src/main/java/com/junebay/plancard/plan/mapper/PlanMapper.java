@@ -27,14 +27,14 @@ public interface PlanMapper {
     BasicPlanDTO selectPlanOne(@Param("planId") long planId);
 
     /**
-     * 탐험 플랜 DTO 목록을 조회하는 기능
+     * 탐험 플랜 DTO 목록의 총 건수를 조회하는 기능
      */
-    List<PlanDTO> selectExplorePlanList(@Param("searchDTO") SearchDTO searchDTO, @Param("userId")long userId);
+    int selectAllExplorePlanCount(@Param("searchDTO") SearchDTO searchDTO, @Param("userId") long userId);
 
     /**
      * 탐험 플랜 DTO 목록을 조회하는 기능
      */
-    int selectAllExplorePlanCount(@Param("searchDTO") SearchDTO searchDTO, @Param("userId") long userId);
+    List<PlanDTO> selectExplorePlanList(@Param("searchDTO") SearchDTO searchDTO, @Param("userId")long userId);
 
     /**
      * 내 플랜 DTO 목록의 총 건수를 조회하는 기능

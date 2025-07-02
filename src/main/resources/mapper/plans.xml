@@ -46,7 +46,7 @@
 		</if>
 	</sql>
 
-	<sql id="filterCondition">
+	<sql id="filterConditionForScrap">
 		/* 필터: 스크랩 여부 */
 		<if test="searchDTO.filter != null and searchDTO.filter.scrap != null">
 		<choose>
@@ -58,37 +58,90 @@
 			</otherwise>
 		</choose>
 		</if>
+	</sql>
 
+	<sql id="filterConditionForLike">
+		/* 필터: 좋아요 여부 */
+		<if test="searchDTO.filter != null and searchDTO.filter.like != null">
+		<choose>
+			<when test="searchDTO.filter.like == true">
+				AND pl.plan_id IS NOT NULL
+			</when>
+			<otherwise>
+				AND pl.plan_id IS NULL
+			</otherwise>
+		</choose>
+		</if>
+	</sql>
+
+	<sql id="filterConditionForCountry">
 		/* 필터: 국가 */
 		<if test='searchDTO.filter != null and searchDTO.filter.country != null and !"".equals(searchDTO.filter.country)'>
-			AND co.id = #{searchDTO.filter.country}
+			AND SUM(country_id = #{searchDTO.filter.country}) > 0
 		</if>
+	</sql>
 
+	<sql id="filterConditionForCity">
 		/* 필터: 도시 */
 		<if test='searchDTO.filter != null and searchDTO.filter.city != null and !"".equals(searchDTO.filter.city)'>
-			AND ct.id = #{searchDTO.filter.city}
+			AND SUM(city_id = #{searchDTO.filter.city}) > 0
 		</if>
+	</sql>
 
+	<sql id="filterConditionForCategory">
 		/* 필터: 카테고리 (배열) */
 		<if test="searchDTO.filter != null and searchDTO.filter.category != null and searchDTO.filter.category.size() > 0">
-			AND cg.id IN
-			<foreach item="cat" collection="searchDTO.filter.category" open="(" separator="," close=")">
-				#{cat}
+			AND SUM(category_id IN
+			<foreach item="categoryId" collection="searchDTO.filter.category" open="(" separator="," close=")">
+				#{categoryId}
 			</foreach>
+			) > 0
 		</if>
-
+	</sql>
+	<sql id="filterConditionForTheme">
 		/* 필터: 테마 */
 		<if test="searchDTO.filter != null and searchDTO.filter.theme != null and searchDTO.filter.theme.size() > 0">
-			AND EXISTS (
-				SELECT	1
-				FROM	card_theme t
-				WHERE	t.card_id = c.id
-						AND t.theme_id IN
-					<foreach item="themeId" collection="searchDTO.filter.theme" open="(" separator="," close=")">
-						#{themeId}
-					</foreach>
-			)
+			AND SUM(theme_id IN
+			<foreach item="themeId" collection="searchDTO.filter.theme" open="(" separator="," close=")">
+				#{themeId}
+			</foreach>
+			) > 0
 		</if>
+	</sql>
+
+	<sql id="explorePlanCte">
+		SELECT	p.id AS plan_id
+				, p.visibility
+				, p.title
+				, p.like_count
+				, p.start_date
+				, p.end_date
+				, u.name AS author
+				, p.created_date
+				, p.updated_date
+				, DATEDIFF(end_date, start_date) + 1 AS duration
+				, c.id AS card_id
+				, ct.id AS city_id
+				, ct.name AS city_name
+				, co.id AS country_id
+				, c.category_id
+				, cth.theme_id
+		FROM	plans p
+				INNER JOIN plan_days pd ON pd.plan_id = p.id
+				INNER JOIN plan_day_cards pdc ON pdc.plan_day_id = pd.id
+				INNER JOIN cards c ON c.id = pdc.card_id
+				INNER JOIN cities ct ON ct.id = c.city_id
+				INNER JOIN countries co ON co.id = ct.country_id
+				INNER JOIN categories cg ON cg.id = c.category_id
+				INNER JOIN card_theme cth ON cth.card_id = c.id
+				INNER JOIN users u ON u.id = p.author_id
+		WHERE	p.visibility = 'public'
+				AND c.is_active = true
+				AND ct.is_active = true
+				AND co.is_active = true
+				AND cg.is_active = true
+	            ANd u.is_active = true
+				<include refid="searchCondition" />
 	</sql>
 
 	<insert id="insertMyPlan" useGeneratedKeys="true" keyProperty="planDTO.planId">
@@ -129,60 +182,97 @@
 	</select>
 
 	<select id="selectAllExplorePlanCount" resultType="java.lang.Integer">
+		WITH pci AS (
+		<include refid="explorePlanCte" />
+		)
+
 		SELECT	COUNT(*)
 		FROM	(
-			SELECT	p.id AS plan_id
-					, p.visibility
-			        , p.title
-			        , p.like_count
-			        , CASE WHEN ps.plan_id IS NULL THEN false ELSE true END AS scrap
-			        , CASE WHEN pl.plan_id IS NULL THEN false ELSE true END AS "like"
-			        , p.start_date
-			        , p.end_date
-					, u.name AS author
-			        , p.created_date
-			        , p.updated_date
-			        , DATEDIFF(end_date, start_date) + 1 AS duration
-			FROM 	plans p
-					LEFT OUTER JOIN plan_scraps ps
-						ON p.id = ps.plan_id AND ps.user_id = #{userId}
-					LEFT OUTER JOIN plan_likes pl
-						ON p.id = pl.plan_id
-					INNER JOIN users u
-						ON u.id = p.author_id
-			WHERE	u.is_active = true
-					AND p.visibility = 'public'
-					<include refid="searchCondition" />
-					<include refid="filterCondition" />
+		SELECT	DISTINCT
+				pci.plan_id
+				, pci.visibility
+				, pci.title
+				, pci.like_count
+				, CASE WHEN ps.plan_id IS NULL THEN false ELSE true END AS scrap
+				, CASE WHEN pl.plan_id IS NULL THEN false ELSE true END AS "like"
+				, pci.start_date
+				, pci.end_date
+				, pci.author
+				, pci.created_date
+				, pci.updated_date
+				, pci.duration
+		FROM	pci
+				LEFT JOIN plan_scraps ps ON ps.plan_id = pci.plan_id AND ps.user_id = 2
+				LEFT JOIN plan_likes pl ON pl.plan_id = pci.plan_id
+		WHERE	1=1
+				<if test='searchDTO.filter != null
+					and (
+						searchDTO.filter.country != null and !"".equals(searchDTO.filter.country)
+						or searchDTO.filter.city != null and !"".equals(searchDTO.filter.city)
+						or searchDTO.filter.category != null and searchDTO.filter.category.size() > 0
+						or searchDTO.filter.theme != null and searchDTO.filter.theme.size() > 0
+					)'>
+			    AND pci.plan_id IN (
+						SELECT plan_id
+						FROM pci
+						GROUP BY plan_id
+						HAVING TRUE
+							<include refid="filterConditionForCountry" />
+							<include refid="filterConditionForCity" />
+							<include refid="filterConditionForCategory" />
+							<include refid="filterConditionForTheme" />
+					)
+				</if>
+		    <include refid="filterConditionForScrap" />
+		    <include refid="filterConditionForLike" />
 		) Z
 	</select>
 
 	<select id="selectExplorePlanList" resultMap="explorePlanDTOResultMap">
-		SELECT	p.id AS plan_id
-				, p.visibility
-		        , p.title
-		        , p.like_count
-		        , CASE WHEN ps.plan_id IS NULL THEN false ELSE true END AS scrap
-		        , CASE WHEN pl.plan_id IS NULL THEN false ELSE true END AS "like"
-		        , p.start_date
-		        , p.end_date
-				, u.name AS author
-		        , p.created_date
-		        , p.updated_date
-		        , DATEDIFF(end_date, start_date) + 1 AS duration
-		FROM 	plans p
-				LEFT OUTER JOIN plan_scraps ps
-					ON p.id = ps.plan_id AND ps.user_id = #{userId}
-				LEFT OUTER JOIN plan_likes pl
-					ON p.id = pl.plan_id
-				INNER JOIN users u
-					ON u.id = p.author_id
-		WHERE	u.is_active = true
-				AND p.visibility = 'public'
-				<include refid="searchCondition" />
-				<include refid="filterCondition" />
-				<include refid="common.sortCondition" />
-				<include refid="common.paginationCondition" />
+		WITH pci AS (
+		<include refid="explorePlanCte" />
+		)
+
+		SELECT	DISTINCT
+				pci.plan_id
+				, pci.visibility
+				, pci.title
+				, pci.like_count
+				, CASE WHEN ps.plan_id IS NULL THEN false ELSE true END AS scrap
+				, CASE WHEN pl.plan_id IS NULL THEN false ELSE true END AS "like"
+				, pci.start_date
+				, pci.end_date
+				, pci.author
+				, pci.created_date
+				, pci.updated_date
+				, pci.duration
+		FROM	pci
+				LEFT JOIN plan_scraps ps ON ps.plan_id = pci.plan_id AND ps.user_id = 2
+				LEFT JOIN plan_likes pl ON pl.plan_id = pci.plan_id
+		WHERE	1=1
+				<if test='searchDTO.filter != null
+					and (
+						searchDTO.filter.country != null and !"".equals(searchDTO.filter.country)
+						or searchDTO.filter.city != null and !"".equals(searchDTO.filter.city)
+						or searchDTO.filter.category != null and searchDTO.filter.category.size() > 0
+						or searchDTO.filter.theme != null and searchDTO.filter.theme.size() > 0
+					)'>
+			    AND pci.plan_id IN (
+						SELECT plan_id
+						FROM pci
+						GROUP BY plan_id
+						HAVING TRUE
+							<include refid="filterConditionForCountry" />
+							<include refid="filterConditionForCity" />
+							<include refid="filterConditionForCategory" />
+							<include refid="filterConditionForTheme" />
+					)
+				</if>
+		    <include refid="filterConditionForScrap" />
+		    <include refid="filterConditionForLike" />
+
+			<include refid="common.sortCondition" />
+			<include refid="common.paginationCondition" />
 	</select>
 
 	<select id="selectAllMyPlanCount" resultType="java.lang.Integer">
@@ -206,7 +296,7 @@
 						ON u.id = p.user_id AND u.is_active = true
 			WHERE	p.user_id = #{userId}
 					<include refid="searchCondition" />
-					<include refid="filterCondition" />
+					<include refid="filterConditionForScrap" />
 		) Z
 	</select>
 
@@ -229,7 +319,7 @@
 					ON u.id = p.user_id AND u.is_active = true
 		WHERE	p.user_id = #{userId}
 				<include refid="searchCondition" />
-				<include refid="filterCondition" />
+				<include refid="filterConditionForScrap" />
 				<include refid="common.sortCondition" />
 				<include refid="common.paginationCondition" />
 	</select>
@@ -278,8 +368,8 @@
 	</select>
 
 	<select id="selectCategoryListByPlanId" resultType="com.junebay.plancard.plan.dto.ExplorePlanTagDTO">
-		SELECT	distinct cg.id
-		        , cg.name
+		SELECT	distinct cg.id AS tagId
+		        , cg.name AS tagName
 				, false AS isTheme
 		FROM	plans p
 				INNER JOIN plan_days pd
@@ -298,8 +388,8 @@
 	</select>
 
 	<select id="selectThemeListByPlanId" resultType="com.junebay.plancard.plan.dto.ExplorePlanTagDTO">
-		SELECT	DISTINCT t.id
-				, t.name
+		SELECT	DISTINCT t.id AS tagId
+				, t.name AS tagName
 		        , true AS isTheme
 		FROM	plans p
 				INNER JOIN plan_days pd

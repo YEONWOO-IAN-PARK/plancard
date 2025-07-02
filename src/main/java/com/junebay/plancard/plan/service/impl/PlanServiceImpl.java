@@ -73,8 +73,8 @@ public class PlanServiceImpl implements PlanService {
         if ("explore".equals(planType)) {
             customValidator.validateRequestForFilter(searchDTO);
 
-            totalItemCount = planMapper.selectAllExplorePlanCount(searchDTO, userId);   // TODO
-            planDTOList = planMapper.selectExplorePlanList(searchDTO, userId);          // TODO
+            totalItemCount = planMapper.selectAllExplorePlanCount(searchDTO, userId);
+            planDTOList = planMapper.selectExplorePlanList(searchDTO, userId);
         } else {
             totalItemCount = planMapper.selectAllMyPlanCount(searchDTO, userId);
             if (totalItemCount > 0) {

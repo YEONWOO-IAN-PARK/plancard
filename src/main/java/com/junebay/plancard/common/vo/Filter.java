@@ -14,9 +14,9 @@ import java.util.List;
 @Setter
 public class Filter {
 
-    private boolean scrap;              /* 스크랩 여부 */
-    private boolean like;               /* 좋아요 여부 */
-    private boolean day;                /*  */
+    private Boolean scrap;              /* 스크랩 여부 */
+    private Boolean like;               /* 좋아요 여부 */
+    private Boolean day;                /*  */
     private String country;             /* 국가 ID */
     private String city;                /* 도시 ID */
     private List<String> theme;         /* 테마 ID */

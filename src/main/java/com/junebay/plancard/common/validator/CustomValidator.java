@@ -9,6 +9,7 @@ import com.junebay.plancard.common.exception.BadRequestException;
 import com.junebay.plancard.common.exception.NoContentException;
 import com.junebay.plancard.common.exception.NotFoundException;
 import com.junebay.plancard.common.util.CommonUtil;
+import com.junebay.plancard.common.vo.Filter;
 import com.junebay.plancard.image.dto.MyCardImageDTO;
 import com.junebay.plancard.plan.dto.PlanDayDTO;
 import lombok.RequiredArgsConstructor;
@@ -45,7 +46,13 @@ public class CustomValidator {
      * 유효성 검사를 통과하지 못할 시, 각 상황에 맞는 예외를 반환한다.
      */
     public void validateRequestForFilter(SearchDTO searchDTO) {
-        if (searchDTO.getFilter() == null) throw new BadRequestException(StatusCode.BAD_REQUEST);
+        Filter filter = searchDTO.getFilter();
+        if (filter == null
+            || filter.getScrap() == null
+            || filter.getDay() == null
+            || filter.getLike() == null) {
+            throw new BadRequestException(StatusCode.BAD_REQUEST);
+        }
     }
 
     /**
